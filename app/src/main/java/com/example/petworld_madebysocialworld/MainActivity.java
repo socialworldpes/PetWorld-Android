@@ -1,9 +1,11 @@
 package com.example.petworld_madebysocialworld;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import android.view.View;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -27,9 +29,18 @@ public class MainActivity extends AppCompatActivity {
          mapFragment.getMapAsync(this)*/
     }
 
+    /*
     private void initListeners() {
     }
 
     private void initButtons() {
     }
+    */
+
+    //Function Button Map
+    public void goToMap (View view){
+        Intent nextActivity = new Intent(this, MapActivity.class);
+        startActivity(nextActivity);
+    }
+
 }
