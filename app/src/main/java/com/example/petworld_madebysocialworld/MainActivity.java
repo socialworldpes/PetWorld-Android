@@ -13,11 +13,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        FirebaseApp f = FirebaseApp.initializeApp(this);
-        Object mAuth = FirebaseAuth.getInstance();
-        Log.d("LLEGA", "onCreate se ejecuta");
-        initButtons();
-        initListeners();
+        //FirebaseApp f = FirebaseApp.initializeApp(this);
+        //Object mAuth = FirebaseAuth.getInstance();
+        //Log.d("LLEGA", "onCreate se ejecuta");
+        //initButtons();
+        //initListeners();
         //initializeFireBase();
         //loginFireBase();
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
