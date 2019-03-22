@@ -7,6 +7,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import com.google.android.gms.common.SignInButton;
 
 
 public class MapActivity extends AppCompatActivity {
