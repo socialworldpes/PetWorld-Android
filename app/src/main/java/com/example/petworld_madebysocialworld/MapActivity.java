@@ -361,6 +361,4 @@ public class MapActivity extends AppCompatActivity
       //  Intent nextActivity = new Intent(this, UserActivity.class);
        // startActivity(nextActivity);
     }
-
-
-}
+   
