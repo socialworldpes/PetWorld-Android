@@ -15,6 +15,15 @@ public class MapActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        initNavigationDrawer();
+    }
+
+    private void initNavigationDrawer() {
+        Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
+
+        toolBar.setTitle("Titulo navigaitonbar");
+        setSupportActionBar(toolBar);
+        DrawerUtil.getDrawer(this,toolBar);
     }
 
     public void goToLogIn (View view){

@@ -6,6 +6,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context="com.example.petworld_madebysocialworld.UserActivity">
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"/>
     <TextView
             android:text="Soc un User"
             android:layout_width="wrap_content"
