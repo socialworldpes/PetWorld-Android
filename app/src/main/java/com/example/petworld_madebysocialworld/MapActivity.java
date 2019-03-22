@@ -131,12 +131,13 @@ public class MapActivity extends AppCompatActivity
         //});
 
         // Prompt the user for permission.
-        //getLocationPermission();
+        getLocationPermission();
 
         // Turn on the My Location layer and the related control on the map.
-        //updateLocationUI();
+        updateLocationUI();
 
         // Get the current location of the device and set the position of the map.
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, (float) getIntent().getDoubleExtra("zoom", 16.0)));
         //getDeviceLocation();
     }
 
