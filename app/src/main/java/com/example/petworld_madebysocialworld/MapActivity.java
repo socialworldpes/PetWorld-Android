@@ -1,10 +1,13 @@
 package com.example.petworld_madebysocialworld;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -16,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+
 
 import android.widget.Toast;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -108,6 +112,8 @@ public class MapActivity extends AppCompatActivity
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        updateLocationUI();
+
         if (mLocationPermissionGranted) {
             getDeviceLocation();
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -122,10 +128,10 @@ public class MapActivity extends AppCompatActivity
                 // for ActivityCompat#requestPermissions for more details.
                 return;
             }
-            Toast.makeText(this, "A", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "A", Toast.LENGTH_SHORT).show();
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
-            Toast.makeText(this, "B", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "B", Toast.LENGTH_SHORT).show();
         }
 
         // Use a custom info window adapter to handle multiple lines of text in the
@@ -158,10 +164,55 @@ public class MapActivity extends AppCompatActivity
         //getLocationPermission();
 
         // Turn on the My Location layer and the related control on the map.
-        updateLocationUI();
+        //updateLocationUI();
 
         // Get the current location of the device and set the position of the map.
         //getDeviceLocation();
+
+
+        //Click curt
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng point) {
+                mMap.clear();
+                mMap.addMarker(new MarkerOptions().position(point));
+            }
+        });
+
+        //Click Llarg
+
+        final Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng point) {
+                mMap.clear();
+                vibe.vibrate(50);
+                Toast.makeText(MapActivity.this, "LongClick Lat: " + point.latitude + " Long: " + point.longitude, Toast.LENGTH_SHORT).show();
+
+                AlertDialog alertDialog = new AlertDialog.Builder(MapActivity.this).create();
+                //alertDialog.setTitle("Alert");
+                alertDialog.setMessage("Create new event?");
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(MapActivity.this, "Crear Event" , Toast.LENGTH_SHORT).show();
+                                //newEvent(point, false);
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.show();
+            }
+        });
+
+
     }
 
     /**
@@ -234,6 +285,18 @@ public class MapActivity extends AppCompatActivity
         }
         updateLocationUI();
     }
+
+    /*
+     Create new event
+
+    public void newEvent(LatLng latLng, boolean pickLocationFirst){
+        Intent intent = new Intent(MainActivity.this, CrearEvento.class);
+        intent.putExtra("location", latLng);
+        if (pickLocationFirst) intent.putExtra("pickLocationFirstZoom", mapboxMap.getCameraPosition().zoom);
+        startActivity(intent);
+    }
+
+    */
 
     /**
      * Prompts the user to select the current place from a list of likely places, and shows the
