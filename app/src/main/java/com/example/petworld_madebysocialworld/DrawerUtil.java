@@ -10,6 +10,7 @@ import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.DividerDrawerItem;
+import com.mikepenz.materialdrawer.model.ExpandableDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
@@ -40,8 +41,11 @@ public class DrawerUtil {
 
         PrimaryDrawerItem drawerItemManageUser = new PrimaryDrawerItem().withIdentifier(1)
                 .withName("Usuario").withIcon(R.drawable.ic_profile);
-        PrimaryDrawerItem drawerItemManagePets = new PrimaryDrawerItem()
-                .withIdentifier(2).withName("Mascotas").withIcon(R.drawable.ic_pets);
+        ExpandableDrawerItem drawerItemManagePets = new ExpandableDrawerItem()
+                .withIdentifier(2).withName("Mascotas").withIcon(R.drawable.ic_pets).withSelectable(false).withSubItems(
+                new SecondaryDrawerItem().withName("Mascota 1").withLevel(2).withIdentifier(2001),
+                new SecondaryDrawerItem().withName("Mascota 2").withLevel(2).withIdentifier(2002)
+        );;
 
 
         SecondaryDrawerItem drawerItemAddPet = new SecondaryDrawerItem().withIdentifier(3)
