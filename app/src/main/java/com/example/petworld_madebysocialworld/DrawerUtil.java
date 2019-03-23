@@ -18,26 +18,26 @@ public class DrawerUtil {
         PrimaryDrawerItem drawerEmptyItem= new PrimaryDrawerItem().withIdentifier(0).withName("");
         drawerEmptyItem.withEnabled(false);
 
-        PrimaryDrawerItem drawerItemManagePlayers = new PrimaryDrawerItem().withIdentifier(1)
+        PrimaryDrawerItem drawerItemManageUser = new PrimaryDrawerItem().withIdentifier(1)
                 .withName("Usuario").withIcon(R.drawable.ic_profile);
-        PrimaryDrawerItem drawerItemManagePlayersTournaments = new PrimaryDrawerItem()
+        PrimaryDrawerItem drawerItemManagePets = new PrimaryDrawerItem()
                 .withIdentifier(2).withName("Pets").withIcon(R.drawable.ic_pets);
 
 
-        SecondaryDrawerItem drawerItemSettings = new SecondaryDrawerItem().withIdentifier(3)
+        SecondaryDrawerItem drawerItemAddPet = new SecondaryDrawerItem().withIdentifier(3)
                 .withName("Añadir mascota").withIcon(R.drawable.ic_add);
-        SecondaryDrawerItem drawerItemAbout = new SecondaryDrawerItem().withIdentifier(4)
+        SecondaryDrawerItem drawerItemGroups = new SecondaryDrawerItem().withIdentifier(4)
                 .withName("Grupos").withIcon(R.drawable.ic_group);
-        SecondaryDrawerItem drawerItemHelp = new SecondaryDrawerItem().withIdentifier(5)
+        SecondaryDrawerItem drawerItemRoutes = new SecondaryDrawerItem().withIdentifier(5)
                 .withName("Tus rutas").withIcon(R.drawable.ic_rutas);
-        SecondaryDrawerItem drawerItemDonate = new SecondaryDrawerItem().withIdentifier(6)
+        SecondaryDrawerItem drawerItemSettings = new SecondaryDrawerItem().withIdentifier(6)
                 .withName("Ajustes").withIcon(R.drawable.ic_settings);
 
 
 
 
 
-        //create the drawer and remember the `Drawer` result object
+
         Drawer result = new DrawerBuilder()
                 .withActivity(activity)
                 .withToolbar(toolbar)
@@ -47,20 +47,25 @@ public class DrawerUtil {
                 .withSelectedItem(-1)
                 .addDrawerItems(
                         drawerEmptyItem,drawerEmptyItem,drawerEmptyItem,
-                        drawerItemManagePlayers,
-                        drawerItemManagePlayersTournaments,
+                        drawerItemManageUser,
+                        drawerItemManagePets,
                         new DividerDrawerItem(),
-                        drawerItemAbout,
-                        drawerItemSettings,
-                        drawerItemHelp,
-                        drawerItemDonate
+                        drawerItemAddPet,
+                        drawerItemGroups,
+                        drawerItemRoutes,
+                        drawerItemSettings
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        if (drawerItem.getIdentifier() == 2 && !(activity instanceof MainActivity)) {
+                        if (drawerItem.getIdentifier() == 1 && !(activity instanceof MainActivity)) {
                             // load tournament screen
                             Intent intent = new Intent(activity, MainActivity.class);
+                            view.getContext().startActivity(intent);
+                        }
+                        if (drawerItem.getIdentifier() == 5 && !(activity instanceof MapActivity)) {
+                            // load tournament screen
+                            Intent intent = new Intent(activity, MapActivity.class);
                             view.getContext().startActivity(intent);
                         }
                         return true;
