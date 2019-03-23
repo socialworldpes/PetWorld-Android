@@ -182,6 +182,7 @@ public class MapActivity extends AppCompatActivity
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()),
                                     DEFAULT_ZOOM));
                         } else {
+
                         }
                     }
                 });
