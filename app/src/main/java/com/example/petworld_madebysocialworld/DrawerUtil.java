@@ -18,14 +18,30 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
 public class DrawerUtil {
     public static void getDrawer(final Activity activity, Toolbar toolbar) {
-        //if you want to update the items at a later time it is recommended to keep it in a variable
-        PrimaryDrawerItem drawerEmptyItem= new PrimaryDrawerItem().withIdentifier(0).withName("");
-        drawerEmptyItem.withEnabled(false);
+
+        // Create the AccountHeader
+        AccountHeader headerResult = new AccountHeaderBuilder()
+                .withActivity(activity)
+                .withHeaderBackground(R.drawable.header)
+                .addProfiles(
+                        new ProfileDrawerItem().withName("Ana Bohueles").withEmail("anabohueles@gmail.com").withIcon(R.drawable.anabohueles))
+                .withSelectionListEnabledForSingleProfile(false)
+                .withDividerBelowHeader(true)
+                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
+                    @Override
+                    public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
+                        return false;
+                    }
+                })
+                .build();
+
+
+
 
         PrimaryDrawerItem drawerItemManageUser = new PrimaryDrawerItem().withIdentifier(1)
                 .withName("Usuario").withIcon(R.drawable.ic_profile);
         PrimaryDrawerItem drawerItemManagePets = new PrimaryDrawerItem()
-                .withIdentifier(2).withName("Pets").withIcon(R.drawable.ic_pets);
+                .withIdentifier(2).withName("Mascotas").withIcon(R.drawable.ic_pets);
 
 
         SecondaryDrawerItem drawerItemAddPet = new SecondaryDrawerItem().withIdentifier(3)
@@ -38,34 +54,16 @@ public class DrawerUtil {
                 .withName("Ajustes").withIcon(R.drawable.ic_settings);
 
 
-        // Create the AccountHeader
-        AccountHeader headerResult = new AccountHeaderBuilder()
-                .withActivity(activity)
-                .withHeaderBackground(R.drawable.header)
-                .addProfiles(
-                        new ProfileDrawerItem().withName("Ana Bohueles").withEmail("anabohueles@gmail.com").withIcon(R.drawable.anabohueles))
-                .withSelectionListEnabledForSingleProfile(false)
-                .withDividerBelowHeader(false)
-                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
-                    @Override
-                    public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
-                        return false;
-                    }
-                })
-                .build();
-
-
-
         Drawer result = new DrawerBuilder()
                 .withActivity(activity)
                 .withToolbar(toolbar)
-                .withAccountHeader(headerResult)
                 .withActionBarDrawerToggle(true)
                 .withActionBarDrawerToggleAnimated(true)
+                .withHeaderPadding(false)
                 .withCloseOnClick(true)
                 .withSelectedItem(-1)
+                .withAccountHeader(headerResult)
                 .addDrawerItems(
-                        drawerEmptyItem,drawerEmptyItem,drawerEmptyItem,
                         drawerItemManageUser,
                         drawerItemManagePets,
                         new DividerDrawerItem(),
