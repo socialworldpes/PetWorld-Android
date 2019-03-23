@@ -186,23 +186,23 @@ public class MapActivity extends AppCompatActivity
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
-            public void onMapLongClick(LatLng point) {
+            public void onMapLongClick(final LatLng point) {
                 mMap.clear();
                 vibe.vibrate(50);
-                Toast.makeText(MapActivity.this, "LongClick Lat: " + point.latitude + " Long: " + point.longitude, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MapActivity.this, "LongClick Lat: " + point.latitude + " Long: " + point.longitude, Toast.LENGTH_SHORT).show();
 
                 AlertDialog alertDialog = new AlertDialog.Builder(MapActivity.this).create();
                 //alertDialog.setTitle("Alert");
                 alertDialog.setMessage("Create new event?");
-                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Evento",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                Toast.makeText(MapActivity.this, "Crear Event" , Toast.LENGTH_SHORT).show();
-                                //newEvent(point, false);
+                                Toast.makeText(MapActivity.this, "Crear Evento" , Toast.LENGTH_SHORT).show();
+                                newEvent(point, false);
                                 dialog.dismiss();
                             }
                         });
-                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel",
+                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancelar",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
@@ -288,15 +288,14 @@ public class MapActivity extends AppCompatActivity
 
     /*
      Create new event
-
+    */
     public void newEvent(LatLng latLng, boolean pickLocationFirst){
-        Intent intent = new Intent(MainActivity.this, CrearEvento.class);
+        Intent intent = new Intent(MapActivity.this, CreateEventActivity.class);
         intent.putExtra("location", latLng);
-        if (pickLocationFirst) intent.putExtra("pickLocationFirstZoom", mapboxMap.getCameraPosition().zoom);
+        //intent.putExtra("key", FBkey);
+        //if (pickLocationFirst) intent.putExtra("pickLocationFirstZoom", mMap.getCameraPosition().zoom);
         startActivity(intent);
     }
-
-    */
 
     /**
      * Prompts the user to select the current place from a list of likely places, and shows the
