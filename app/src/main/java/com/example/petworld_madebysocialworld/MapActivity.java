@@ -122,8 +122,10 @@ public class MapActivity extends AppCompatActivity
                 // for ActivityCompat#requestPermissions for more details.
                 return;
             }
+            Toast.makeText(this, "A", Toast.LENGTH_SHORT).show();
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
+            Toast.makeText(this, "B", Toast.LENGTH_SHORT).show();
         }
 
         // Use a custom info window adapter to handle multiple lines of text in the
@@ -156,7 +158,7 @@ public class MapActivity extends AppCompatActivity
         //getLocationPermission();
 
         // Turn on the My Location layer and the related control on the map.
-        //updateLocationUI();
+        updateLocationUI();
 
         // Get the current location of the device and set the position of the map.
         //getDeviceLocation();
