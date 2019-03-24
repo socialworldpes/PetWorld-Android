@@ -105,7 +105,6 @@ public class MapActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
     }
 
     @Override
@@ -113,8 +112,9 @@ public class MapActivity extends AppCompatActivity
         mMap = googleMap;
 
         updateLocationUI();
-
+        //Toast.makeText(this, "OnReady", Toast.LENGTH_SHORT).show();
         if (mLocationPermissionGranted) {
+            //Toast.makeText(this, "OnReady Si", Toast.LENGTH_SHORT).show();
             getDeviceLocation();
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                     != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
@@ -128,10 +128,8 @@ public class MapActivity extends AppCompatActivity
                 // for ActivityCompat#requestPermissions for more details.
                 return;
             }
-            //Toast.makeText(this, "A", Toast.LENGTH_SHORT).show();
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
-            //Toast.makeText(this, "B", Toast.LENGTH_SHORT).show();
         }
 
         // Use a custom info window adapter to handle multiple lines of text in the
@@ -172,6 +170,8 @@ public class MapActivity extends AppCompatActivity
 
         //Click curt
 
+        //Toast.makeText(this, "OnReady Fi If", Toast.LENGTH_SHORT).show();
+
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng point) {
@@ -189,7 +189,6 @@ public class MapActivity extends AppCompatActivity
             public void onMapLongClick(final LatLng point) {
                 mMap.clear();
                 vibe.vibrate(50);
-                //Toast.makeText(MapActivity.this, "LongClick Lat: " + point.latitude + " Long: " + point.longitude, Toast.LENGTH_SHORT).show();
 
                 AlertDialog alertDialog = new AlertDialog.Builder(MapActivity.this).create();
                 //alertDialog.setTitle("Alert");
@@ -197,7 +196,7 @@ public class MapActivity extends AppCompatActivity
                 alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Evento",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                Toast.makeText(MapActivity.this, "Crear Evento" , Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(MapActivity.this, "Crear Evento" , Toast.LENGTH_SHORT).show();
                                 newEvent(point, false);
                                 dialog.dismiss();
                             }
@@ -225,21 +224,25 @@ public class MapActivity extends AppCompatActivity
          */
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         try {
+
             if (mLocationPermissionGranted){
+                //Toast.makeText(this, "Dins mLocation", Toast.LENGTH_SHORT).show();
                 Task location = mFusedLocationProviderClient.getLastLocation();
+
                 location.addOnCompleteListener(new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
                         if (task.isSuccessful()){
                             Location currentLocation = (Location) task.getResult();
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()),
-                                    DEFAULT_ZOOM));
-                        } else {
-
+                            if (currentLocation != null){
+                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()),
+                                DEFAULT_ZOOM));
+                            } else {
+                                Toast.makeText(MapActivity.this, "NULL", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
                 });
-
             }
         } catch (SecurityException e){
 
@@ -255,15 +258,25 @@ public class MapActivity extends AppCompatActivity
          * device. The result of the permission request is handled by a callback,
          * onRequestPermissionsResult.
          */
+
         if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
+
+            //Toast.makeText(this, "Punt 1.Si", Toast.LENGTH_SHORT).show();
+
             mLocationPermissionGranted = true;
         } else {
+
+            //Toast.makeText(this, "Punt 1.No", Toast.LENGTH_SHORT).show();
+
+
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+
         }
+
     }
 
     /**
@@ -305,6 +318,8 @@ public class MapActivity extends AppCompatActivity
         if (mMap == null) {
             return;
         }
+
+
 
         if (mLocationPermissionGranted) {
             // Get the likely places - that is, the businesses and other points of interest that
@@ -373,6 +388,7 @@ public class MapActivity extends AppCompatActivity
             // Prompt the user for permission.
             getLocationPermission();
         }
+
     }
 
     /**
@@ -418,6 +434,7 @@ public class MapActivity extends AppCompatActivity
             return;
         }
         try {
+            /*
             if (mLocationPermissionGranted) {
                 mMap.setMyLocationEnabled(true);
                 mMap.getUiSettings().setMyLocationButtonEnabled(true);
@@ -427,6 +444,7 @@ public class MapActivity extends AppCompatActivity
                 mLastKnownLocation = null;
                 getLocationPermission();
             }
+            */
         } catch (SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
         }

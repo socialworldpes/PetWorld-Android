@@ -51,7 +51,9 @@ public class CreateEventActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_event);
 
         location = (LatLng) getIntent().getParcelableExtra("location");
-        TextView tv = (TextView)findViewById(R.id.Coordenadas);
-        tv.setText("LongClick Lat: " + location.latitude + " Long: " + location.longitude);
+        TextView tvLat = (TextView)findViewById(R.id.coordLat);
+        tvLat.setText("Lat: " + location.latitude);
+        TextView tvLong = (TextView)findViewById(R.id.coordLong);
+        tvLong.setText("Long: " + location.longitude);
     }
 }
