@@ -23,7 +23,23 @@
           }
         },
         {
-          "client_id": "381871766664-eddh9kdlcd61s7gc7dc7ktineqccf781.apps.googleusercontent.com",
+          "client_id": "381871766664-fgisi65na4ciadte8odsv311l7cmqk9b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.petworld_madebysocialworld",
+            "certificate_hash": "6800deed74f69814e085429bfc1b757c1de88650"
+          }
+        },
+        {
+          "client_id": "381871766664-c9rdne7g39tcff3q0ejqja0ucct9mmeh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.petworld_madebysocialworld",
+            "certificate_hash": "e396a06cdb19f31294e53bf5f028fe6e3da93a95"
+          }
+        },
+        {
+          "client_id": "381871766664-4ubsph6qd8885a37gfu0mvc1i5lga0g0.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -40,7 +56,7 @@
           "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "381871766664-eddh9kdlcd61s7gc7dc7ktineqccf781.apps.googleusercontent.com",
+              "client_id": "381871766664-4ubsph6qd8885a37gfu0mvc1i5lga0g0.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

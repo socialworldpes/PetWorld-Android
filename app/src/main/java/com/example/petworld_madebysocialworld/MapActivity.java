@@ -171,7 +171,7 @@ public class MapActivity extends AppCompatActivity
                     }
                 });
             }
-        } catch (SecurityException e)  {
+        } catch (SecurityException e) {
             Log.e("Exception: %s", e.getMessage());
         }
     }
@@ -229,8 +229,7 @@ public class MapActivity extends AppCompatActivity
         if (mLocationPermissionGranted) {
             // Get the likely places - that is, the businesses and other points of interest that
             // are the best match for the device's current location.
-            @SuppressWarnings("MissingPermission") final
-            Task<PlaceLikelihoodBufferResponse> placeResult =
+            @SuppressWarnings("MissingPermission") final Task<PlaceLikelihoodBufferResponse> placeResult =
                     mPlaceDetectionClient.getCurrentPlace(null);
             placeResult.addOnCompleteListener
                     (new OnCompleteListener<PlaceLikelihoodBufferResponse>() {
@@ -286,9 +285,9 @@ public class MapActivity extends AppCompatActivity
 
             // Add a default marker, because the user hasn't selected a place.
             //mMap.addMarker(new MarkerOptions()
-               //     .title(getString(R.string.default_info_title))
-               //     .position(mDefaultLocation)
-                //    .snippet(getString(R.string.default_info_snippet)));
+            //     .title(getString(R.string.default_info_title))
+            //     .position(mDefaultLocation)
+            //    .snippet(getString(R.string.default_info_snippet)));
 
             // Prompt the user for permission.
             getLocationPermission();
@@ -325,7 +324,7 @@ public class MapActivity extends AppCompatActivity
 
         // Display the dialog.
         AlertDialog dialog = new AlertDialog.Builder(this)
-              //  .setTitle(R.string.pick_place)
+                //  .setTitle(R.string.pick_place)
                 .setItems(mLikelyPlaceNames, listener)
                 .show();
     }
@@ -347,18 +346,19 @@ public class MapActivity extends AppCompatActivity
                 mLastKnownLocation = null;
                 getLocationPermission();
             }
-        } catch (SecurityException e)  {
+        } catch (SecurityException e) {
             Log.e("Exception: %s", e.getMessage());
         }
     }
 
-    public void goToLogIn (View view){
-       // Intent nextActivity = new Intent(this, MainActivity.class);
-       // startActivity(nextActivity);
+    public void goToLogIn(View view) {
+        // Intent nextActivity = new Intent(this, MainActivity.class);
+        // startActivity(nextActivity);
     }
 
-    public void goToUserProfile (View view){
-      //  Intent nextActivity = new Intent(this, UserActivity.class);
-       // startActivity(nextActivity);
+    public void goToUserProfile(View view) {
+        //  Intent nextActivity = new Intent(this, UserActivity.class);
+        // startActivity(nextActivity);
     }
+}
    

@@ -1,9 +1,7 @@
 package com.example.petworld_madebysocialworld;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,25 +9,21 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.*;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.*;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.*;
+//import com.google.firebase.auth.*;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = "GoogleActivity";
     private static final int RC_SIGN_IN = 9001;
-    private GoogleSignInClient googleSignInClient;
+    //private GoogleSignInClient googleSignInClient;
     private SignInButton googleSignInButton;
-    private FirebaseAuth mAuth;
-    private GoogleSignInClient mGoogleSignInClient;
+    //private FirebaseAuth mAuth;
+    //private GoogleSignInClient mGoogleSignInClient;
     private GoogleApiClient mGoogleApiClient;
     private TextView statusTextView;
     private SignInButton signInButton;
@@ -51,11 +45,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .addApi(Auth.GOOGLE_SIGN_IN_API,gso)
                 .build();
 
-        statusTextView = (TextView) findViewById(R.id.status_textview);
-        signInButton = (SignInButton) findViewById(R.id.sign_in_button);
+        //statusTextView = (TextView) findViewById(R.id.status_textview);
+        statusTextView = findViewById(R.id.status_textview);
+        //signInButton = (SignInButton) findViewById(R.id.sign_in_button);
+        signInButton = findViewById(R.id.sign_in_button);
         signInButton.setOnClickListener(this);
 
-        signOutButton = (Button) findViewById(R.id.sign_out_button);
+        //signOutButton = (Button) findViewById(R.id.sign_out_button);
+        signOutButton = findViewById(R.id.sign_out_button);
         signOutButton.setOnClickListener(this);
 
     }
@@ -83,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
+            Log.d(TAG, "entro");
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             handleSigninResult(result);
         }
@@ -115,7 +113,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Intent nextActivity = new Intent(this, MapActivity.class);
         startActivity(nextActivity);
     }
-
-
-
 }
