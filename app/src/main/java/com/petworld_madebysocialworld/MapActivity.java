@@ -1,4 +1,4 @@
-package com.example.petworld_madebysocialworld;
+package com.petworld_madebysocialworld;
 
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
