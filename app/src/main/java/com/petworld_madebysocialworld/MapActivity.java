@@ -1,4 +1,4 @@
-package com.example.petworld_madebysocialworld;
+package com.petworld_madebysocialworld;
 
 import android.Manifest;
 import android.content.Context;
