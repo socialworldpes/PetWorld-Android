@@ -112,65 +112,16 @@ public class MapActivity extends AppCompatActivity
         mMap = googleMap;
 
         updateLocationUI();
-        //Toast.makeText(this, "OnReady", Toast.LENGTH_SHORT).show();
         if (mLocationPermissionGranted) {
-            //Toast.makeText(this, "OnReady Si", Toast.LENGTH_SHORT).show();
             getDeviceLocation();
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                     != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
                 return;
             }
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
         }
-
-        // Use a custom info window adapter to handle multiple lines of text in the
-        // info window contents.
-        // mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-
-        //@Override
-        // Return null here, so that getInfoContents() is called next.
-        // public View getInfoWindow(Marker arg0) {
-        // return null;
-        //  }
-
-        // @Override
-        //public View getInfoContents(Marker marker) {
-        // Inflate the layouts for the info window, title and snippet.
-        //View infoWindow = getLayoutInflater().inflate(R.layout.custom_info_contents,
-        //      (FrameLayout) findViewById(R.id.map), false);
-
-        //               TextView title = ((TextView) infoWindow.findViewById(R.id.title));
-        //             title.setText(marker.getTitle());
-
-        //           TextView snippet = ((TextView) infoWindow.findViewById(R.id.snippet));
-        //         snippet.setText(marker.getSnippet());
-
-        //       return infoWindow;
-        //}
-        //});
-
-        // Prompt the user for permission.
-        //getLocationPermission();
-
-        // Turn on the My Location layer and the related control on the map.
-        //updateLocationUI();
-
-        // Get the current location of the device and set the position of the map.
-        //getDeviceLocation();
-
-
-        //Click curt
-
-        //Toast.makeText(this, "OnReady Fi If", Toast.LENGTH_SHORT).show();
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
@@ -249,27 +200,14 @@ public class MapActivity extends AppCompatActivity
         }
     }
 
-    /**
-     * Prompts the user for permission to use the device location.
-     */
     private void getLocationPermission() {
-        /*
-         * Request location permission, so that we can get the location of the
-         * device. The result of the permission request is handled by a callback,
-         * onRequestPermissionsResult.
-         */
 
         if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
 
-            //Toast.makeText(this, "Punt 1.Si", Toast.LENGTH_SHORT).show();
-
             mLocationPermissionGranted = true;
         } else {
-
-            //Toast.makeText(this, "Punt 1.No", Toast.LENGTH_SHORT).show();
-
 
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
@@ -305,15 +243,9 @@ public class MapActivity extends AppCompatActivity
     public void newEvent(LatLng latLng, boolean pickLocationFirst){
         Intent intent = new Intent(MapActivity.this, CreateEventActivity.class);
         intent.putExtra("location", latLng);
-        //intent.putExtra("key", FBkey);
-        //if (pickLocationFirst) intent.putExtra("pickLocationFirstZoom", mMap.getCameraPosition().zoom);
         startActivity(intent);
     }
 
-    /**
-     * Prompts the user to select the current place from a list of likely places, and shows the
-     * current place on the map - provided the user has granted location permission.
-     */
     private void showCurrentPlace() {
         if (mMap == null) {
             return;
@@ -376,16 +308,7 @@ public class MapActivity extends AppCompatActivity
                         }
                     });
         } else {
-            // The user has not granted permission.
             Log.i(TAG, "The user did not grant location permission.");
-
-            // Add a default marker, because the user hasn't selected a place.
-            //mMap.addMarker(new MarkerOptions()
-               //     .title(getString(R.string.default_info_title))
-               //     .position(mDefaultLocation)
-                //    .snippet(getString(R.string.default_info_snippet)));
-
-            // Prompt the user for permission.
             getLocationPermission();
         }
 
@@ -395,25 +318,20 @@ public class MapActivity extends AppCompatActivity
      * Displays a form allowing the user to select a place from a list of likely places.
      */
     private void openPlacesDialog() {
-        // Ask the user to choose the place where they are now.
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // The "which" argument contains the position of the selected item.
                 LatLng markerLatLng = mLikelyPlaceLatLngs[which];
                 String markerSnippet = mLikelyPlaceAddresses[which];
                 if (mLikelyPlaceAttributions[which] != null) {
                     markerSnippet = markerSnippet + "\n" + mLikelyPlaceAttributions[which];
                 }
 
-                // Add a marker for the selected place, with an info window
-                // showing information about that place.
                 mMap.addMarker(new MarkerOptions()
                         .title(mLikelyPlaceNames[which])
                         .position(markerLatLng)
                         .snippet(markerSnippet));
 
-                // Position the map's camera at the location of the marker.
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,
                         DEFAULT_ZOOM));
             }
@@ -426,9 +344,6 @@ public class MapActivity extends AppCompatActivity
                 .show();
     }
 
-    /**
-     * Updates the map's UI settings based on whether the user has granted location permission.
-     */
     private void updateLocationUI() {
         if (mMap == null) {
             return;

@@ -14,7 +14,7 @@
             android:ems="10"
             android:id="@+id/editText" android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginStart="8dp"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginTop="64dp"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginTop="32dp"
             app:layout_constraintTop_toBottomOf="@+id/textView" tools:text="Título"/>
     <EditText
             android:layout_width="342dp"
@@ -23,29 +23,30 @@
             android:ems="10"
             android:id="@+id/editText2" android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginStart="8dp"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginTop="24dp"
-            app:layout_constraintTop_toBottomOf="@+id/editText" tools:text="Descripcion"/>
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="Descripcion"
+            app:layout_constraintHorizontal_bias="0.509"
+            android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/button2"/>
     <TextView
             android:text="Crear Evento"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/textView" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
-            android:layout_marginTop="64dp" app:layout_constraintTop_toTopOf="parent" android:textSize="30sp"/>
-    <TextView
-            android:text="Longitud"
+            android:layout_marginTop="8dp" app:layout_constraintTop_toTopOf="parent" android:textSize="24sp"/>
+    <Button
+            android:text="Load Image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/coordLat"
-            android:textSize="24sp"
-            tools:layout_editor_absoluteY="315dp" tools:layout_editor_absoluteX="160dp"/>
-    <TextView
-            android:text="Latitud"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/coordLong"
-            android:textSize="24sp" android:layout_marginTop="32dp"
-            app:layout_constraintTop_toBottomOf="@+id/coordLat" android:layout_marginEnd="8dp"
-            app:layout_constraintEnd_toEndOf="parent" android:layout_marginStart="8dp"
-            app:layout_constraintStart_toStartOf="parent"/>
+            android:id="@+id/button2" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
+            android:onClick="loadImage" android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/imageView"/>
+    <ImageView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content" app:srcCompat="@android:drawable/sym_def_app_icon"
+            android:id="@+id/imageView"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="24dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="24dp"
+            android:layout_marginTop="32dp" app:layout_constraintTop_toBottomOf="@+id/editText"/>
 </android.support.constraint.ConstraintLayout>
