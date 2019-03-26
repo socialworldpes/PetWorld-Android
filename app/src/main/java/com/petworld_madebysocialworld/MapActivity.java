@@ -1,9 +1,13 @@
-package com.petworld_madebysocialworld;
+package com.example.petworld_madebysocialworld;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -16,6 +20,8 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+
+import android.widget.Toast;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.GeoDataClient;
@@ -81,6 +87,8 @@ public class MapActivity extends AppCompatActivity
             mCameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION);
         }
 
+        getLocationPermission();
+
         // Retrieve the content view that renders the map.
         setContentView(R.layout.activity_map);
 
@@ -97,48 +105,64 @@ public class MapActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Use a custom info window adapter to handle multiple lines of text in the
-        // info window contents.
-        // mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-
-        //@Override
-        // Return null here, so that getInfoContents() is called next.
-        // public View getInfoWindow(Marker arg0) {
-        // return null;
-        //  }
-
-        // @Override
-        //public View getInfoContents(Marker marker) {
-        // Inflate the layouts for the info window, title and snippet.
-        //View infoWindow = getLayoutInflater().inflate(R.layout.custom_info_contents,
-        //      (FrameLayout) findViewById(R.id.map), false);
-
-        //               TextView title = ((TextView) infoWindow.findViewById(R.id.title));
-        //             title.setText(marker.getTitle());
-
-        //           TextView snippet = ((TextView) infoWindow.findViewById(R.id.snippet));
-        //         snippet.setText(marker.getSnippet());
-
-        //       return infoWindow;
-        //}
-        //});
-
-        // Prompt the user for permission.
-        getLocationPermission();
-
-        // Turn on the My Location layer and the related control on the map.
         updateLocationUI();
+        if (mLocationPermissionGranted) {
+            getDeviceLocation();
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            mMap.setMyLocationEnabled(true);
+            mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        }
 
-        // Get the current location of the device and set the position of the map.
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, (float) getIntent().getDoubleExtra("zoom", 16.0)));
-        //getDeviceLocation();
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng point) {
+                mMap.clear();
+                mMap.addMarker(new MarkerOptions().position(point));
+            }
+        });
+
+        //Click Llarg
+
+        final Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(final LatLng point) {
+                mMap.clear();
+                vibe.vibrate(50);
+
+                AlertDialog alertDialog = new AlertDialog.Builder(MapActivity.this).create();
+                //alertDialog.setTitle("Alert");
+                alertDialog.setMessage("Create new event?");
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Evento",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                //Toast.makeText(MapActivity.this, "Crear Evento" , Toast.LENGTH_SHORT).show();
+                                newEvent(point, false);
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancelar",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.show();
+            }
+        });
+
+
     }
 
     /**
@@ -149,52 +173,48 @@ public class MapActivity extends AppCompatActivity
          * Get the best and most recent location of the device, which may be null in rare
          * cases when a location is not available.
          */
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         try {
-            if (mLocationPermissionGranted) {
-                Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
-                locationResult.addOnCompleteListener(this, new OnCompleteListener<Location>() {
+
+            if (mLocationPermissionGranted){
+                //Toast.makeText(this, "Dins mLocation", Toast.LENGTH_SHORT).show();
+                Task location = mFusedLocationProviderClient.getLastLocation();
+
+                location.addOnCompleteListener(new OnCompleteListener() {
                     @Override
-                    public void onComplete(@NonNull Task<Location> task) {
-                        if (task.isSuccessful()) {
-                            // Set the map's camera position to the current location of the device.
-                            mLastKnownLocation = task.getResult();
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                                    new LatLng(mLastKnownLocation.getLatitude(),
-                                            mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
-                        } else {
-                            Log.d(TAG, "Current location is null. Using defaults.");
-                            Log.e(TAG, "Exception: %s", task.getException());
-                            mMap.moveCamera(CameraUpdateFactory
-                                    .newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
-                            mMap.getUiSettings().setMyLocationButtonEnabled(false);
+                    public void onComplete(@NonNull Task task) {
+                        if (task.isSuccessful()){
+                            Location currentLocation = (Location) task.getResult();
+                            if (currentLocation != null){
+                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()),
+                                DEFAULT_ZOOM));
+                            } else {
+                                Toast.makeText(MapActivity.this, "NULL", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
                 });
             }
-        } catch (SecurityException e) {
-            Log.e("Exception: %s", e.getMessage());
+        } catch (SecurityException e){
+
         }
     }
 
-
-    /**
-     * Prompts the user for permission to use the device location.
-     */
     private void getLocationPermission() {
-        /*
-         * Request location permission, so that we can get the location of the
-         * device. The result of the permission request is handled by a callback,
-         * onRequestPermissionsResult.
-         */
+
         if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
+
             mLocationPermissionGranted = true;
         } else {
+
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+
         }
+
     }
 
     /**
@@ -217,19 +237,27 @@ public class MapActivity extends AppCompatActivity
         updateLocationUI();
     }
 
-    /**
-     * Prompts the user to select the current place from a list of likely places, and shows the
-     * current place on the map - provided the user has granted location permission.
-     */
+    /*
+     Create new event
+    */
+    public void newEvent(LatLng latLng, boolean pickLocationFirst){
+        Intent intent = new Intent(MapActivity.this, CreateEventActivity.class);
+        intent.putExtra("location", latLng);
+        startActivity(intent);
+    }
+
     private void showCurrentPlace() {
         if (mMap == null) {
             return;
         }
 
+
+
         if (mLocationPermissionGranted) {
             // Get the likely places - that is, the businesses and other points of interest that
             // are the best match for the device's current location.
-            @SuppressWarnings("MissingPermission") final Task<PlaceLikelihoodBufferResponse> placeResult =
+            @SuppressWarnings("MissingPermission") final
+            Task<PlaceLikelihoodBufferResponse> placeResult =
                     mPlaceDetectionClient.getCurrentPlace(null);
             placeResult.addOnCompleteListener
                     (new OnCompleteListener<PlaceLikelihoodBufferResponse>() {
@@ -280,43 +308,30 @@ public class MapActivity extends AppCompatActivity
                         }
                     });
         } else {
-            // The user has not granted permission.
             Log.i(TAG, "The user did not grant location permission.");
-
-            // Add a default marker, because the user hasn't selected a place.
-            //mMap.addMarker(new MarkerOptions()
-            //     .title(getString(R.string.default_info_title))
-            //     .position(mDefaultLocation)
-            //    .snippet(getString(R.string.default_info_snippet)));
-
-            // Prompt the user for permission.
             getLocationPermission();
         }
+
     }
 
     /**
      * Displays a form allowing the user to select a place from a list of likely places.
      */
     private void openPlacesDialog() {
-        // Ask the user to choose the place where they are now.
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // The "which" argument contains the position of the selected item.
                 LatLng markerLatLng = mLikelyPlaceLatLngs[which];
                 String markerSnippet = mLikelyPlaceAddresses[which];
                 if (mLikelyPlaceAttributions[which] != null) {
                     markerSnippet = markerSnippet + "\n" + mLikelyPlaceAttributions[which];
                 }
 
-                // Add a marker for the selected place, with an info window
-                // showing information about that place.
                 mMap.addMarker(new MarkerOptions()
                         .title(mLikelyPlaceNames[which])
                         .position(markerLatLng)
                         .snippet(markerSnippet));
 
-                // Position the map's camera at the location of the marker.
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,
                         DEFAULT_ZOOM));
             }
@@ -324,19 +339,17 @@ public class MapActivity extends AppCompatActivity
 
         // Display the dialog.
         AlertDialog dialog = new AlertDialog.Builder(this)
-                //  .setTitle(R.string.pick_place)
+              //  .setTitle(R.string.pick_place)
                 .setItems(mLikelyPlaceNames, listener)
                 .show();
     }
 
-    /**
-     * Updates the map's UI settings based on whether the user has granted location permission.
-     */
     private void updateLocationUI() {
         if (mMap == null) {
             return;
         }
         try {
+            /*
             if (mLocationPermissionGranted) {
                 mMap.setMyLocationEnabled(true);
                 mMap.getUiSettings().setMyLocationButtonEnabled(true);
@@ -346,19 +359,21 @@ public class MapActivity extends AppCompatActivity
                 mLastKnownLocation = null;
                 getLocationPermission();
             }
-        } catch (SecurityException e) {
+            */
+        } catch (SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
         }
     }
 
-    public void goToLogIn(View view) {
-        // Intent nextActivity = new Intent(this, MainActivity.class);
-        // startActivity(nextActivity);
+    public void goToLogIn (View view){
+       // Intent nextActivity = new Intent(this, MainActivity.class);
+       // startActivity(nextActivity);
     }
 
-    public void goToUserProfile(View view) {
-        //  Intent nextActivity = new Intent(this, UserActivity.class);
-        // startActivity(nextActivity);
+    public void goToUserProfile (View view){
+      //  Intent nextActivity = new Intent(this, UserActivity.class);
+       // startActivity(nextActivity);
     }
+
+
 }
-   
