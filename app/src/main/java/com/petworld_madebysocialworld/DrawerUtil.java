@@ -66,6 +66,8 @@ public class DrawerUtil {
                 .withName("Tus rutas").withIcon(R.drawable.ic_rutas);
         SecondaryDrawerItem drawerItemSettings = new SecondaryDrawerItem().withIdentifier(6)
                 .withName("Ajustes").withIcon(R.drawable.ic_settings);
+        SecondaryDrawerItem drawerItemLogOut = new SecondaryDrawerItem().withIdentifier(7)
+                .withName("Cerrar sesión").withIcon(R.drawable.ic_logout);
 
 
         Drawer result = new DrawerBuilder()
@@ -84,7 +86,8 @@ public class DrawerUtil {
                         drawerItemAddPet,
                         drawerItemGroups,
                         drawerItemRoutes,
-                        drawerItemSettings
+                        drawerItemSettings,
+                        drawerItemLogOut
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
@@ -97,6 +100,13 @@ public class DrawerUtil {
                         if (drawerItem.getIdentifier() == 5 && !(activity instanceof MapActivity)) {
                             // load tournament screen
                             Intent intent = new Intent(activity, MapActivity.class);
+                            view.getContext().startActivity(intent);
+                        }
+                        if (drawerItem.getIdentifier() == 7){
+                            //to improve
+                            MainActivity aux = new MainActivity();
+                            aux.setLogOut(true);
+                            Intent intent = new Intent(activity, MainActivity.class);
                             view.getContext().startActivity(intent);
                         }
                         return true;
