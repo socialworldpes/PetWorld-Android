@@ -24,6 +24,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import android.support.v7.widget.Toolbar;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
-
+            initNavigationDrawer();
             // Views
             //mStatusTextView = findViewById(R.id.status);
             //mDetailTextView = findViewById(R.id.detail);
@@ -196,89 +197,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
-
-    /*@Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        googleSignInButton = findViewById(R.id.sign_in_button);
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                //.requestIdToken("762941209189-ipn672d5el3lhb2ni1r1b46ha68aug5l.apps.googleusercontent.com")
-                .requestEmail()
-                .build();
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this,this)
-                .addApi(Auth.GOOGLE_SIGN_IN_API,gso)
-                .build();
-
-        //statusTextView = (TextView) findViewById(R.id.status_textview);
-        statusTextView = findViewById(R.id.status_textview);
-        //signInButton = (SignInButton) findViewById(R.id.sign_in_button);
-        signInButton = findViewById(R.id.sign_in_button);
-        signInButton.setOnClickListener(this);
-
-        //signOutButton = (Button) findViewById(R.id.sign_out_button);
-        signOutButton = findViewById(R.id.sign_out_button);
-        signOutButton.setOnClickListener(this);
-
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch(view.getId()) {
-            case R.id.sign_in_button:
-                signIn();
-                break;
-            case R.id.sign_out_button:
-                signOut();
-                break;
-        }
-    }
-
-    private void signIn() {
-        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
-            Log.d(TAG, "entro");
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            handleSigninResult(result);
-        }
-    }
-
-    private void handleSigninResult(GoogleSignInResult result) {
-        Log.d(TAG, "handleSigninResult: " + result.isSuccess());
-        if(result.isSuccess()){
-            GoogleSignInAccount acct = result.getSignInAccount();
-            statusTextView.setText("hello, "+acct.getDisplayName());
-        }
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult){
-       Log.d(TAG, "onConnectionFailed: "+connectionResult);
-    }*/
-
-    /*public void signOut(){
-        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
-            @Override
-            public void onResult(@NonNull Status status) {
-                statusTextView.setText("Sign out");
-            }
-        });
-    }*/
-
     //Function Button Map
     public void goToMap (View view){
         Intent nextActivity = new Intent(this, MapActivity.class);
         startActivity(nextActivity);
     }
+
+    private void initNavigationDrawer() {
+        Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
+
+        toolBar.setTitle("Main");
+        setSupportActionBar(toolBar);
+        DrawerUtil.getDrawer(this,toolBar);
+    }
 }
+
+

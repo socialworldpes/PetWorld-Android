@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "381871766664-0kol036bnev4h6gbhreo918ek42mt2b7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.petworld_madebysocialworld",
+            "certificate_hash": "e396a06cdb19f31294e53bf5f028fe6e3da93a95"
+          }
+        },
+        {
           "client_id": "381871766664-gim41ois6tdc43o8pok2ekbuer64k06m.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -31,11 +39,19 @@
           }
         },
         {
-          "client_id": "381871766664-c9rdne7g39tcff3q0ejqja0ucct9mmeh.apps.googleusercontent.com",
+          "client_id": "381871766664-0mt270uke99f8qfo7kmctrf7t3c64u6m.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.petworld_madebysocialworld",
-            "certificate_hash": "e396a06cdb19f31294e53bf5f028fe6e3da93a95"
+            "certificate_hash": "447fa56e94022a473ee0ad8ec851af799226438e"
+          }
+        },
+        {
+          "client_id": "381871766664-bk7egkh8ukjq0a34eelmc2mi1s2lsbl5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.petworld_madebysocialworld",
+            "certificate_hash": "0223d1ca14dad8f5a5b339ba25d945613c7777e1"
           }
         },
         {
