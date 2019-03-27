@@ -377,11 +377,13 @@ public class MapActivity extends AppCompatActivity
     }
 
     private void initNavigationDrawer() {
-        Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
+        //to improve
+        MainActivity aux = new MainActivity();
 
+        Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
         toolBar.setTitle("Map");
         setSupportActionBar(toolBar);
-        DrawerUtil.getDrawer(this,toolBar);
+        DrawerUtil.getDrawer(this,toolBar, aux.getAccount());
     }
 
 }

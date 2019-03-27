@@ -39,6 +39,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SignInButton signInButton;
     private Button signOutButton;
 
+    //to improve
+    private static GoogleSignInAccount account;
+
         private TextView mStatusTextView;
         private TextView mDetailTextView;
 
@@ -46,28 +49,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
-            initNavigationDrawer();
-            // Views
-            //mStatusTextView = findViewById(R.id.status);
-            //mDetailTextView = findViewById(R.id.detail);
+
+            mAuth = FirebaseAuth.getInstance();
 
             // Button listeners
             findViewById(R.id.sign_in_button).setOnClickListener(this);
             findViewById(R.id.sign_out_button).setOnClickListener(this);
+            connect(null);
 
-            // [START config_signin]
-            // Configure Google Sign In
-            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestIdToken(getString(R.string.default_web_client_id))
-                    .requestEmail()
-                    .build();
-            // [END config_signin]
 
-            mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
             // [START initialize_auth]
             // Initialize Firebase Auth
-            mAuth = FirebaseAuth.getInstance();
             // [END initialize_auth]
         }
 
@@ -88,10 +81,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
             if (requestCode == RC_SIGN_IN) {
+                connect(data);
+            }
+        }
+
+    private void connect(Intent data) {
+            if (data != null) {
                 Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
                 try {
                     // Google Sign In was successful, authenticate with Firebase
-                    GoogleSignInAccount account = task.getResult(ApiException.class);
+                    account = task.getResult(ApiException.class);
                     firebaseAuthWithGoogle(account);
                 } catch (ApiException e) {
                     // Google Sign In failed, update UI appropriately
@@ -101,8 +100,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     // [END_EXCLUDE]
                 }
             }
-        }
-        // [END onactivityresult]
+            else {
+                // [START config_signin]
+                // Configure Google Sign In
+                GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestIdToken(getString(R.string.default_web_client_id))
+                        .requestEmail()
+                        .build();
+                // [END config_signin]
+                mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+                Task<GoogleSignInAccount> task = mGoogleSignInClient.silentSignIn();
+                try {
+                    // Google Sign In was successful, authenticate with Firebase
+                    account = task.getResult(ApiException.class);
+                    firebaseAuthWithGoogle(account);
+                    goToMap();
+                } catch (ApiException e) {
+                    // Google Sign In failed, update UI appropriately
+                    Log.w(TAG, "Google sign in failed", e);
+                    // [START_EXCLUDE]
+                    updateUI(null);
+                    // [END_EXCLUDE]
+                }
+            }
+    }
+    // [END onactivityresult]
 
         // [START auth_with_google]
         private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
@@ -198,18 +220,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
     //Function Button Map
-    public void goToMap (View view){
+    public void goToMap () {
         Intent nextActivity = new Intent(this, MapActivity.class);
         startActivity(nextActivity);
     }
 
-    private void initNavigationDrawer() {
-        Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
-
-        toolBar.setTitle("Main");
-        setSupportActionBar(toolBar);
-        DrawerUtil.getDrawer(this,toolBar);
-    }
+    public GoogleSignInAccount getAccount () { return account;}
 }
 
 
