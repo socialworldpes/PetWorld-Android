@@ -13,6 +13,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -80,6 +81,9 @@ public class MapActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Retrieve the content view that renders the map.
+        setContentView(R.layout.activity_map);
+        initNavigationDrawer();
 
         // Retrieve location and camera position from saved instance state.
         if (savedInstanceState != null) {
@@ -88,9 +92,6 @@ public class MapActivity extends AppCompatActivity
         }
 
         getLocationPermission();
-
-        // Retrieve the content view that renders the map.
-        setContentView(R.layout.activity_map);
 
         // Construct a GeoDataClient.
         mGeoDataClient = Places.getGeoDataClient(this, null);
@@ -375,5 +376,12 @@ public class MapActivity extends AppCompatActivity
        // startActivity(nextActivity);
     }
 
+    private void initNavigationDrawer() {
+        Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
+
+        toolBar.setTitle("Map");
+        setSupportActionBar(toolBar);
+        DrawerUtil.getDrawer(this,toolBar);
+    }
 
 }
