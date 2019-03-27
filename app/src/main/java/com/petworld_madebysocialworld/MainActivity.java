@@ -55,7 +55,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             // Button listeners
             findViewById(R.id.sign_in_button).setOnClickListener(this);
-            findViewById(R.id.sign_out_button).setOnClickListener(this);
             if (logout)
                 signOut();
             connect(null);
@@ -204,16 +203,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //mStatusTextView.setText(getString(R.string.google_status_fmt, user.getEmail()));
                 //mDetailTextView.setText(getString(R.string.firebase_status_fmt, user.getUid()));
 
-                findViewById(R.id.sign_in_button).setVisibility(View.GONE);
                 goToMap(null);
-                // findViewById(R.id.signOutAndDisconnect).setVisibility(View.VISIBLE);
-            } else {
-                //mStatusTextView.setText(R.string.signed_out);
-                //mDetailTextView.setText(null);
-
-                findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
-                //findViewById(R.id.signOutAndDisconnect).setVisibility(View.GONE);
             }
+                // findViewById(R.id.signOutAndDisconnect).setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -221,8 +213,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             int i = v.getId();
             if (i == R.id.sign_in_button) {
                 signIn();
-            } else if (i == R.id.sign_out_button) {
-                signOut();
             }
         }
 
