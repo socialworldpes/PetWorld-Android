@@ -1,5 +1,6 @@
 package com.petworld_madebysocialworld;
 
+import Models.User;
 import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -77,9 +78,13 @@ public class MapActivity extends AppCompatActivity
     private String[] mLikelyPlaceAttributions;
     private LatLng[] mLikelyPlaceLatLngs;
 
+    //user
+    private User u;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        u = User.getInstance();
         super.onCreate(savedInstanceState);
         // Retrieve the content view that renders the map.
         setContentView(R.layout.activity_map);
@@ -378,12 +383,10 @@ public class MapActivity extends AppCompatActivity
 
     private void initNavigationDrawer() {
         //to improve
-        MainActivity aux = new MainActivity();
-
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
         toolBar.setTitle("Map");
         setSupportActionBar(toolBar);
-        DrawerUtil.getDrawer(this,toolBar, aux.getAccount());
+        DrawerUtil.getDrawer(this,toolBar, u.getAccount());
     }
 
 }

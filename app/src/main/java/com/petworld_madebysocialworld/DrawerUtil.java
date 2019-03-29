@@ -1,5 +1,6 @@
 package com.petworld_madebysocialworld;
 
+import Models.User;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -105,7 +106,7 @@ public class DrawerUtil {
                         if (drawerItem.getIdentifier() == 7){
                             //to improve
                             MainActivity aux = new MainActivity();
-                            aux.setLogOut(true);
+                            User.getInstance().setLogOut(true);
                             Intent intent = new Intent(activity, MainActivity.class);
                             view.getContext().startActivity(intent);
                         }

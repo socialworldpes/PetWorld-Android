@@ -1,5 +1,6 @@
 package com.petworld_madebysocialworld;
 
+import Models.User;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -35,27 +36,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView statusTextView;
     private SignInButton signInButton;
     private Button signOutButton;
-
-    //to improve
-    private static GoogleSignInAccount account;
-    private static FirebaseAuth mAuth;
-    private static GoogleSignInClient mGoogleSignInClient;
-    private static boolean logout = false;
-
-
-
     private TextView mStatusTextView;
-        private TextView mDetailTextView;
+    private TextView mDetailTextView;
+    private User u;
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+            u = User.getInstance();
             setContentView(R.layout.activity_main);
-            mAuth = FirebaseAuth.getInstance();
+            u.setmAuth(FirebaseAuth.getInstance());
 
             // Button listeners
             findViewById(R.id.sign_in_button).setOnClickListener(this);
-            if (logout)
+            if (u.getLogout())
                 signOut();
             connect(null);
 
@@ -70,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         public void onStart() {
             super.onStart();
             // Check if user is signed in (non-null) and update UI accordingly.
-            FirebaseUser currentUser = mAuth.getCurrentUser();
+            FirebaseUser currentUser = User.getInstance().getmAuth().getCurrentUser();
             updateUI(currentUser);
         }
         // [END on_start_check_user]
@@ -91,8 +85,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
                 try {
                     // Google Sign In was successful, authenticate with Firebase
-                    account = task.getResult(ApiException.class);
-                    firebaseAuthWithGoogle(account);
+                    u.setAccount(task.getResult(ApiException.class));
+                    firebaseAuthWithGoogle(u.getAccount());
                 } catch (ApiException e) {
                     // Google Sign In failed, update UI appropriately
                     Log.w(TAG, "Google sign in failed", e);
@@ -109,14 +103,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .requestEmail()
                         .build();
                 // [END config_signin]
-                mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-                if (mGoogleSignInClient != null) {
-                    Task<GoogleSignInAccount> task = mGoogleSignInClient.silentSignIn();
+                u.setmGoogleSignInClient(GoogleSignIn.getClient(this, gso));
+                if (u.getGoogleSignInClient() != null) {
+                    Task<GoogleSignInAccount> task = u.getGoogleSignInClient().silentSignIn();
                     try {
                         // Google Sign In was successful, authenticate with Firebase
                         if (task.isSuccessful()){
-                            account = task.getResult(ApiException.class);
-                            firebaseAuthWithGoogle(account);
+                            u.setAccount(task.getResult(ApiException.class));
+                            firebaseAuthWithGoogle(u.getAccount());
                         }
                     } catch (ApiException e) {
                         // Google Sign In failed, update UI appropriately
@@ -139,14 +133,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // [END_EXCLUDE]
 
             AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-            mAuth.signInWithCredential(credential)
+            u.getmAuth().signInWithCredential(credential)
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.d(TAG, "signInWithCredential:success");
-                                FirebaseUser user = mAuth.getCurrentUser();
+                                FirebaseUser user = u.getmAuth().getCurrentUser();
                                 updateUI(user);
                             } else {
                                 // If sign in fails, display a message to the user.
@@ -165,17 +159,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // [START signin]
         private void signIn() {
-            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+            Intent signInIntent = u.getGoogleSignInClient().getSignInIntent();
             startActivityForResult(signInIntent, RC_SIGN_IN);
         }
         // [END signin]
 
         public void signOut() {
             // Firebase sign out
-            mAuth.signOut();
+            u.getmAuth().signOut();
 
             // Google sign out
-            mGoogleSignInClient.signOut().addOnCompleteListener(this,
+            u.getGoogleSignInClient().signOut().addOnCompleteListener(this,
                     new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -186,10 +180,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         private void revokeAccess() {
             // Firebase sign out
-            mAuth.signOut();
+            u.getmAuth().signOut();
 
             // Google revoke access
-            mGoogleSignInClient.revokeAccess().addOnCompleteListener(this,
+            u.getGoogleSignInClient().revokeAccess().addOnCompleteListener(this,
                     new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -222,11 +216,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(nextActivity);
     }
 
-    public GoogleSignInAccount getAccount () { return account;}
-
-    public void setLogOut(boolean b) {
-            logout = b;
-    }
 }
 
 
