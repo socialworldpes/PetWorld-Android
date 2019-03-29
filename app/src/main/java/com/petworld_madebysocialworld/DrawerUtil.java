@@ -3,10 +3,13 @@ package com.petworld_madebysocialworld;
 import Models.User;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 
+import android.widget.ImageView;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -19,10 +22,14 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
+import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
+import com.mikepenz.materialdrawer.util.DrawerImageLoader;
+import com.squareup.picasso.Picasso;
 
 public class DrawerUtil {
-    public static void getDrawer(final Activity activity, Toolbar toolbar, GoogleSignInAccount account) {
+    public static void getDrawer(final Activity activity, Toolbar toolbar) {
 
+        GoogleSignInAccount account = User.getInstance().getAccount();
         //info account
         String personName = account.getDisplayName();
         String personGivenName = account.getGivenName();
@@ -30,13 +37,25 @@ public class DrawerUtil {
         String personEmail = account.getEmail();
         String personId = account.getId();
         Uri personPhoto = account.getPhotoUrl();
+        Log.d("Prueba", personPhoto.getPath());
+
+        DrawerImageLoader.init(new AbstractDrawerImageLoader() {
+            @Override
+            public void set(ImageView imageView, Uri uri, Drawable placeholder) {
+                Picasso.get().load(uri).placeholder(placeholder).into(imageView);
+            }
+            @Override
+            public void cancel(ImageView imageView) {
+                Picasso.get().cancelRequest(imageView);
+            }
+        });
 
         // Create the AccountHeader
         AccountHeader headerResult = new AccountHeaderBuilder()
                 .withActivity(activity)
                 .withHeaderBackground(R.drawable.header)
                 .addProfiles(
-                        new ProfileDrawerItem().withName(personName).withEmail(personEmail).withIcon(personPhoto))
+                        new ProfileDrawerItem().withName(personName).withEmail(personEmail).withIcon("https://"+personPhoto.getHost()+personPhoto.getPath()))
                 .withSelectionListEnabledForSingleProfile(false)
                 .withDividerBelowHeader(true)
                 .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
