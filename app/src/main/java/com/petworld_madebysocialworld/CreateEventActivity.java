@@ -55,7 +55,7 @@ public class CreateEventActivity extends AppCompatActivity {
     public static final int PICK_IMAGE = 1;
     boolean isCreating = true, toLocationPicker = false;
     //LatLng  location;
-
+ //
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
