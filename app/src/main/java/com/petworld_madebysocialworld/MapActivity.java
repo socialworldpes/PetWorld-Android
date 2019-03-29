@@ -386,7 +386,7 @@ public class MapActivity extends AppCompatActivity
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
         toolBar.setTitle("Map");
         setSupportActionBar(toolBar);
-        DrawerUtil.getDrawer(this,toolBar, u.getAccount());
+        DrawerUtil.getDrawer(this,toolBar);
     }
 
 }
