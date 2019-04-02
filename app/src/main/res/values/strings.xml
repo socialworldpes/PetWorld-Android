@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PetWorld - Made by SocialWorld</string>
+    <string name="app_name">PetWorld</string>
     <string name="title_activity_map">MapActivity</string>
     <string name="ButtonToMap">Map</string>
     <string name="title_activity_create_event">CreateEventActivity</string>
