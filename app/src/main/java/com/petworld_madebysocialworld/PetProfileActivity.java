@@ -21,19 +21,22 @@ public class PetProfileActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
-    private TextView nombre;
+    private TextView name;
+    private TextView gender;
+    private TextView race;
+    private TextView specie;
+    private TextView comment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pet_profile);
         initNavigationDrawer();
-        // [START initialize_auth]
-        // Initialize Firebase Auth
         initFireBase();
+        initTextView();
         initLayout();
         if (mAuth.getCurrentUser() != null)
-            initTextView();
+            initLayout();
     }
 
     private void initFireBase() {
@@ -42,58 +45,42 @@ public class PetProfileActivity extends AppCompatActivity {
     }
 
     private void initTextView() {
+        name = findViewById(R.id.textViewName);
+        gender = findViewById(R.id.textViewGender);
+        race = findViewById(R.id.textViewRace);
+        specie = findViewById(R.id.textViewSpecie);
+        comment = findViewById(R.id.textViewComment);
+    }
 
-
-        /* METODO LEER ROBERTO */
+    private void initLayout() {
         String userID =  mAuth.getCurrentUser().getUid();
         DocumentReference docRef = db.collection("users").document(userID);
         Log.d("test", docRef.toString());
 
-        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Log.d("task size: ", "" + task.getResult().size());
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d("task ok", document.getId() + " => " + document.getData());
-                            }
-                        } else {
-                            Log.w("task ko", "Error getting documents.", task.getException());
-                        }
+        db.collection("pets").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    Log.d("task size: ", "" + task.getResult().size());
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        Log.d("task ok", document.getId() + " => " + document.getData());
+
                     }
-                });
+                    Map<String, Object> mascota = task.getResult().getDocuments().get(0).getData();
+                    name.setText("" + mascota.get("name"));
+                    gender.setText("" + mascota.get("gender"));
+                    race.setText("" + mascota.get("race"));
+                    specie.setText("" + mascota.get("specie"));
+                    comment.setText("" + mascota.get("comment"));
+                    // Log.d("mascot a size: ", "" + mascota.size());
+                    // for (String s: mascota.keySet()) Log.d("map", s);
+                    Log.d("mascota name: ", "" + mascota.get("name"));
+                } else {
+                    Log.w("task ko", "Error getting documents.", task.getException());
+                }
+            }
+        });
 
-
-
-
-        /*  */
-       /* FRACASO TOTAL
-       String userID =  mAuth.getCurrentUser().getUid();
-
-       mDatabase.addValueEventListener(new ValueEventListener() {
-
-           @Override
-           public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-               Mascota mascota = dataSnapshot.getValue(Mascota.class);
-               if (mascota != null) Log.d("nombre mascota", mascota.getName());
-               else Log.d("nombre mascota", "mascota null");
-           }
-
-           @Override
-           public void onCancelled(@NonNull DatabaseError databaseError) {
-               Log.e("ERROR FIREBASE", databaseError.getMessage());
-           }
-       });
-
-
-       */
-
-
-
-    }
-
-    private void initLayout() {
-       // nombre = findViewById(R.id.textViewNombre);
     }
 
 
