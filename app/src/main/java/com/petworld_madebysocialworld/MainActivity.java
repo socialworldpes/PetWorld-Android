@@ -30,6 +30,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.*;
 import android.support.v7.widget.Toolbar;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -113,14 +114,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                             } else {
                                 Map<String, Object> user = new HashMap<>();
-                                user.put("favoriteRoutes", null);
-                                user.put("friends", null);
-                                user.put("groups", null);
-                                user.put("meetings", null);
-                                user.put("pets", null);
-                                user.put("routes", null);
+                                user.put("favoriteRoutes", Arrays.asList());
+                                user.put("friends", Arrays.asList());
+                                user.put("groups", Arrays.asList());
+                                user.put("meetings", Arrays.asList());
+                                user.put("pets", Arrays.asList());
+                                user.put("routes", Arrays.asList());
                                 user.put("visibility", "public");
-                                user.put("walks", null);
+                                user.put("walks", Arrays.asList());
 
                                 db.collection("users").document(u.getAccount().getId())
                                         .set(user)
