@@ -19,13 +19,19 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.*;
 import android.support.v7.widget.Toolbar;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -39,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView mStatusTextView;
     private TextView mDetailTextView;
     private User u;
+    FirebaseFirestore db;
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             u = User.getInstance();
             setContentView(R.layout.activity_main);
             u.setmAuth(FirebaseAuth.getInstance());
-
-            // Button listeners
+            db = FirebaseFirestore.getInstance();
             findViewById(R.id.sign_in_button).setOnClickListener(this);
             if (u.getLogout())
                 signOut();
@@ -94,6 +100,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     updateUI(null);
                     // [END_EXCLUDE]
                 }
+                // Create a new user with a first and last name
+
+                DocumentReference docRef = db.collection("users").document(u.getAccount().getId());
+                u.setDocumentReference(docRef);
+                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                            } else {
+                                Map<String, Object> user = new HashMap<>();
+                                user.put("favoriteRoutes", null);
+                                user.put("friends", null);
+                                user.put("groups", null);
+                                user.put("meetings", null);
+                                user.put("pets", null);
+                                user.put("routes", null);
+                                user.put("visibility", "public");
+                                user.put("walks", null);
+
+                                db.collection("users").document(u.getAccount().getId())
+                                        .set(user)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "DocumentSnapshot successfully written!");
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.w(TAG, "Error writing document", e);
+                                            }
+                                        });
+                            }
+                        } else {
+                            Log.d(TAG, "get failed with ", task.getException());
+                        }
+                    }
+                });
             }
             else {
                 // [START config_signin]
