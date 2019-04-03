@@ -3,6 +3,7 @@ package Models;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 
 public class User {
     private static final User ourInstance = new User();
@@ -15,6 +16,7 @@ public class User {
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
     private boolean logout = false;
+    private DocumentReference docRef;
 
 
     public void setmAuth(FirebaseAuth instance) {
@@ -47,5 +49,9 @@ public class User {
 
     public void setLogOut(boolean b) {
         logout = b;
+    }
+
+    public void setDocumentReference(DocumentReference docRef) {
+        this.docRef = docRef;
     }
 }
