@@ -47,7 +47,7 @@ public class MapActivity extends AppCompatActivity
 
     private static final String TAG = MapActivity.class.getSimpleName();
     private GoogleMap mMap;
-    private CameraPosition mCameraPosition;
+    private CameraPosition mCameraPosition; //prova
 
     // The entry points to the Places API.
     private GeoDataClient mGeoDataClient;
