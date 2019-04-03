@@ -113,13 +113,15 @@ public class DrawerUtil {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         if (drawerItem.getIdentifier() == 1 && !(activity instanceof UserActivity)) {
-                            // load tournament screen
                             Intent intent = new Intent(activity, UserActivity.class);
                             view.getContext().startActivity(intent);
                         }
                         if (drawerItem.getIdentifier() == 5 && !(activity instanceof MapActivity)) {
-                            // load tournament screen
                             Intent intent = new Intent(activity, MapActivity.class);
+                            view.getContext().startActivity(intent);
+                        }
+                        if (drawerItem.getIdentifier() == 2001 && !(activity instanceof PetProfileActivity)) {
+                            Intent intent = new Intent(activity, PetProfileActivity.class);
                             view.getContext().startActivity(intent);
                         }
                         if (drawerItem.getIdentifier() == 7){

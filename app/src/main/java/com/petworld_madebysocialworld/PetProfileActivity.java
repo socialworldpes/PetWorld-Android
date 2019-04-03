@@ -7,8 +7,9 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.TextView;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.*;
 import com.google.firebase.firestore.*;
 import com.google.firebase.iid.FirebaseInstanceId;
 
@@ -20,8 +21,6 @@ public class PetProfileActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
-    //private DatabaseReference mDatabase;
-    //private FirebaseDatabase fdb;
     private TextView nombre;
 
     @Override
@@ -39,7 +38,6 @@ public class PetProfileActivity extends AppCompatActivity {
 
     private void initFireBase() {
         mAuth = FirebaseAuth.getInstance();
-       // mDatabase = FirebaseDatabase.getInstance().getReference("pets");
         db = FirebaseFirestore.getInstance();
     }
 
@@ -50,6 +48,20 @@ public class PetProfileActivity extends AppCompatActivity {
         String userID =  mAuth.getCurrentUser().getUid();
         DocumentReference docRef = db.collection("users").document(userID);
         Log.d("test", docRef.toString());
+
+        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Log.d("task size: ", "" + task.getResult().size());
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d("task ok", document.getId() + " => " + document.getData());
+                            }
+                        } else {
+                            Log.w("task ko", "Error getting documents.", task.getException());
+                        }
+                    }
+                });
 
 
 
