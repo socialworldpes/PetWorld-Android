@@ -31,12 +31,20 @@ public class DrawerUtil {
 
         GoogleSignInAccount account = User.getInstance().getAccount();
         //info account
-        String personName = account.getDisplayName();
-        String personGivenName = account.getGivenName();
-        String personFamilyName = account.getFamilyName();
-        String personEmail = account.getEmail();
-        String personId = account.getId();
-        Uri personPhoto = account.getPhotoUrl();
+        String personName = "null";
+        String personGivenName = "null";
+        String personFamilyName = "null";
+        String personEmail = "null";
+        String personId = "null";
+        Uri personPhoto = null;
+        if (account != null) {
+            personName = account.getDisplayName();
+            personGivenName = account.getGivenName();
+            personFamilyName = account.getFamilyName();
+            personEmail = account.getEmail();
+            personId = account.getId();
+            personPhoto = account.getPhotoUrl();
+        }
         Log.d("Prueba", personPhoto.getPath());
 
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
@@ -124,11 +132,16 @@ public class DrawerUtil {
                             Intent intent = new Intent(activity, PetProfileActivity.class);
                             view.getContext().startActivity(intent);
                         }
-                        if (drawerItem.getIdentifier() == 7){
+                        if (drawerItem.getIdentifier() == 7 ){
                             //to improve
                             MainActivity aux = new MainActivity();
                             User.getInstance().setLogOut(true);
                             Intent intent = new Intent(activity, MainActivity.class);
+                            view.getContext().startActivity(intent);
+                        }
+
+                        if (drawerItem.getIdentifier() == 3 && !(activity instanceof PetAddActivity)){
+                            Intent intent = new Intent(activity, PetAddActivity.class);
                             view.getContext().startActivity(intent);
                         }
                         return true;

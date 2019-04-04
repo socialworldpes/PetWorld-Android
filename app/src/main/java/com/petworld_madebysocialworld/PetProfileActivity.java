@@ -1,5 +1,6 @@
 package com.petworld_madebysocialworld;
 
+import Models.User;
 import android.os.Debug;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -31,12 +32,11 @@ public class PetProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pet_profile);
-        initNavigationDrawer();
         initFireBase();
         initTextView();
-        initLayout();
         if (mAuth.getCurrentUser() != null)
             initLayout();
+        initNavigationDrawer();
     }
 
     private void initFireBase() {
@@ -53,7 +53,7 @@ public class PetProfileActivity extends AppCompatActivity {
     }
 
     private void initLayout() {
-        String userID =  mAuth.getCurrentUser().getUid();
+        String userID = User.getInstance().getAccount().getId();
         DocumentReference docRef = db.collection("users").document(userID);
         Log.d("test", docRef.toString());
 
@@ -86,7 +86,6 @@ public class PetProfileActivity extends AppCompatActivity {
 
     private void initNavigationDrawer() {
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
-
         toolBar.setTitle("PerfilMascota");
         setSupportActionBar(toolBar);
         DrawerUtil.getDrawer(this,toolBar);
