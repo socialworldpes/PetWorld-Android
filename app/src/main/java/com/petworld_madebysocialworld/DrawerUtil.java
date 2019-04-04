@@ -5,12 +5,19 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 
 import android.widget.ImageView;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -25,6 +32,8 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
 import com.mikepenz.materialdrawer.util.DrawerImageLoader;
 import com.squareup.picasso.Picasso;
+
+import java.util.Map;
 
 public class DrawerUtil {
     public static void getDrawer(final Activity activity, Toolbar toolbar) {
@@ -45,7 +54,7 @@ public class DrawerUtil {
             personId = account.getId();
             personPhoto = account.getPhotoUrl();
         }
-        Log.d("Prueba", personPhoto.getPath());
+        //Log.d("Prueba", personPhoto.getPath());
 
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
             @Override
@@ -79,11 +88,36 @@ public class DrawerUtil {
 
         PrimaryDrawerItem drawerItemManageUser = new PrimaryDrawerItem().withIdentifier(1)
                 .withName("Usuario").withIcon(R.drawable.ic_profile);
-        ExpandableDrawerItem drawerItemManagePets = new ExpandableDrawerItem()
-                .withIdentifier(2).withName("Mascotas").withIcon(R.drawable.ic_pets).withSelectable(false).withSubItems(
-                new SecondaryDrawerItem().withName("Mascota 1").withLevel(2).withIdentifier(2001),
-                new SecondaryDrawerItem().withName("Mascota 2").withLevel(2).withIdentifier(2002)
-        );;
+        final ExpandableDrawerItem drawerItemManagePets = new ExpandableDrawerItem()
+                .withIdentifier(2).withName("Mascotas").withIcon(R.drawable.ic_pets).withSelectable(false);
+        //pets menu lateral
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String userID = User.getInstance().getAccount().getId();
+        DocumentReference docRef = db.collection("users").document(userID);
+        Log.d("test", docRef.toString());
+
+
+        db.collection("pets").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    Log.d("task size: ", "" + task.getResult().size());
+                    int i = 0;
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        Log.d("task ok", document.getId() + " => " + document.getData());
+                        Map<String, Object> aux = task.getResult().getDocuments().get(i).getData();
+                        drawerItemManagePets.withSubItems(
+                                new SecondaryDrawerItem().withName("" + aux.get("name")).withLevel(2).withIdentifier(2001 + i)
+                        );
+
+                        i++;
+
+                    }
+                }
+            }
+        });
+
+
 
 
         SecondaryDrawerItem drawerItemAddPet = new SecondaryDrawerItem().withIdentifier(3)
