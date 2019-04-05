@@ -18,6 +18,7 @@ import com.google.firebase.firestore.*;
 import com.google.firebase.auth.FirebaseAuth;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -79,7 +80,7 @@ public class PetAddActivity extends AppCompatActivity {
 
         String userID = User.getInstance().getAccount().getId();
         Log.d("userID", userID);
-        Map<String, Object> mascota = new HashMap<>();
+        HashMap<String, Object> mascota =  new HashMap<String, Object>();
         mascota.put("name", name.getText().toString());
         mascota.put("gender", gender.getText().toString());
         mascota.put("specie", specie.getText().toString());
@@ -88,19 +89,59 @@ public class PetAddActivity extends AppCompatActivity {
         mascota.put("photo", "no foto");
         mascota.put("owner", userID);
 
-        db.collection("users").document(userID)
-                .update("pets", mascota)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("mascota", "DocumentSnapshot successfully written!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("mascota", "Error writing document", e);
-                    }
-                });
+
+         db.collection("pets").add(mascota).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+             @Override
+             public void onSuccess(final DocumentReference documentReference) {
+                 Log.d("mascotaRefenrece:" , documentReference.getId());
+
+                 String userID = User.getInstance().getAccount().getId();
+
+                 Log.d("userID", userID);
+                 DocumentReference docRef = db.collection("users").document(userID);
+
+
+
+                 docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                     @Override
+                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                         if (task.isSuccessful()) {
+                             String userID = User.getInstance().getAccount().getId();
+                             DocumentSnapshot result = task.getResult();
+                             ArrayList<DocumentReference> arrayReference = (ArrayList<DocumentReference>) result.get("pets");
+                             if (arrayReference == null) arrayReference =  new ArrayList<>();
+                             arrayReference.add(documentReference);
+
+                             //añadir pet a users(userID)
+                             db.collection("users").document(userID)
+                                     .update("pets", arrayReference)
+                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                         @Override
+                                         public void onSuccess(Void aVoid) {
+                                             Log.d("mascota", "DocumentSnapshot successfully written!");
+                                         }
+                                     })
+                                     .addOnFailureListener(new OnFailureListener() {
+                                         @Override
+                                         public void onFailure(@NonNull Exception e) {
+                                             Log.w("mascota", "Error writing document", e);
+                                         }
+                                     });
+
+
+                         } else {
+                             Log.w("task ko", "Error getting documents.", task.getException());
+                         }
+                     }
+                 });
+
+
+             }
+        });
+
+        ArrayList<String> mascotaArray = new ArrayList<>();
+        //mascotaArray.add(result.toString());
+
+
     }
 }

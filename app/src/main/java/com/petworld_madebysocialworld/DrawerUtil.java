@@ -14,10 +14,7 @@ import android.widget.ImageView;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.*;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -95,15 +92,16 @@ public class DrawerUtil {
         String userID = User.getInstance().getAccount().getId();
         DocumentReference docRef = db.collection("users").document(userID);
         Log.d("test", docRef.toString());
+        Log.d("userID", userID);
 
-
-        db.collection("pets").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        db.collection("users").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    Log.d("task size: ", "" + task.getResult().size());
+                    Log.d("task string", task.toString());
+                    Log.d("task size: ", "" + task.getResult().get("pets"));
                     int i = 0;
-                    for (QueryDocumentSnapshot document : task.getResult()) {
+                  /*  for (QueryDocumentSnapshot document : task.getResult()) {
                         Log.d("task ok", document.getId() + " => " + document.getData());
                         Map<String, Object> aux = task.getResult().getDocuments().get(i).getData();
                         drawerItemManagePets.withSubItems(
@@ -113,6 +111,7 @@ public class DrawerUtil {
                         i++;
 
                     }
+                    */
                 }
             }
         });

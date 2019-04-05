@@ -55,9 +55,9 @@ public class PetProfileActivity extends AppCompatActivity {
     private void initLayout() {
         String userID = User.getInstance().getAccount().getId();
         DocumentReference docRef = db.collection("users").document(userID);
-        Log.d("test", docRef.toString());
+        Log.d("userID", userID);
 
-        db.collection("pets").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        docRef.collection("pets").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
