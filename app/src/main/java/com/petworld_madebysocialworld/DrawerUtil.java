@@ -30,10 +30,14 @@ import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
 import com.mikepenz.materialdrawer.util.DrawerImageLoader;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class DrawerUtil {
+    static int i;
     public static void getDrawer(final Activity activity, Toolbar toolbar) {
+
+        i = 0;
 
         GoogleSignInAccount account = User.getInstance().getAccount();
         //info account
@@ -100,7 +104,27 @@ public class DrawerUtil {
                 if (task.isSuccessful()) {
                     Log.d("task string", task.toString());
                     Log.d("task size: ", "" + task.getResult().get("pets"));
-                    int i = 0;
+                    DocumentSnapshot result = task.getResult();
+                    ArrayList<DocumentReference> arrayPets = (ArrayList<DocumentReference>) result.get("pets");
+
+
+                    if (arrayPets != null) {
+                        for (DocumentReference dr : arrayPets) {
+
+                            dr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    DocumentSnapshot result = task.getResult();
+                                    String namePet = (String) result.get("name");
+                                    drawerItemManagePets.withSubItems(
+                                            new SecondaryDrawerItem().withName(namePet).withLevel(2).withIdentifier(2001 + i)
+                                    );
+                                }
+                            });
+                            i++;
+                        }
+                        ;
+                    }
                   /*  for (QueryDocumentSnapshot document : task.getResult()) {
                         Log.d("task ok", document.getId() + " => " + document.getData());
                         Map<String, Object> aux = task.getResult().getDocuments().get(i).getData();

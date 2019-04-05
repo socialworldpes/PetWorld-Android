@@ -1,6 +1,7 @@
 package com.petworld_madebysocialworld;
 
 import Models.User;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -132,15 +133,16 @@ public class PetAddActivity extends AppCompatActivity {
                          } else {
                              Log.w("task ko", "Error getting documents.", task.getException());
                          }
+                         Intent intent = new Intent (getApplicationContext(), MapActivity.class);
+                         startActivityForResult(intent, 0);
                      }
                  });
 
 
              }
+
         });
 
-        ArrayList<String> mascotaArray = new ArrayList<>();
-        //mascotaArray.add(result.toString());
 
 
     }
