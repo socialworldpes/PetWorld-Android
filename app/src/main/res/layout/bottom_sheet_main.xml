@@ -9,14 +9,20 @@
               app:behavior_hideable="false"
               app:behavior_peekHeight="192dp" android:elevation="200dp">
 
+    <ImageView
+            android:layout_width="28dp"
+            android:layout_height="4dp" app:srcCompat="@drawable/handle" android:id="@+id/handle"
+            android:layout_gravity="center" android:layout_marginTop="10dp"
+            android:elevation="1dp"/>
     <android.support.design.widget.TabLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:tabIndicator="@drawable/tab_indicator"
             app:tabIndicatorFullWidth="false"
             app:tabIndicatorColor="@color/material_drawer_dark_background"
-            app:tabBackground="@drawable/rounded_corners" app:tabMode="fixed" app:tabGravity="fill"
-            app:tabIndicatorHeight="2dp">
+            app:tabMode="fixed" app:tabGravity="fill"
+            app:tabIndicatorHeight="2dp" android:layout_marginTop="-14dp" app:tabPaddingTop="4dp"
+    >
 
         <android.support.design.widget.TabItem
                 android:layout_width="wrap_content"
