@@ -393,6 +393,7 @@ public class MapActivity extends AppCompatActivity
     @Override
     public void onCameraIdle() {
         LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference meetingsRef = db.collection("meetings");
         Query locations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
@@ -402,26 +403,22 @@ public class MapActivity extends AppCompatActivity
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     ++times;
+                    mMap.clear();
                     for (QueryDocumentSnapshot document: task.getResult()) {
                         GeoPoint point = (GeoPoint) document.get("placeLocation");
                         mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude())));
-                        Log.d("Event", times + ": " + point.getLatitude() + " " + point.getLongitude());
+                        Log.d("Event", times + " - " + point.getLatitude() + " " + point.getLongitude());
                     }
+
+                    if (task.getResult().isEmpty()) Log.d("Event", times + " - NO hay quedadas cerca");
                     /*
-                    Carga un poco más de lo que hay en la pantalla (nuse pq)
-                    Nuse si podría hacer que no cargue los que ya ha cargado...
-                    Y nuse pq la primera vez lo hace 2 veces...
-                    Hasta ahora he añadido markers, pero quiero que SOLO se vean cuando está en esa vista!!!
-                    Me faltaría también según el zoom??
-                     */
+                    Nuse pq la primera vez los carga 2 veces... Y es muy raro porque times = 1 en ambos!!
+                    Carga un poco más de lo que hay en la pantalla (nuse pq, imagino que los bounds te da algo más grande)
+                    */
                 }
             }
         });
 
-        /*if (bounds.contains(bounds.getCenter())) {
-            mMap.addMarker(new MarkerOptions().position(new LatLng(41.387691, 2.114441)));
-            mMap.addMarker(new MarkerOptions().position(new LatLng(41.385482, 2.115971)));
-        }*/
     }
 
 }
