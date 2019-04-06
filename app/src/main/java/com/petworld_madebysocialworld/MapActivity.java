@@ -35,19 +35,19 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.*;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.*;
 
 public class MapActivity extends AppCompatActivity
-        implements OnMapReadyCallback {
+        implements OnMapReadyCallback, GoogleMap.OnCameraIdleListener {
 
     private static final String TAG = MapActivity.class.getSimpleName();
     private GoogleMap mMap;
     private CameraPosition mCameraPosition; //prova
+
+    private int times = 0;
 
     // The entry points to the Places API.
     private GeoDataClient mGeoDataClient;
@@ -168,6 +168,7 @@ public class MapActivity extends AppCompatActivity
             }
         });
 
+        mMap.setOnCameraIdleListener(this);
 
     }
 
@@ -355,7 +356,7 @@ public class MapActivity extends AppCompatActivity
             return;
         }
         try {
-            /*
+
             if (mLocationPermissionGranted) {
                 mMap.setMyLocationEnabled(true);
                 mMap.getUiSettings().setMyLocationButtonEnabled(true);
@@ -365,7 +366,7 @@ public class MapActivity extends AppCompatActivity
                 mLastKnownLocation = null;
                 getLocationPermission();
             }
-            */
+
         } catch (SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
         }
@@ -387,6 +388,40 @@ public class MapActivity extends AppCompatActivity
         toolBar.setTitle("Map");
         setSupportActionBar(toolBar);
         DrawerUtil.getDrawer(this,toolBar);
+    }
+
+    @Override
+    public void onCameraIdle() {
+        LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference meetingsRef = db.collection("meetings");
+        Query locations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+
+        locations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    ++times;
+                    for (QueryDocumentSnapshot document: task.getResult()) {
+                        GeoPoint point = (GeoPoint) document.get("placeLocation");
+                        mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude())));
+                        Log.d("Event", times + ": " + point.getLatitude() + " " + point.getLongitude());
+                    }
+                    /*
+                    Carga un poco más de lo que hay en la pantalla (nuse pq)
+                    Nuse si podría hacer que no cargue los que ya ha cargado...
+                    Y nuse pq la primera vez lo hace 2 veces...
+                    Hasta ahora he añadido markers, pero quiero que SOLO se vean cuando está en esa vista!!!
+                    Me faltaría también según el zoom??
+                     */
+                }
+            }
+        });
+
+        /*if (bounds.contains(bounds.getCenter())) {
+            mMap.addMarker(new MarkerOptions().position(new LatLng(41.387691, 2.114441)));
+            mMap.addMarker(new MarkerOptions().position(new LatLng(41.385482, 2.115971)));
+        }*/
     }
 
 }
