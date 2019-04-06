@@ -23,7 +23,7 @@
         <activity
                 android:name=".MapActivity"
                 android:label="@string/title_activity_map"
-                android:theme="@style/AppTheme.NoActionBar">
+                android:theme="@style/AppTheme.Translucent">
         </activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -33,10 +33,10 @@
              sign the APK for publishing.
              You can define the keys for the debug and release targets in src/debug/ and src/release/.  AIzaSyBaeqtn5WyJL-92gUY-k6KR0QqxwtNbYM8
         -->
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+                  android:theme="@style/AppTheme.Translucent">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
