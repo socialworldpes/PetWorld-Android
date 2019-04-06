@@ -13,20 +13,15 @@
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp" android:layout_width="match_parent"
             android:layout_height="56dp"/>
 
-    <LinearLayout
-            android:orientation="vertical"
+    <fragment
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" android:id="@+id/linearLayout" android:layout_marginBottom="184dp"
-    >
-        <fragment
-                android:id="@+id/map"
-                android:name="com.google.android.gms.maps.SupportMapFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:context="com.petworld_madebysocialworld.MapActivity" app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toBottomOf="parent"/>
-    </LinearLayout>
+            android:layout_height="match_parent"
+            tools:context="com.petworld_madebysocialworld.MapActivity" app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="184dp"/>
 
     <View
             android:layout_width="match_parent"
@@ -34,4 +29,13 @@
             app:layout_anchor="@id/bottomSheet"
             android:background="@drawable/shadow"/>
     <include layout="@layout/bottom_sheet_main" />
+    <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:id="@+id/Search" app:layout_anchorGravity="top|center" app:layout_anchor="@+id/map"
+            android:hint="@string/Search" android:singleLine="true" android:elevation="2dp"
+            android:ems="10" android:background="@null" android:layout_marginTop="20dp"
+            android:layout_marginRight="16dp" android:layout_marginLeft="80dp"
+            android:textSize="24sp"/>
 </android.support.design.widget.CoordinatorLayout>
