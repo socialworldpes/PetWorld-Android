@@ -14,13 +14,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.TextView;
 
 
 import android.widget.Toast;
@@ -37,10 +35,13 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class MapActivity extends AppCompatActivity
         implements OnMapReadyCallback {
@@ -81,6 +82,14 @@ public class MapActivity extends AppCompatActivity
     //user
     private User u;
 
+    // RecyclerView for meetings and walks
+    private RecyclerView recyclerView;
+    private RecyclerView.Adapter meetingsAdapter;
+    private RecyclerView.LayoutManager layoutManager;
+
+    // Data beeing used
+    private List<HashMap<String,Object>> meetings;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +120,13 @@ public class MapActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        // RecyclerView for meetings and walks
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        // TODO: we need the variable meetings to contain the meetings displayed in the map
+        meetingsAdapter = new MeetingSmallAdapter(this, meetings);
+        recyclerView.setAdapter(meetingsAdapter);
     }
 
     @Override
