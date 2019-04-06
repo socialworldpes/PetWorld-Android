@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 26
@@ -41,3 +40,5 @@ dependencies {
         exclude group: 'com.android.support'
     }
 }
+
+apply plugin: 'com.google.gms.google-services'
