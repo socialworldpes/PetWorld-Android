@@ -382,9 +382,8 @@ public class MapActivity extends AppCompatActivity
     }
 
     private void initNavigationDrawer() {
-        //to improve
+        //TODO: improve
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
-        toolBar.setTitle("Map");
         setSupportActionBar(toolBar);
         DrawerUtil.getDrawer(this,toolBar);
     }
