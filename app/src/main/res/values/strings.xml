@@ -3,4 +3,6 @@
     <string name="title_activity_map">MapActivity</string>
     <string name="ButtonToMap">Map</string>
     <string name="title_activity_create_event">CreateEventActivity</string>
+    <string name="Meetings">Quedadas</string>
+    <string name="Walks">Paseos</string>
 </resources>
