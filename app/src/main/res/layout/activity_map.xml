@@ -28,7 +28,7 @@
             android:layout_height="8dp"
             app:layout_anchor="@id/bottomSheet"
             android:background="@drawable/shadow"/>
-    <include layout="@layout/bottom_sheet_main" />
+    <include layout="@layout/bottom_sheet" />
     <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
