@@ -16,11 +16,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.TextView;
 
 
 import android.widget.Toast;
@@ -40,6 +36,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.*;
 
+import java.util.ArrayList;
+import java.util.Map;
+
 public class MapActivity extends AppCompatActivity
         implements OnMapReadyCallback, GoogleMap.OnCameraIdleListener {
 
@@ -48,6 +47,7 @@ public class MapActivity extends AppCompatActivity
     private CameraPosition mCameraPosition; //prova
 
     private int times = 0;
+    private ArrayList<Map<String, Object>> meetings = new ArrayList<Map<String, Object>>();
 
     // The entry points to the Places API.
     private GeoDataClient mGeoDataClient;
@@ -395,7 +395,7 @@ public class MapActivity extends AppCompatActivity
         LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference meetingsRef = db.collection("meetings");
+        final CollectionReference meetingsRef = db.collection("meetings");
         Query locations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
 
         locations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -405,6 +405,7 @@ public class MapActivity extends AppCompatActivity
                     ++times;
                     mMap.clear();
                     for (QueryDocumentSnapshot document: task.getResult()) {
+                        meetings.add(document.getData());
                         GeoPoint point = (GeoPoint) document.get("placeLocation");
                         mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude())));
                         Log.d("Event", times + " - " + point.getLatitude() + " " + point.getLongitude());
