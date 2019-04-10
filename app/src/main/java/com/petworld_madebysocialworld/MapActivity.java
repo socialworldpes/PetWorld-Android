@@ -35,6 +35,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -43,12 +44,8 @@ import com.google.firebase.firestore.*;
 import java.util.ArrayList;
 import java.util.Map;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 public class MapActivity extends AppCompatActivity
-        implements OnMapReadyCallback, GoogleMap.OnCameraIdleListener {
+        implements OnMapReadyCallback, GoogleMap.OnCameraMoveStartedListener {
 
     private static final String TAG = MapActivity.class.getSimpleName();
     private GoogleMap mMap;
@@ -95,8 +92,7 @@ public class MapActivity extends AppCompatActivity
     private RecyclerView.LayoutManager layoutManager;
 
     // Data beeing used
-    private List<HashMap<String,Object>> meetings;
-
+    Query locations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,10 +126,10 @@ public class MapActivity extends AppCompatActivity
 
         // RecyclerView for meetings and walks
         layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
+        //recyclerView.setLayoutManager(layoutManager);
         // TODO: we need the variable meetings to contain the meetings displayed in the map
         meetingsAdapter = new MeetingSmallAdapter(this, meetings);
-        recyclerView.setAdapter(meetingsAdapter);
+        //recyclerView.setAdapter(meetingsAdapter);
     }
 
     @Override
@@ -191,7 +187,7 @@ public class MapActivity extends AppCompatActivity
             }
         });
 
-        mMap.setOnCameraIdleListener(this);
+        mMap.setOnCameraMoveStartedListener(this);
 
     }
 
@@ -412,8 +408,8 @@ public class MapActivity extends AppCompatActivity
         DrawerUtil.getDrawer(this,toolBar);
     }
 
-    @Override
-    public void onCameraIdle() {
+    public void searchNearPlaces(View view) {
+        view.setVisibility(View.INVISIBLE);
         LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -441,7 +437,13 @@ public class MapActivity extends AppCompatActivity
                 }
             }
         });
+    }
 
+    @Override
+    public void onCameraMoveStarted(int reason) {
+        Log.d("HOLA", "HOLA");
+        View b = findViewById(R.id.nearPlaces);
+        b.setVisibility(View.VISIBLE);
     }
 
 }
