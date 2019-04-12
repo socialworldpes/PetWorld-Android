@@ -16,7 +16,11 @@
             android:roundIcon="@mipmap/ic_launcher_custom_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
-        <activity android:name=".CreateEventActivity">
+        <activity android:name=".CreateRouteActivity">
+        </activity>
+        <activity android:name=".CreateWalkActivity">
+        </activity>
+        <activity android:name=".CreateMeetingActivity">
         </activity>
         <activity android:name=".UserActivity">
         </activity>
@@ -33,10 +37,12 @@
              sign the APK for publishing.
              You can define the keys for the debug and release targets in src/debug/ and src/release/.  AIzaSyBaeqtn5WyJL-92gUY-k6KR0QqxwtNbYM8
         -->
-        <activity android:name=".MainActivity"
-                  android:theme="@style/AppTheme.Translucent">
+        <activity
+                android:name=".MainActivity"
+                android:theme="@style/AppTheme.Translucent">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
+
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>

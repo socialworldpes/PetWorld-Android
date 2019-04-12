@@ -267,7 +267,7 @@ public class MapActivity extends AppCompatActivity
      Create new event
     */
     public void newEvent(LatLng latLng, boolean pickLocationFirst){
-        Intent intent = new Intent(MapActivity.this, CreateEventActivity.class);
+        Intent intent = new Intent(MapActivity.this, CreateMeetingActivity.class);
         intent.putExtra("location", latLng);
         startActivity(intent);
     }
