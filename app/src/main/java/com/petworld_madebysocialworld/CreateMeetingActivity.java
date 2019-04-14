@@ -51,8 +51,8 @@ public class CreateMeetingActivity extends AppCompatActivity {
                 Toast.makeText(this, "Dins Try", Toast.LENGTH_SHORT).show();
                 Bitmap  bmp = BitmapFactory.decodeStream(getContentResolver().openInputStream(selectedImage));
                 BitmapDrawable bitmapDrawable = new BitmapDrawable(bmp);
-                ImageView imgView = (ImageView)findViewById(R.id.imageView);
-                imgView.setImageDrawable(bitmapDrawable);
+                //ImageView imgView = (ImageView)findViewById(R.id.imageView);
+                //imgView.setImageDrawable(bitmapDrawable);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
