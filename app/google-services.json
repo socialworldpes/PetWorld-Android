@@ -39,6 +39,14 @@
           }
         },
         {
+          "client_id": "381871766664-krlj97q55he9b957g404llk5kjbe8pls.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.petworld_madebysocialworld",
+            "certificate_hash": "9ce82b0715435c2e95b37b45fef6455692d74fdf"
+          }
+        },
+        {
           "client_id": "381871766664-0mt270uke99f8qfo7kmctrf7t3c64u6m.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

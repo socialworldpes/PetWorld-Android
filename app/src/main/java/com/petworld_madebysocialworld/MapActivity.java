@@ -14,13 +14,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.TextView;
 
 
 import android.widget.Toast;
@@ -37,17 +35,24 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.*;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 public class MapActivity extends AppCompatActivity
-        implements OnMapReadyCallback {
+        implements OnMapReadyCallback, GoogleMap.OnCameraMoveStartedListener {
 
     private static final String TAG = MapActivity.class.getSimpleName();
     private GoogleMap mMap;
     private CameraPosition mCameraPosition; //prova
+
+    private int times = 0;
+    private ArrayList<Map<String, Object>> meetings = new ArrayList<Map<String, Object>>();
 
     // The entry points to the Places API.
     private GeoDataClient mGeoDataClient;
@@ -81,6 +86,13 @@ public class MapActivity extends AppCompatActivity
     //user
     private User u;
 
+    // RecyclerView for meetings and walks
+    private RecyclerView recyclerView;
+    private RecyclerView.Adapter meetingsAdapter;
+    private RecyclerView.LayoutManager layoutManager;
+
+    // Data beeing used
+    Query locations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +123,13 @@ public class MapActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        // RecyclerView for meetings and walks
+        layoutManager = new LinearLayoutManager(this);
+        //recyclerView.setLayoutManager(layoutManager);
+        // TODO: we need the variable meetings to contain the meetings displayed in the map
+        meetingsAdapter = new MeetingSmallAdapter(this, meetings);
+        //recyclerView.setAdapter(meetingsAdapter);
     }
 
     @Override
@@ -168,6 +187,7 @@ public class MapActivity extends AppCompatActivity
             }
         });
 
+        mMap.setOnCameraMoveStartedListener(this);
 
     }
 
@@ -247,7 +267,7 @@ public class MapActivity extends AppCompatActivity
      Create new event
     */
     public void newEvent(LatLng latLng, boolean pickLocationFirst){
-        Intent intent = new Intent(MapActivity.this, CreateEventActivity.class);
+        Intent intent = new Intent(MapActivity.this, CreateMeetingActivity.class);
         intent.putExtra("location", latLng);
         startActivity(intent);
     }
@@ -355,7 +375,7 @@ public class MapActivity extends AppCompatActivity
             return;
         }
         try {
-            /*
+
             if (mLocationPermissionGranted) {
                 mMap.setMyLocationEnabled(true);
                 mMap.getUiSettings().setMyLocationButtonEnabled(true);
@@ -365,7 +385,7 @@ public class MapActivity extends AppCompatActivity
                 mLastKnownLocation = null;
                 getLocationPermission();
             }
-            */
+
         } catch (SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
         }
@@ -386,6 +406,44 @@ public class MapActivity extends AppCompatActivity
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolBar);
         DrawerUtil.getDrawer(this,toolBar);
+    }
+
+    public void searchNearPlaces(View view) {
+        view.setVisibility(View.INVISIBLE);
+        LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final CollectionReference meetingsRef = db.collection("meetings");
+        Query locations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+
+        locations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    ++times;
+                    mMap.clear();
+                    for (QueryDocumentSnapshot document: task.getResult()) {
+                        meetings.add(document.getData());
+                        GeoPoint point = (GeoPoint) document.get("placeLocation");
+                        mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude())));
+                        Log.d("Event", times + " - " + point.getLatitude() + " " + point.getLongitude());
+                    }
+
+                    if (task.getResult().isEmpty()) Log.d("Event", times + " - NO hay quedadas cerca");
+                    /*
+                    Nuse pq la primera vez los carga 2 veces... Y es muy raro porque times = 1 en ambos!!
+                    Carga un poco más de lo que hay en la pantalla (nuse pq, imagino que los bounds te da algo más grande)
+                    */
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onCameraMoveStarted(int reason) {
+        Log.d("HOLA", "HOLA");
+        View b = findViewById(R.id.nearPlaces);
+        b.setVisibility(View.VISIBLE);
     }
 
 }
