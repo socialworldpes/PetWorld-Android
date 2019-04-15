@@ -39,8 +39,10 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -51,7 +53,6 @@ public class MapActivity extends AppCompatActivity
     private GoogleMap mMap;
     private CameraPosition mCameraPosition; //prova
 
-    private int times = 0;
     private ArrayList<Map<String, Object>> meetings = new ArrayList<Map<String, Object>>();
 
     // The entry points to the Places API.
@@ -410,7 +411,7 @@ public class MapActivity extends AppCompatActivity
 
     public void searchNearPlaces(View view) {
         view.setVisibility(View.INVISIBLE);
-        LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+        final LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         final CollectionReference meetingsRef = db.collection("meetings");
@@ -420,20 +421,22 @@ public class MapActivity extends AppCompatActivity
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    ++times;
                     mMap.clear();
+                    Timestamp now = Timestamp.now();
                     for (QueryDocumentSnapshot document: task.getResult()) {
-                        meetings.add(document.getData());
                         GeoPoint point = (GeoPoint) document.get("placeLocation");
-                        mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude())));
-                        Log.d("Event", times + " - " + point.getLatitude() + " " + point.getLongitude());
+                        Timestamp date = (Timestamp) document.get("start");
+                        String name = (String) document.get("name");
+
+                        if (point.getLongitude() <= bounds.northeast.longitude && point.getLongitude() >= bounds.southwest.longitude && now.compareTo(date) <= 0) {
+                            meetings.add(document.getData());
+                            mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude())).title(name)).showInfoWindow();
+                            Log.d("Meeting", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                        }
+
                     }
 
-                    if (task.getResult().isEmpty()) Log.d("Event", times + " - NO hay quedadas cerca");
-                    /*
-                    Nuse pq la primera vez los carga 2 veces... Y es muy raro porque times = 1 en ambos!!
-                    Carga un poco más de lo que hay en la pantalla (nuse pq, imagino que los bounds te da algo más grande)
-                    */
+                    if (task.getResult().isEmpty()) Log.d("Meeting", "NO hay quedadas cerca");
                 }
             }
         });
