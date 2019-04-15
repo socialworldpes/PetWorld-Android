@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -21,6 +22,8 @@ import android.util.Log;
 import android.view.View;
 
 
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -33,18 +36,15 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.*;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.*;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 
 public class MapActivity extends AppCompatActivity
         implements OnMapReadyCallback, GoogleMap.OnCameraMoveStartedListener {
@@ -152,7 +152,7 @@ public class MapActivity extends AppCompatActivity
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng point) {
-                mMap.clear();
+                //mMap.clear();
                 mMap.addMarker(new MarkerOptions().position(point));
             }
         });
@@ -164,7 +164,7 @@ public class MapActivity extends AppCompatActivity
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(final LatLng point) {
-                mMap.clear();
+                //mMap.clear();
                 vibe.vibrate(50);
 
                 AlertDialog alertDialog = new AlertDialog.Builder(MapActivity.this).create();
@@ -425,12 +425,13 @@ public class MapActivity extends AppCompatActivity
                     Timestamp now = Timestamp.now();
                     for (QueryDocumentSnapshot document: task.getResult()) {
                         GeoPoint point = (GeoPoint) document.get("placeLocation");
-                        Timestamp date = (Timestamp) document.get("start");
                         String name = (String) document.get("name");
+                        Timestamp date = (Timestamp) document.get("start");
 
                         if (point.getLongitude() <= bounds.northeast.longitude && point.getLongitude() >= bounds.southwest.longitude && now.compareTo(date) <= 0) {
                             meetings.add(document.getData());
-                            mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude())).title(name)).showInfoWindow();
+                            meetingMarker(point, date);
+                            //mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude())).title(name)).showInfoWindow();
                             Log.d("Meeting", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                         }
 
@@ -447,6 +448,28 @@ public class MapActivity extends AppCompatActivity
         Log.d("HOLA", "HOLA");
         View b = findViewById(R.id.nearPlaces);
         b.setVisibility(View.VISIBLE);
+    }
+
+    public void meetingMarker(GeoPoint point, Timestamp date) {
+        LinearLayout linearLayout = (LinearLayout) this.getLayoutInflater().inflate(R.layout.meeting_marker, null, false);
+
+        TextView layoutDate = linearLayout.findViewById(R.id.date);
+        SimpleDateFormat formatter = new SimpleDateFormat("EEE h:mma");
+        layoutDate.setText(formatter.format(date.toDate()));
+
+        linearLayout.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        linearLayout.layout(0, 0, linearLayout.getMeasuredWidth(), linearLayout.getMeasuredHeight());;
+
+        linearLayout.setDrawingCacheEnabled(true);
+        linearLayout.buildDrawingCache();
+        Bitmap bmp = linearLayout.getDrawingCache();
+
+        mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(point.getLatitude(), point.getLongitude()))
+                .icon(BitmapDescriptorFactory.fromBitmap(bmp))
+                // Specifies the anchor to be at a particular point in the marker image.
+                .anchor(0.5f, 1));
     }
 
 }
