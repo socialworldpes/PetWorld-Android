@@ -140,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                             }
                                         });
                             }
+                            u.setDocumentSnapshot(document);
                         } else {
                             Log.d(TAG, "get failed with ", task.getException());
                         }

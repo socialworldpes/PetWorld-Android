@@ -1,5 +1,6 @@
 package com.petworld_madebysocialworld;
 
+import Models.User;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -7,22 +8,35 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.*;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
-import java.util.Calendar;
+import java.sql.Timestamp;
+import java.util.*;
 
 public class CreateMeetingActivity extends AppCompatActivity implements View.OnClickListener, OnMapReadyCallback {
     public static final int PICK_IMAGE = 1;
@@ -53,11 +67,19 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
     private GoogleMap mMap;
     private MapView mapV;
 
+    //images
+    ArrayList<Bitmap> images;
+
+    //strings for time and date for firestore
+    String fechaFormateada = null;
+    String tiempoFormateado = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_meeting);
 
+        images = new ArrayList<>();
         //Widget EditText donde se mostrara la fecha obtenida
         etFecha = (EditText) findViewById(R.id.et_mostrar_fecha_picker);
         //Widget ImageButton del cual usaremos el evento clic para obtener la fecha
@@ -148,6 +170,7 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
             try {
                 Toast.makeText(this, "Dins Try", Toast.LENGTH_SHORT).show();
                 Bitmap  bmp = BitmapFactory.decodeStream(getContentResolver().openInputStream(selectedImage));
+                images.add(bmp);
                 BitmapDrawable bitmapDrawable = new BitmapDrawable(bmp);
                 ImageView imgView = (ImageView)findViewById(R.id.foto1);
                 imgView.setImageDrawable(bitmapDrawable);
@@ -171,10 +194,44 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                 startActivity(intent);
                 break;
             case R.id.g_create_meeting:
-                //guardar todo lo que se ha hecho en firebase e ir al mapa
+                //guardar todo lo que se ha hecho
 
-                //ir al mapa
-                startActivity(intent);
+                //TODO
+                //(EditText) findViewById(R.id.title_create_meeting).getText()) == null ||
+                if (((EditText) findViewById(R.id.des)).getText().toString().equals("")){
+                    Toast.makeText(this, "La descripción no puede estar vacía", Toast.LENGTH_SHORT).show();
+                }
+                else if (tiempoFormateado == null || fechaFormateada == null){
+                    Toast.makeText(this, "Por favor, elija una fecha y hora correctas", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    //ojo, hay que guardar todo en firestore
+
+                    Map<String, Object> meeting = new HashMap<>();
+
+                    meeting.put("creator", User.getInstance().getDocSnap().getId());
+                    meeting.put("description", ((EditText)findViewById(R.id.des)).getText().toString());
+                    meeting.put("images", Arrays.asList());
+                    meeting.put("name", ((EditText)findViewById(R.id.title_create_meeting)).getText().toString());
+                    LatLng loc = (LatLng) getIntent().getParcelableExtra("location");
+                    meeting.put("placeLocation", new GeoPoint(loc.latitude, loc.longitude));
+                    meeting.put("placeName", "");
+                    meeting.put("start", Timestamp.valueOf(fechaFormateada + " " + tiempoFormateado));
+                    meeting.put("visibility", "public");
+
+                    final String[] idMeeting = new String[1];
+                    FirebaseFirestore.getInstance().collection("meetings").add(meeting).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            idMeeting[0] = documentReference.getId();
+
+                            //ojo, ahora hay que guardar las fotos en su sitio y ponerlas en firebase RECOGER LINK y añadir a lugar correspondiente
+
+                        }
+                    });
+                    //ir al mapa
+                    startActivity(intent);
+                }
                 break;
             case R.id.load_image:
                 Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -196,8 +253,7 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                 String mesFormateado = (mesActual < 10)? CERO + String.valueOf(mesActual):String.valueOf(mesActual);
                 //Muestro la fecha con el formato deseado
                 etFecha.setText(diaFormateado + BARRA + mesFormateado + BARRA + year);
-
-
+                fechaFormateada = year + "-" + mesFormateado  + "-" + diaFormateado;
             }
             //Estos valores deben ir en ese orden, de lo contrario no mostrara la fecha actual
             /**
@@ -225,6 +281,7 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                 }
                 //Muestro la hora con el formato deseado
                 etHora.setText(horaFormateada + DOS_PUNTOS + minutoFormateado + " " + AM_PM);
+                tiempoFormateado = horaFormateada + ":" + minutoFormateado + ":00";
             }
             //Estos valores deben ir en ese orden
             //Al colocar en false se muestra en formato 12 horas y true en formato 24 horas
