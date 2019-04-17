@@ -42,8 +42,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.*;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class MapActivity extends AppCompatActivity
@@ -57,15 +59,7 @@ public class MapActivity extends AppCompatActivity
     private ArrayList<Map<String, Object>> routes = new ArrayList<Map<String, Object>>();
     private ArrayList<Map<String, Object>> walks = new ArrayList<Map<String, Object>>();
     
-    private Map<String, String> dayOfWeek = new HashMap<String, String>() {{
-        put("Sun", "Dom");
-        put("Mon", "Lun");
-        put("Tue", "Mar");
-        put("Wed", "Mié");
-        put("Thu", "Jue");
-        put("Fri", "Vie");
-        put("Sat", "Sáb");
-    }};
+    private String[] dayOfWeek = new String[] {"Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"};
 
     // The entry points to the Places API.
     private GeoDataClient mGeoDataClient;
@@ -143,9 +137,6 @@ public class MapActivity extends AppCompatActivity
         // TODO: we need the variable meetings to contain the meetings displayed in the map
         meetingsAdapter = new MeetingSmallAdapter(this, meetings);
         //recyclerView.setAdapter(meetingsAdapter);
-
-        //Calendar now = Calendar.getInstance();
-        //Log.d("Date", dayOfWeek[now.get(Calendar.DAY_OF_WEEK) - 1]);
 
     }
 
@@ -443,20 +434,22 @@ public class MapActivity extends AppCompatActivity
         final CollectionReference routesRef = db.collection("routes");
         Query routeLocations = routesRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
 
+        mMap.clear();
+
         meetingLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    mMap.clear();
                     meetings.clear();
                     for (QueryDocumentSnapshot document: task.getResult()) {
                         GeoPoint point = (GeoPoint) document.get("placeLocation");
                         String name = (String) document.get("name");
                         Timestamp date = (Timestamp) document.get("start");
+                        LocalDateTime dateTime = LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault());
 
-                        if (checkConditions(point, bounds, date) > 0) {
+                        if (checkConditions(point, bounds, dateTime) > 0) {
                             meetings.add(document.getData());
-                            meetingAndWalkMarker(point, date.toDate(), "Meeting");
+                            meetingAndWalkMarker(point, dateTime, "Meeting");
                             //mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude())).title(name)).showInfoWindow();
                             Log.d("Meeting", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                         }
@@ -469,7 +462,7 @@ public class MapActivity extends AppCompatActivity
         });
 
         // Its important for Walks to be queried first!
-        walksRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        walkLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
@@ -477,10 +470,11 @@ public class MapActivity extends AppCompatActivity
                     for (QueryDocumentSnapshot document: task.getResult()) {
                         GeoPoint point = (GeoPoint) document.get("placeLocation");
                         Timestamp date = (Timestamp) document.get("start");
+                        LocalDateTime dateTime = LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault());
 
-                        if (checkConditions(point, bounds, date) > 0) {
+                        if (checkConditions(point, bounds, dateTime) > 0) {
                             walks.add(document.getData());
-                            meetingAndWalkMarker(point, date.toDate(), "Walk");
+                            meetingAndWalkMarker(point, dateTime, "Walk");
                             Log.d("Walk", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                         }
 
@@ -491,14 +485,13 @@ public class MapActivity extends AppCompatActivity
             }
         });
 
-        routesRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        routeLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     routes.clear();
                     for (QueryDocumentSnapshot document: task.getResult()) {
                         GeoPoint point = (GeoPoint) document.get("placeLocation");
-                        Timestamp date = (Timestamp) document.get("start");
 
                         if (checkConditions(point, bounds, null) > 0 && hasWalk(document.getId()) < 0) {
                             routes.add(document.getData());
@@ -515,12 +508,14 @@ public class MapActivity extends AppCompatActivity
 
     }
 
-    public int checkConditions(GeoPoint point, LatLngBounds bounds, Timestamp date) {
-        Timestamp now = Timestamp.now();
+    public int checkConditions(GeoPoint point, LatLngBounds bounds, LocalDateTime dateTime) {
+        LocalDateTime now = LocalDateTime.now();
+        // Only shows the points of the following 7 days
+        LocalDateTime weekFromToday = now.plusWeeks(1);
 
         if (point.getLongitude() <= bounds.northeast.longitude &&
                 point.getLongitude() >= bounds.southwest.longitude &&
-                (date == null || now.compareTo(date) <= 0)) return 1;
+                (dateTime == null || (now.compareTo(dateTime) <= 0 && dateTime.compareTo(weekFromToday) <= 0))) return 1;
         return 0;
     }
 
@@ -546,25 +541,19 @@ public class MapActivity extends AppCompatActivity
                 .anchor(0.5f, 0.5f));
     }
 
-    public static boolean isToday(Date date) {
-        Calendar today = Calendar.getInstance();
-        Calendar specifiedDate  = Calendar.getInstance();
-        specifiedDate.setTime(date);
-
-        return today.get(Calendar.DAY_OF_MONTH) == specifiedDate.get(Calendar.DAY_OF_MONTH)
-                &&  today.get(Calendar.MONTH) == specifiedDate.get(Calendar.MONTH)
-                &&  today.get(Calendar.YEAR) == specifiedDate.get(Calendar.YEAR);
+    public static boolean isToday(LocalDate date) {
+        if (date.isEqual(LocalDate.now())) return true;
+        return false;
     }
 
-    public void meetingAndWalkMarker(GeoPoint point, Date date, String type) {
+    public void meetingAndWalkMarker(GeoPoint point, LocalDateTime date, String type) {
         LinearLayout linearLayout = (LinearLayout) this.getLayoutInflater().inflate(type.equals("Meeting") ? R.layout.meeting_marker : R.layout.walk_marker, null, false);
 
         TextView layoutDate = linearLayout.findViewById(R.id.date);
 
-        SimpleDateFormat formatter = new SimpleDateFormat("EEE");
-        String day = isToday(date) ? "Hoy" : dayOfWeek.get(formatter.format(date));
-        formatter = new SimpleDateFormat("h:mma");
-        layoutDate.setText(day + " " + formatter.format(date));
+        String day = isToday(date.toLocalDate()) ? "Hoy" : dayOfWeek[date.getDayOfWeek().getValue() - 1];
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("h:mma");
+        layoutDate.setText(day + " " + date.format(formatter));
 
         linearLayout.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
