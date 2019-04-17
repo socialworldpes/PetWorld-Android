@@ -54,6 +54,18 @@ public class MapActivity extends AppCompatActivity
     private CameraPosition mCameraPosition; //prova
 
     private ArrayList<Map<String, Object>> meetings = new ArrayList<Map<String, Object>>();
+    private ArrayList<Map<String, Object>> routes = new ArrayList<Map<String, Object>>();
+    private ArrayList<Map<String, Object>> walks = new ArrayList<Map<String, Object>>();
+    
+    private Map<String, String> dayOfWeek = new HashMap<String, String>() {{
+        put("Sun", "Dom");
+        put("Mon", "Lun");
+        put("Tue", "Mar");
+        put("Wed", "Mié");
+        put("Thu", "Jue");
+        put("Fri", "Vie");
+        put("Sat", "Sáb");
+    }};
 
     // The entry points to the Places API.
     private GeoDataClient mGeoDataClient;
@@ -131,6 +143,10 @@ public class MapActivity extends AppCompatActivity
         // TODO: we need the variable meetings to contain the meetings displayed in the map
         meetingsAdapter = new MeetingSmallAdapter(this, meetings);
         //recyclerView.setAdapter(meetingsAdapter);
+
+        //Calendar now = Calendar.getInstance();
+        //Log.d("Date", dayOfWeek[now.get(Calendar.DAY_OF_WEEK) - 1]);
+
     }
 
     @Override
@@ -414,23 +430,33 @@ public class MapActivity extends AppCompatActivity
         final LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        final CollectionReference meetingsRef = db.collection("meetings");
-        Query locations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
 
-        locations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        // Query Meetings
+        final CollectionReference meetingsRef = db.collection("meetings");
+        Query meetingLocations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+
+        // Query Walks
+        final CollectionReference walksRef = db.collection("walks");
+        Query walkLocations = walksRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+
+        // Query Routes
+        final CollectionReference routesRef = db.collection("routes");
+        Query routeLocations = routesRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+
+        meetingLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     mMap.clear();
-                    Timestamp now = Timestamp.now();
+                    meetings.clear();
                     for (QueryDocumentSnapshot document: task.getResult()) {
                         GeoPoint point = (GeoPoint) document.get("placeLocation");
                         String name = (String) document.get("name");
                         Timestamp date = (Timestamp) document.get("start");
 
-                        if (point.getLongitude() <= bounds.northeast.longitude && point.getLongitude() >= bounds.southwest.longitude && now.compareTo(date) <= 0) {
+                        if (checkConditions(point, bounds, date) > 0) {
                             meetings.add(document.getData());
-                            meetingMarker(point, date);
+                            meetingAndWalkMarker(point, date.toDate(), "Meeting");
                             //mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude())).title(name)).showInfoWindow();
                             Log.d("Meeting", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                         }
@@ -441,6 +467,68 @@ public class MapActivity extends AppCompatActivity
                 }
             }
         });
+
+        // Its important for Walks to be queried first!
+        walksRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    walks.clear();
+                    for (QueryDocumentSnapshot document: task.getResult()) {
+                        GeoPoint point = (GeoPoint) document.get("placeLocation");
+                        Timestamp date = (Timestamp) document.get("start");
+
+                        if (checkConditions(point, bounds, date) > 0) {
+                            walks.add(document.getData());
+                            meetingAndWalkMarker(point, date.toDate(), "Walk");
+                            Log.d("Walk", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                        }
+
+                    }
+
+                    if (task.getResult().isEmpty()) Log.d("Walk", "NO hay paseos cerca");
+                }
+            }
+        });
+
+        routesRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    routes.clear();
+                    for (QueryDocumentSnapshot document: task.getResult()) {
+                        GeoPoint point = (GeoPoint) document.get("placeLocation");
+                        Timestamp date = (Timestamp) document.get("start");
+
+                        if (checkConditions(point, bounds, null) > 0 && hasWalk(document.getId()) < 0) {
+                            routes.add(document.getData());
+                            routeMarker(point);
+                            Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                        }
+
+                    }
+
+                    if (task.getResult().isEmpty()) Log.d("Route", "NO hay rutas cerca");
+                }
+            }
+        });
+
+    }
+
+    public int checkConditions(GeoPoint point, LatLngBounds bounds, Timestamp date) {
+        Timestamp now = Timestamp.now();
+
+        if (point.getLongitude() <= bounds.northeast.longitude &&
+                point.getLongitude() >= bounds.southwest.longitude &&
+                (date == null || now.compareTo(date) <= 0)) return 1;
+        return 0;
+    }
+
+    public int hasWalk(String routeId) {
+        for (Map<String, Object> walk : walks) {
+            if (walk.get("walkForRoute").toString().equals(routeId)) return 1;
+        }
+        return -1;
     }
 
     @Override
@@ -450,12 +538,33 @@ public class MapActivity extends AppCompatActivity
         b.setVisibility(View.VISIBLE);
     }
 
-    public void meetingMarker(GeoPoint point, Timestamp date) {
-        LinearLayout linearLayout = (LinearLayout) this.getLayoutInflater().inflate(R.layout.meeting_marker, null, false);
+    public void addMarker(GeoPoint point, Bitmap bmp) {
+        mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(point.getLatitude(), point.getLongitude()))
+                .icon(BitmapDescriptorFactory.fromBitmap(bmp))
+                // Specifies the anchor to be at a particular point in the marker image.
+                .anchor(0.5f, 0.5f));
+    }
+
+    public static boolean isToday(Date date) {
+        Calendar today = Calendar.getInstance();
+        Calendar specifiedDate  = Calendar.getInstance();
+        specifiedDate.setTime(date);
+
+        return today.get(Calendar.DAY_OF_MONTH) == specifiedDate.get(Calendar.DAY_OF_MONTH)
+                &&  today.get(Calendar.MONTH) == specifiedDate.get(Calendar.MONTH)
+                &&  today.get(Calendar.YEAR) == specifiedDate.get(Calendar.YEAR);
+    }
+
+    public void meetingAndWalkMarker(GeoPoint point, Date date, String type) {
+        LinearLayout linearLayout = (LinearLayout) this.getLayoutInflater().inflate(type.equals("Meeting") ? R.layout.meeting_marker : R.layout.walk_marker, null, false);
 
         TextView layoutDate = linearLayout.findViewById(R.id.date);
-        SimpleDateFormat formatter = new SimpleDateFormat("EEE h:mma");
-        layoutDate.setText(formatter.format(date.toDate()));
+
+        SimpleDateFormat formatter = new SimpleDateFormat("EEE");
+        String day = isToday(date) ? "Hoy" : dayOfWeek.get(formatter.format(date));
+        formatter = new SimpleDateFormat("h:mma");
+        layoutDate.setText(day + " " + formatter.format(date));
 
         linearLayout.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
@@ -465,11 +574,21 @@ public class MapActivity extends AppCompatActivity
         linearLayout.buildDrawingCache();
         Bitmap bmp = linearLayout.getDrawingCache();
 
-        mMap.addMarker(new MarkerOptions()
-                .position(new LatLng(point.getLatitude(), point.getLongitude()))
-                .icon(BitmapDescriptorFactory.fromBitmap(bmp))
-                // Specifies the anchor to be at a particular point in the marker image.
-                .anchor(0.5f, 1));
+        addMarker(point, bmp);
+    }
+
+    public void routeMarker(GeoPoint point) {
+        LinearLayout linearLayout = (LinearLayout) this.getLayoutInflater().inflate(R.layout.route_marker, null, false);
+
+        linearLayout.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        linearLayout.layout(0, 0, linearLayout.getMeasuredWidth(), linearLayout.getMeasuredHeight());;
+
+        linearLayout.setDrawingCacheEnabled(true);
+        linearLayout.buildDrawingCache();
+        Bitmap bmp = linearLayout.getDrawingCache();
+
+        addMarker(point, bmp);
     }
 
 }
