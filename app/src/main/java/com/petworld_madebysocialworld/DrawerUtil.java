@@ -178,7 +178,9 @@ public class DrawerUtil {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         if (drawerItem.getIdentifier() == 1 && !(activity instanceof UserActivity)) {
-                            Intent intent = new Intent(activity, UserActivity.class);
+                           // Intent intent = new Intent(activity, UserActivity.class);
+                            //debug petprofile
+                            Intent intent = new Intent(activity, PetUpdateActivity.class);
                             view.getContext().startActivity(intent);
                         }
                         if (drawerItem.getIdentifier() == 5 && !(activity instanceof MapActivity)) {

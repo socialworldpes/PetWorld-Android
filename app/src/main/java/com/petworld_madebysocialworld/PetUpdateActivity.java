@@ -1,57 +1,69 @@
 package com.petworld_madebysocialworld;
 
 import Models.User;
-import android.os.Debug;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
-import com.google.firebase.iid.FirebaseInstanceId;
-import org.w3c.dom.Document;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-
-public class PetProfileActivity extends AppCompatActivity {
+public class PetUpdateActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
-    private TextView name;
-    private TextView gender;
-    private TextView race;
-    private TextView specie;
-    private TextView comment;
+    private EditText name;
+    private EditText gender;
+    private EditText race;
+    private EditText specie;
+    private EditText comment;
+    private Button btnUpdatePet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pet_profile);
+        setContentView(R.layout.activity_pet_update);
         initFireBase();
-        initTextView();
+        initItems();
+        initListeners();
         if (mAuth.getCurrentUser() != null)
             initLayout();
         initNavigationDrawer();
     }
+
+    private void initListeners() {
+        btnUpdatePet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                updatePet();
+            }
+        });
+    }
+
 
     private void initFireBase() {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
     }
 
-    private void initTextView() {
-        name = findViewById(R.id.textViewName);
-        gender = findViewById(R.id.textViewGender);
-        race = findViewById(R.id.textViewRace);
-        specie = findViewById(R.id.textViewSpecie);
-        comment = findViewById(R.id.textViewComment);
+    private void initItems() {
+        name = findViewById(R.id.editTextName);
+        gender = findViewById(R.id.editTextGender);
+        race = findViewById(R.id.editTextRace);
+        specie = findViewById(R.id.editTextSpecie);
+        comment = findViewById(R.id.editTextComment);
+        btnUpdatePet = findViewById(R.id.buttonUpdatePet);
     }
 
     private void initLayout() {
@@ -90,9 +102,26 @@ public class PetProfileActivity extends AppCompatActivity {
     }
 
 
+    private void updatePet() {
+
+        String userID = User.getInstance().getAccount().getId();
+        Log.d("userID", userID);
+        HashMap<String, Object> mascota =  new HashMap<String, Object>();
+        mascota.put("name", name.getText().toString());
+        mascota.put("gender", gender.getText().toString());
+        mascota.put("specie", specie.getText().toString());
+        mascota.put("race", race.getText().toString());
+        mascota.put("comment",comment.getText().toString());
+        mascota.put("photo", "no foto");
+        mascota.put("owner", userID);
+
+        DocumentReference petRef = db.collection("pets").document("ywVGU7eUrF4rCGEylBmh");
+        petRef.update(mascota);
+    }
+
     private void initNavigationDrawer() {
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
-        toolBar.setTitle("PerfilMascota");
+        toolBar.setTitle("Actualizar Mascota");
         setSupportActionBar(toolBar);
         DrawerUtil.getDrawer(this,toolBar);
     }
