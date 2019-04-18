@@ -1,7 +1,6 @@
 package com.petworld_madebysocialworld;
 
 import Models.User;
-import android.os.Debug;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,12 +11,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
-import com.google.firebase.iid.FirebaseInstanceId;
-import org.w3c.dom.Document;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class PetProfileActivity extends AppCompatActivity {
@@ -29,6 +22,7 @@ public class PetProfileActivity extends AppCompatActivity {
     private TextView race;
     private TextView specie;
     private TextView comment;
+    private String petPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,9 +30,15 @@ public class PetProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_pet_profile);
         initFireBase();
         initTextView();
+        initIntent();
         if (mAuth.getCurrentUser() != null)
             initLayout();
         initNavigationDrawer();
+    }
+
+
+    private void initIntent() {
+        petPath = getIntent().getStringExtra("docPetRef");
     }
 
     private void initFireBase() {
@@ -56,8 +56,11 @@ public class PetProfileActivity extends AppCompatActivity {
 
     private void initLayout() {
         String userID = User.getInstance().getAccount().getId();
-        DocumentReference docRef = db.collection("users").document(userID);
+        Log.d("petProfilePetRef", "" + petPath);
+        DocumentReference docRef = db.document(petPath);
         Log.d("userID", userID);
+        Log.d("petRefIntent", petPath);
+
 
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -65,22 +68,12 @@ public class PetProfileActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     Log.d("task size: ", "" + task.getResult());
                     DocumentSnapshot result = task.getResult();
-                    ArrayList<DocumentReference> arrayReference =  (ArrayList<DocumentReference>) result.get("pets");
-                    if (arrayReference == null) arrayReference =  new ArrayList<>();
-                    DocumentReference petRef = arrayReference.get(0);
-                    petRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            name.setText("" + task.getResult().get("name"));
-                            gender.setText("" + task.getResult().get("gender"));
-                            specie.setText("" + task.getResult().get("specie"));
-                            race.setText("" + task.getResult().get("race"));
-                            comment.setText("" + task.getResult().get("comment"));
-                        }
-                    });
 
-                    // Log.d("mascot a size: ", "" + mascota.size());
-                    // for (String s: mascota.keySet()) Log.d("map", s);
+                    name.setText("" + task.getResult().get("name"));
+                    gender.setText("" + task.getResult().get("gender"));
+                    specie.setText("" + task.getResult().get("specie"));
+                    race.setText("" + task.getResult().get("race"));
+                    comment.setText("" + task.getResult().get("comment"));
                 } else {
                     Log.w("task ko", "Error getting documents.", task.getException());
                 }

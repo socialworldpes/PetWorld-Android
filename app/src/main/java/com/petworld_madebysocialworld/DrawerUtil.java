@@ -31,6 +31,7 @@ import com.mikepenz.materialdrawer.util.DrawerImageLoader;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class DrawerUtil {
@@ -38,7 +39,7 @@ public class DrawerUtil {
     public static void getDrawer(final Activity activity, Toolbar toolbar) {
 
         i = 0;
-
+        final HashMap<Integer, DocumentReference> mapPetRef =  new HashMap<>();
         GoogleSignInAccount account = User.getInstance().getAccount();
         //info account
         String personName = "null";
@@ -97,7 +98,6 @@ public class DrawerUtil {
         DocumentReference docRef = db.collection("users").document(userID);
         Log.d("test", docRef.toString());
         Log.d("userID", userID);
-
         db.collection("users").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -109,7 +109,7 @@ public class DrawerUtil {
 
 
                     if (arrayPets != null) {
-                        for (DocumentReference dr : arrayPets) {
+                        for (final DocumentReference dr : arrayPets) {
 
                             dr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
@@ -119,12 +119,14 @@ public class DrawerUtil {
                                     drawerItemManagePets.withSubItems(
                                             new SecondaryDrawerItem().withName(namePet).withLevel(2).withIdentifier(2001 + i)
                                     );
+                                    mapPetRef.put(2001 + i, dr);
                                 }
                             });
                             i++;
                         }
                         ;
                     }
+                    i = 0;
                   /*  for (QueryDocumentSnapshot document : task.getResult()) {
                         Log.d("task ok", document.getId() + " => " + document.getData());
                         Map<String, Object> aux = task.getResult().getDocuments().get(i).getData();
@@ -178,18 +180,28 @@ public class DrawerUtil {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         if (drawerItem.getIdentifier() == 1 && !(activity instanceof UserActivity)) {
-                           // Intent intent = new Intent(activity, UserActivity.class);
-                            //debug petprofile
-                            Intent intent = new Intent(activity, PetUpdateActivity.class);
+                            Intent intent = new Intent(activity, UserActivity.class);
                             view.getContext().startActivity(intent);
                         }
                         if (drawerItem.getIdentifier() == 5 && !(activity instanceof MapActivity)) {
                             Intent intent = new Intent(activity, MapActivity.class);
                             view.getContext().startActivity(intent);
                         }
-                        if (drawerItem.getIdentifier() == 2001 && !(activity instanceof PetProfileActivity)) {
-                            Intent intent = new Intent(activity, PetProfileActivity.class);
-                            view.getContext().startActivity(intent);
+                        //lista de mascotas
+                        boolean dentroIf = false;
+                        for (Map.Entry<Integer, DocumentReference> entry : mapPetRef.entrySet()) {
+                            if (drawerItem.getIdentifier() == entry.getKey() && !(activity instanceof PetProfileActivity)) {
+
+                                if (!dentroIf) {
+                                    Intent  intent = new Intent(activity, PetProfileActivity.class);
+                                    String petPath = entry.getValue().getPath();
+                                    Log.d("drawerPetRef", petPath);
+                                    intent.putExtra("docPetRef", petPath);
+                                    view.getContext().startActivity(intent);
+                                }
+
+                                dentroIf = true;
+                            }
                         }
                         if (drawerItem.getIdentifier() == 7 ){
                             //to improve
