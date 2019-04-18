@@ -16,15 +16,25 @@
 
 
     <Button
+            android:text="Borrar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/buttonBorrar"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/textViewComment"
+            app:layout_constraintStart_toEndOf="@+id/buttonEdit" android:layout_marginStart="8dp"
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp" android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintVertical_bias="0.062"
+            app:layout_constraintHorizontal_bias="0.489"/>
+    <Button
             android:text="Editar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/buttonEdit"
             android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@+id/textViewComment" app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="160dp" app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="8dp" android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintHorizontal_bias="0.006"
-            app:layout_constraintVertical_bias="0.0"/>
+            android:layout_marginStart="80dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0.062"/>
     <TextView
             android:text="CommentTextView"
             android:layout_width="269dp"
@@ -38,7 +48,7 @@
             android:text="NameTextView"
             android:layout_width="267dp"
             android:layout_height="30dp" android:id="@+id/textViewName"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             app:layout_constraintTop_toBottomOf="@+id/imageView2" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"/>
     <TextView

@@ -133,8 +133,7 @@ public class PetAddActivity extends AppCompatActivity {
                          } else {
                              Log.w("task ko", "Error getting documents.", task.getException());
                          }
-                         Intent intent = new Intent (getApplicationContext(), MapActivity.class);
-                         startActivityForResult(intent, 0);
+                         startMap();
                      }
                  });
 
@@ -145,5 +144,10 @@ public class PetAddActivity extends AppCompatActivity {
 
 
 
+    }
+
+    private void startMap() {
+        Intent intent = new Intent (getApplicationContext(), MapActivity.class);
+        startActivityForResult(intent, 0);
     }
 }

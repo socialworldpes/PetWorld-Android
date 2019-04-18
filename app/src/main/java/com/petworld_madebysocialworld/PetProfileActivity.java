@@ -14,6 +14,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
+import com.google.firestore.v1.WriteResult;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class PetProfileActivity extends AppCompatActivity {
@@ -27,6 +31,7 @@ public class PetProfileActivity extends AppCompatActivity {
     private TextView comment;
     private String petPath;
     private Button btnEditar;
+    private Button btnBorrar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,11 +54,41 @@ public class PetProfileActivity extends AppCompatActivity {
                 editActivity();
             }
         });
+        btnBorrar = findViewById(R.id.buttonBorrar);
+        btnBorrar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                borrarMascota();
+            }
+        });
+    }
+
+    private void borrarMascota() {
+        db.document(petPath).delete();
+        borrarReferenciaUsuario();
+        startMap();
+    }
+
+    private void borrarReferenciaUsuario() {
+        /*DocumentReference docRef = db.collection("users").document(User.getInstance().getmAuth().getUid());
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("pets", FieldValue.delete());
+        docRef.update(updates);*/
+
+        DocumentReference petsDoc = db.collection("users").document(User.getInstance().getmAuth().getUid());
+        petsDoc.update("pets", FieldValue.arrayRemove(petPath));
+
     }
 
     private void editActivity() {
         Intent intent = new Intent(getApplicationContext(), PetUpdateActivity.class);
         intent.putExtra("docPetRef", petPath);
+        startActivityForResult(intent, 0);
+    }
+
+    private void startMap() {
+        Intent intent = new Intent (getApplicationContext(), MapActivity.class);
         startActivityForResult(intent, 0);
     }
 

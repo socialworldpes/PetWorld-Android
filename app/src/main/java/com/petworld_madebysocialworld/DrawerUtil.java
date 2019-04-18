@@ -110,19 +110,21 @@ public class DrawerUtil {
 
                     if (arrayPets != null) {
                         for (final DocumentReference dr : arrayPets) {
+                            if (dr.getPath() !=  null) {
+                                dr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        DocumentSnapshot result = task.getResult();
+                                        String namePet = (String) result.get("name");
+                                        drawerItemManagePets.withSubItems(
+                                                new SecondaryDrawerItem().withName(namePet).withLevel(2).withIdentifier(2001 + i)
+                                        );
+                                        mapPetRef.put(2001 + i, dr);
+                                    }
+                                });
+                                i++;
+                            }
 
-                            dr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    DocumentSnapshot result = task.getResult();
-                                    String namePet = (String) result.get("name");
-                                    drawerItemManagePets.withSubItems(
-                                            new SecondaryDrawerItem().withName(namePet).withLevel(2).withIdentifier(2001 + i)
-                                    );
-                                    mapPetRef.put(2001 + i, dr);
-                                }
-                            });
-                            i++;
                         }
                         ;
                     }
