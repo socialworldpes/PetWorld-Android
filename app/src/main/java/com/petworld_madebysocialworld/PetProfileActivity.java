@@ -1,11 +1,14 @@
 package com.petworld_madebysocialworld;
 
 import Models.User;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -23,6 +26,7 @@ public class PetProfileActivity extends AppCompatActivity {
     private TextView specie;
     private TextView comment;
     private String petPath;
+    private Button btnEditar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,9 +35,26 @@ public class PetProfileActivity extends AppCompatActivity {
         initFireBase();
         initTextView();
         initIntent();
+        initButtons();
         if (mAuth.getCurrentUser() != null)
             initLayout();
         initNavigationDrawer();
+    }
+
+    private void initButtons() {
+        btnEditar  = findViewById(R.id.buttonEdit);
+        btnEditar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editActivity();
+            }
+        });
+    }
+
+    private void editActivity() {
+        Intent intent = new Intent(getApplicationContext(), PetUpdateActivity.class);
+        intent.putExtra("docPetRef", petPath);
+        startActivityForResult(intent, 0);
     }
 
 

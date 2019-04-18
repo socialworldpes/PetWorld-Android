@@ -28,6 +28,7 @@ public class PetUpdateActivity extends AppCompatActivity {
     private EditText race;
     private EditText specie;
     private EditText comment;
+    private String petPath;
     private Button btnUpdatePet;
 
     @Override
@@ -37,6 +38,7 @@ public class PetUpdateActivity extends AppCompatActivity {
         initFireBase();
         initItems();
         initListeners();
+        initIntent();
         if (mAuth.getCurrentUser() != null)
             initLayout();
         initNavigationDrawer();
@@ -68,28 +70,21 @@ public class PetUpdateActivity extends AppCompatActivity {
 
     private void initLayout() {
         String userID = User.getInstance().getAccount().getId();
-        DocumentReference docRef = db.collection("users").document(userID);
+        DocumentReference docRef = db.document(petPath);
         Log.d("userID", userID);
 
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    Log.d("task size: ", "" + task.getResult());
-                    DocumentSnapshot result = task.getResult();
-                    ArrayList<DocumentReference> arrayReference =  (ArrayList<DocumentReference>) result.get("pets");
-                    if (arrayReference == null) arrayReference =  new ArrayList<>();
-                    DocumentReference petRef = arrayReference.get(0);
-                    petRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            name.setText("" + task.getResult().get("name"));
-                            gender.setText("" + task.getResult().get("gender"));
-                            specie.setText("" + task.getResult().get("specie"));
-                            race.setText("" + task.getResult().get("race"));
-                            comment.setText("" + task.getResult().get("comment"));
-                        }
-                    });
+
+                    name.setText("" + task.getResult().get("name"));
+                    gender.setText("" + task.getResult().get("gender"));
+                    specie.setText("" + task.getResult().get("specie"));
+                    race.setText("" + task.getResult().get("race"));
+                    comment.setText("" + task.getResult().get("comment"));
+
+
 
                     // Log.d("mascot a size: ", "" + mascota.size());
                     // for (String s: mascota.keySet()) Log.d("map", s);
@@ -101,7 +96,9 @@ public class PetUpdateActivity extends AppCompatActivity {
 
     }
 
-
+    private void initIntent() {
+        petPath = getIntent().getStringExtra("docPetRef");
+    }
     private void updatePet() {
 
         String userID = User.getInstance().getAccount().getId();
@@ -115,7 +112,7 @@ public class PetUpdateActivity extends AppCompatActivity {
         mascota.put("photo", "no foto");
         mascota.put("owner", userID);
 
-        DocumentReference petRef = db.collection("pets").document("ywVGU7eUrF4rCGEylBmh");
+        DocumentReference petRef = db.document(petPath);
         petRef.update(mascota);
     }
 
