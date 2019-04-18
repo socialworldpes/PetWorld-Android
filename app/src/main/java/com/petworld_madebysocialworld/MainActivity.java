@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.common.SignInButton;
@@ -140,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                             }
                                         });
                             }
+                            Log.d(TAG, "\"hola, he entrado para poner el document snapshot", task.getException());
                             u.setDocumentSnapshot(document);
                         } else {
                             Log.d(TAG, "get failed with ", task.getException());

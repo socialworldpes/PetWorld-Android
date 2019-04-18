@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -14,6 +15,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -23,20 +25,23 @@ import android.widget.*;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.GeoPoint;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.*;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.net.URI;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CreateMeetingActivity extends AppCompatActivity implements View.OnClickListener, OnMapReadyCallback {
     public static final int PICK_IMAGE = 1;
@@ -69,6 +74,8 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
 
     //images
     ArrayList<Bitmap> images;
+    ArrayList<Uri> uriImages;
+    ArrayList<Uri> urlImages;
 
     //strings for time and date for firestore
     String fechaFormateada = null;
@@ -80,6 +87,9 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
         setContentView(R.layout.activity_create_meeting);
 
         images = new ArrayList<>();
+        uriImages = new ArrayList<>();
+        urlImages = new ArrayList<>();
+
         //Widget EditText donde se mostrara la fecha obtenida
         etFecha = (EditText) findViewById(R.id.et_mostrar_fecha_picker);
         //Widget ImageButton del cual usaremos el evento clic para obtener la fecha
@@ -164,18 +174,24 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        if (requestCode == PICK_IMAGE) {
+        if (requestCode == 1001) {
             Uri selectedImage = data.getData();
-            Toast.makeText(this, "Imatge Pillada + URI: " + selectedImage, Toast.LENGTH_SHORT).show();
-            try {
-                Toast.makeText(this, "Dins Try", Toast.LENGTH_SHORT).show();
-                Bitmap  bmp = BitmapFactory.decodeStream(getContentResolver().openInputStream(selectedImage));
-                images.add(bmp);
-                BitmapDrawable bitmapDrawable = new BitmapDrawable(bmp);
-                ImageView imgView = (ImageView)findViewById(R.id.foto1);
-                imgView.setImageDrawable(bitmapDrawable);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+            uriImages.add(selectedImage);
+            String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+            Cursor cursor = getContentResolver().query(selectedImage,
+                    filePathColumn, null, null, null);
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String picturePath = cursor.getString(columnIndex);
+            cursor.close();
+
+            Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
+
+            if (bitmap != null) {
+                ImageView img = (ImageView)findViewById(R.id.foto1);
+                img.setImageBitmap(bitmap);
             }
         }
     }
@@ -206,10 +222,9 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                 }
                 else {
                     //ojo, hay que guardar todo en firestore
-
                     Map<String, Object> meeting = new HashMap<>();
 
-                    meeting.put("creator", User.getInstance().getDocSnap().getId());
+                    meeting.put("creator", User.getInstance().getAccount().getId());
                     meeting.put("description", ((EditText)findViewById(R.id.des)).getText().toString());
                     meeting.put("images", Arrays.asList());
                     meeting.put("name", ((EditText)findViewById(R.id.title_create_meeting)).getText().toString());
@@ -219,24 +234,79 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                     meeting.put("start", Timestamp.valueOf(fechaFormateada + " " + tiempoFormateado));
                     meeting.put("visibility", "public");
 
-                    final String[] idMeeting = new String[1];
+
+
                     FirebaseFirestore.getInstance().collection("meetings").add(meeting).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
-                        public void onSuccess(DocumentReference documentReference) {
-                            idMeeting[0] = documentReference.getId();
-
+                        public void onSuccess(final DocumentReference documentReference) {
+                            final AtomicBoolean done = new AtomicBoolean(false);
                             //ojo, ahora hay que guardar las fotos en su sitio y ponerlas en firebase RECOGER LINK y añadir a lugar correspondiente
-
+                            final DocumentReference docRAux = documentReference;
+                            // do something with result.
+                            for (int i = 0; i < uriImages.size(); i++) {
+                                final int j = i;
+                                final StorageReference imagesRef = FirebaseStorage.getInstance().getReference().child("meetings/" + documentReference.getId() + "_" + i);
+                                Uri file = uriImages.get(i);
+                                UploadTask uploadTask = imagesRef.putFile(file);
+                                uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                    @Override
+                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                        imagesRef.child("meetings/" + documentReference.getId() + "_" + j).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                            @Override
+                                            public void onSuccess(Uri uri) {
+                                                urlImages.add(uri);
+                                                if (j == uriImages.size()-1)
+                                                    done.set(true);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                            synchronized (done) {
+                                done.notifyAll(); // notify the main thread which is waiting
+                            }
+                            synchronized (done) {
+                                while (done.get() == false) {
+                                    try {
+                                        done.wait(); // wait here until the listener fires
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                            documentReference.update("images", urlImages);
+                            for (Uri i: urlImages)
+                                Log.d("URL", i.toString());
+                            //guardar link ususario a meeting
+                            FirebaseFirestore.getInstance().collection("users").document(User.getInstance().getDocSnap().getId()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        DocumentSnapshot document = task.getResult();
+                                        if (document.exists()) {
+                                            ArrayList<DocumentReference> meetings = (ArrayList) document.get("meetings");
+                                            meetings.add(docRAux);
+                                            FirebaseFirestore.getInstance().collection("users").document(User.getInstance().getDocSnap().getId()).update("meetings", meetings);
+                                        } else {
+                                            Log.d("ERROR", "No such document");
+                                        }
+                                    } else {
+                                        Log.d("ERROR", "get failed with ", task.getException());
+                                    }
+                                }
+                            });
                         }
-                    });
-                    //ir al mapa
-                    startActivity(intent);
-                }
+                        });
+                        //ir al mapa
+                        startActivity(intent);
+                         }
                 break;
             case R.id.load_image:
-                Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                getIntent.setType("image/*");
-                startActivityForResult(getIntent, PICK_IMAGE);
+                Intent in = new Intent();
+                in.setType("image/*");
+                in.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(in, "Select Picture"),
+                        1001);
                 break;
         }
     }
