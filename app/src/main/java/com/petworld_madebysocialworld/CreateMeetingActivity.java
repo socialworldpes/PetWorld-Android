@@ -25,10 +25,7 @@ import android.widget.*;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.*;
 import com.google.firebase.firestore.*;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -75,7 +72,7 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
     //images
     ArrayList<Bitmap> images;
     ArrayList<Uri> uriImages;
-    ArrayList<Uri> urlImages;
+    ArrayList<String> urlImages;
 
     //strings for time and date for firestore
     String fechaFormateada = null;
@@ -223,7 +220,6 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                 else {
                     //ojo, hay que guardar todo en firestore
                     Map<String, Object> meeting = new HashMap<>();
-
                     meeting.put("creator", User.getInstance().getAccount().getId());
                     meeting.put("description", ((EditText)findViewById(R.id.des)).getText().toString());
                     meeting.put("images", Arrays.asList());
@@ -233,52 +229,55 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                     meeting.put("placeName", "");
                     meeting.put("start", Timestamp.valueOf(fechaFormateada + " " + tiempoFormateado));
                     meeting.put("visibility", "public");
-
-
-
                     FirebaseFirestore.getInstance().collection("meetings").add(meeting).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(final DocumentReference documentReference) {
                             final AtomicBoolean done = new AtomicBoolean(false);
+                            final boolean acabado = true;
                             //ojo, ahora hay que guardar las fotos en su sitio y ponerlas en firebase RECOGER LINK y añadir a lugar correspondiente
                             final DocumentReference docRAux = documentReference;
                             // do something with result.
+                            Log.d("PRUEBA004", "Antes de entrar en el for");
                             for (int i = 0; i < uriImages.size(); i++) {
+                                Log.d("PRUEBA005", "Después de entrar en el for");
                                 final int j = i;
                                 final StorageReference imagesRef = FirebaseStorage.getInstance().getReference().child("meetings/" + documentReference.getId() + "_" + i);
                                 Uri file = uriImages.get(i);
+                                Log.d("PRUEBA006", "Cojo la urii");
+
                                 UploadTask uploadTask = imagesRef.putFile(file);
-                                uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                                     @Override
-                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                        imagesRef.child("meetings/" + documentReference.getId() + "_" + j).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                            @Override
-                                            public void onSuccess(Uri uri) {
-                                                urlImages.add(uri);
-                                                if (j == uriImages.size()-1)
-                                                    done.set(true);
-                                            }
-                                        });
+                                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                                        if (!task.isSuccessful()) {
+                                            throw task.getException();
+                                        }
+
+                                        // Continue with the task to get the download URL
+                                        return imagesRef.getDownloadUrl();
+                                    }
+                                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Uri> task) {
+                                        if (task.isSuccessful()) {
+                                            Log.d("PRUEBA002", "He entrado");
+                                            Log.d("PRUEBA007" ,"meetings/" + documentReference.getId()+"_"+j);
+                                            urlImages.add(task.getResult().toString());
+                                            Log.d ("Tamaño url", String.valueOf(urlImages.size()));
+                                            docRAux.update("images", urlImages);
+                                        } else {
+                                            // Handle failures
+                                            // ...
+                                        }
                                     }
                                 });
                             }
-                            synchronized (done) {
-                                done.notifyAll(); // notify the main thread which is waiting
-                            }
-                            synchronized (done) {
-                                while (done.get() == false) {
-                                    try {
-                                        done.wait(); // wait here until the listener fires
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-                            documentReference.update("images", urlImages);
-                            for (Uri i: urlImages)
-                                Log.d("URL", i.toString());
+
+                            for (String i: urlImages)
+                                Log.d("URL", i);
+                            Log.d("tamaño imagenes", String.valueOf(urlImages.size()));
                             //guardar link ususario a meeting
-                            FirebaseFirestore.getInstance().collection("users").document(User.getInstance().getDocSnap().getId()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            FirebaseFirestore.getInstance().collection("users").document(User.getInstance().getAccount().getId()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                     if (task.isSuccessful()) {
@@ -286,7 +285,7 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                                         if (document.exists()) {
                                             ArrayList<DocumentReference> meetings = (ArrayList) document.get("meetings");
                                             meetings.add(docRAux);
-                                            FirebaseFirestore.getInstance().collection("users").document(User.getInstance().getDocSnap().getId()).update("meetings", meetings);
+                                            FirebaseFirestore.getInstance().collection("users").document(User.getInstance().getAccount().getId()).update("meetings", meetings);
                                         } else {
                                             Log.d("ERROR", "No such document");
                                         }
@@ -296,10 +295,10 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                                 }
                             });
                         }
-                        });
-                        //ir al mapa
-                        startActivity(intent);
-                         }
+                    });
+                    //ir al mapa
+                    startActivity(intent);
+                }
                 break;
             case R.id.load_image:
                 Intent in = new Intent();
