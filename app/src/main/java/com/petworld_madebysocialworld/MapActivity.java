@@ -168,8 +168,8 @@ public class MapActivity extends AppCompatActivity
 
                 AlertDialog alertDialog = new AlertDialog.Builder(MapActivity.this).create();
                 //alertDialog.setTitle("Alert");
-                alertDialog.setMessage("Create new event?");
-                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Evento",
+                alertDialog.setMessage("Crear nueva quedada?");
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Aceptar",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 //Toast.makeText(MapActivity.this, "Crear Evento" , Toast.LENGTH_SHORT).show();
