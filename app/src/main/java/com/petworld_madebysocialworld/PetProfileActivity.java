@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
 import com.google.firestore.v1.WriteResult;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +33,7 @@ public class PetProfileActivity extends AppCompatActivity {
     private String petPath;
     private Button btnEditar;
     private Button btnBorrar;
+    private String userID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,20 +66,34 @@ public class PetProfileActivity extends AppCompatActivity {
     }
 
     private void borrarMascota() {
-        db.document(petPath).delete();
         borrarReferenciaUsuario();
         startMap();
     }
 
     private void borrarReferenciaUsuario() {
-        /*DocumentReference docRef = db.collection("users").document(User.getInstance().getmAuth().getUid());
+        Log.d("alPetRef: ", "in");
+        Log.d("alPetRef", "" + userID);
+        db.collection("users").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    Log.d("alPetRef: ", "task is successful");
+                    DocumentSnapshot document = task.getResult();
+                    Log.d("alPetRef: ", "" + document.toString());
+                    if (document.exists()) {
+                        Log.d("alPetRef: ", "document exists");
+                        ArrayList<DocumentReference> alPetRef = (ArrayList<DocumentReference>) document.get("pets");
+                        for (DocumentReference dr: alPetRef) {
+                            Log.d("alPetRef: ", dr.toString() + " ---- " + dr.getPath());
+                            dr.delete(); //borra en pets/
+                            document.getReference().update("pets", FieldValue.arrayRemove(dr)); //borra en users/pets
+                        }
+                    }
+                }
+            }
 
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("pets", FieldValue.delete());
-        docRef.update(updates);*/
-
-        DocumentReference petsDoc = db.collection("users").document(User.getInstance().getmAuth().getUid());
-        petsDoc.update("pets", FieldValue.arrayRemove(petPath));
+        });
+        Log.d("alPetRef: ", "out");
 
     }
 
@@ -111,7 +127,7 @@ public class PetProfileActivity extends AppCompatActivity {
     }
 
     private void initLayout() {
-        String userID = User.getInstance().getAccount().getId();
+        userID = User.getInstance().getAccount().getId();
         Log.d("petProfilePetRef", "" + petPath);
         DocumentReference docRef = db.document(petPath);
         Log.d("userID", userID);
