@@ -43,4 +43,10 @@
             android:layout_height="54dp" app:srcCompat="@drawable/anabohueles" android:id="@+id/nearPlaces"
             app:layout_anchorGravity="right|center" app:layout_anchor="@+id/map"
             android:onClick="searchNearPlaces" android:visibility="invisible"/>
+    <Button
+            android:text="Paseo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/buttonTestPaseo"
+            app:layout_anchorGravity="right|center"
+            app:layout_anchor="@+id/map"/>
 </android.support.design.widget.CoordinatorLayout>

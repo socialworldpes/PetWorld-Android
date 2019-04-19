@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.View;
 
 
+import android.widget.Button;
 import android.widget.Toast;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -130,6 +131,13 @@ public class MapActivity extends AppCompatActivity
         // TODO: we need the variable meetings to contain the meetings displayed in the map
         meetingsAdapter = new MeetingSmallAdapter(this, meetings);
         //recyclerView.setAdapter(meetingsAdapter);
+        Button but = findViewById(R.id.buttonTestPaseo);
+        but.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MapActivity.this, LeadsActivity.class));
+            }
+        });
     }
 
     @Override

@@ -6,4 +6,7 @@
     <string name="Meetings">Quedadas</string>
     <string name="Walks">Paseos</string>
     <string name="Search">Buscar</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
