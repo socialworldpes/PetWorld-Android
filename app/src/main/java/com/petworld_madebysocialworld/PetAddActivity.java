@@ -2,6 +2,10 @@ package com.petworld_madebysocialworld;
 
 import Models.User;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +15,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -19,6 +25,7 @@ import com.google.firebase.firestore.*;
 import com.google.firebase.auth.FirebaseAuth;
 
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,6 +33,7 @@ import java.util.Map;
 
 public class PetAddActivity extends AppCompatActivity {
 
+    public static final int PICK_IMAGE = 1;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private EditText name;
@@ -34,6 +42,8 @@ public class PetAddActivity extends AppCompatActivity {
     private EditText race;
     private EditText comment;
     private Button btnAddPet;
+    private Button btnUploadImage;
+    private Bitmap imagePerfil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +52,12 @@ public class PetAddActivity extends AppCompatActivity {
         initNavigationDrawer();
         initFireBase();
         initLayout();
+        initVariables();
         initListeners();
+
+    }
+
+    private void initVariables() {
 
     }
 
@@ -58,6 +73,12 @@ public class PetAddActivity extends AppCompatActivity {
                 addPet();
             }
         });
+        btnUploadImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadImage();
+            }
+        });
     }
 
     private void initLayout() {
@@ -67,6 +88,7 @@ public class PetAddActivity extends AppCompatActivity {
         race = findViewById(R.id.editTextRace);
         comment = findViewById(R.id.editTextComment);
         btnAddPet = findViewById(R.id.buttonAddPet);
+        btnUploadImage = findViewById(R.id.buttonLoadImage);
     }
 
 
@@ -77,6 +99,27 @@ public class PetAddActivity extends AppCompatActivity {
         DrawerUtil.getDrawer(this,toolBar);
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+       if (requestCode == PICK_IMAGE) {
+            Uri selectedImage = data.getData();
+            Toast.makeText(this, "Imatge Pillada + URI: " + selectedImage, Toast.LENGTH_SHORT).show();
+            try {
+                Toast.makeText(this, "Dins Try", Toast.LENGTH_SHORT).show();
+                Bitmap bmp = BitmapFactory.decodeStream(getContentResolver().openInputStream(selectedImage));
+                imagePerfil = bmp;
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+    private void loadImage(){
+        Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        getIntent.setType("image/*");
+        startActivityForResult(getIntent, 1);
+    }
     private void addPet() {
 
         String userID = User.getInstance().getAccount().getId();
@@ -87,7 +130,7 @@ public class PetAddActivity extends AppCompatActivity {
         mascota.put("specie", specie.getText().toString());
         mascota.put("race", race.getText().toString());
         mascota.put("comment",comment.getText().toString());
-        mascota.put("photo", "no foto");
+        mascota.put("photo", imagePerfil.toString());
         mascota.put("owner", userID);
 
 
@@ -147,7 +190,7 @@ public class PetAddActivity extends AppCompatActivity {
     }
 
     private void startMap() {
-        Intent intent = new Intent (getApplicationContext(), MapActivity.class);
-        startActivityForResult(intent, 0);
+       Intent intent = new Intent (getApplicationContext(), MapActivity.class);
+       startActivityForResult(intent, 0);
     }
 }
