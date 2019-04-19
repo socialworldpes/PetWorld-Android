@@ -79,7 +79,7 @@ public class PetProfileActivity extends AppCompatActivity {
 
     private void borrarMascota() {
         borrarReferenciaUsuario();
-        startMap();
+
     }
 
     private void borrarReferenciaUsuario() {
@@ -96,12 +96,17 @@ public class PetProfileActivity extends AppCompatActivity {
                         Log.d("alPetRef: ", "document exists");
                         ArrayList<DocumentReference> alPetRef = (ArrayList<DocumentReference>) document.get("pets");
                         for (DocumentReference dr: alPetRef) {
-                            Log.d("alPetRef: ", dr.toString() + " ---- " + dr.getPath());
-                            dr.delete(); //borra en pets/
-                            document.getReference().update("pets", FieldValue.arrayRemove(dr)); //borra en users/pets
+                            Log.d("alPetRef: ", petPath + " ---- " + dr.getPath());
+                            if (dr.getPath().equals(petPath)) {
+                                Log.d("alPetRef:","sn iguales dentro IF");
+                                dr.delete(); //borra en pets/
+                                document.getReference().update("pets", FieldValue.arrayRemove(dr)); //borra en users/pets
+                                break;
+                            }
                         }
                     }
                 }
+                startMap();
             }
 
         });
