@@ -30,6 +30,7 @@ public class DrawerUtil {
     public static void getDrawer(final Activity activity, Toolbar toolbar) {
 
         GoogleSignInAccount account = User.getInstance().getAccount();
+        if (account == null) Log.d("PRUEBA==", "hola, no hay nadie en la account");
         //info account
         String personName = account.getDisplayName();
         String personGivenName = account.getGivenName();
