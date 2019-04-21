@@ -136,6 +136,17 @@ public class MapActivity extends AppCompatActivity
         //recyclerView.setAdapter(meetingsAdapter);
 
         fam = (FloatingActionsMenu) findViewById(R.id.menu_fab);
+        fam.setOnFloatingActionsMenuUpdateListener( new FloatingActionsMenu.OnFloatingActionsMenuUpdateListener() {
+            @Override
+            public void onMenuExpanded() {
+
+            }
+
+            @Override
+            public void onMenuCollapsed() {
+                //TODO: remove point location
+            }
+        } );
     }
 
     @Override
