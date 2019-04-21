@@ -43,7 +43,9 @@
                 fab:fab_colorNormal="@color/colorAccent"
                 fab:fab_icon="@drawable/ic_directions_walk_white_24dp"
                 fab:fab_size="mini"
-                fab:fab_title="Paseo"/>
+                fab:fab_title="Paseo"
+                android:onClick="newWalk"
+        />
 
         <com.getbase.floatingactionbutton.FloatingActionButton
                 android:id="@+id/accion_buscar"
@@ -52,7 +54,9 @@
                 fab:fab_colorNormal="@color/colorAccent"
                 fab:fab_icon="@drawable/ic_timeline_white_24dp"
                 fab:fab_size="mini"
-                fab:fab_title="Rutas"/>
+                fab:fab_title="Rutas"
+                android:onClick="newRoute"
+        />
 
         <com.getbase.floatingactionbutton.FloatingActionButton
                 android:id="@+id/accion_carrito"
@@ -61,7 +65,9 @@
                 fab:fab_colorNormal="@color/colorAccent"
                 fab:fab_icon="@drawable/ic_nature_people_white_24dp"
                 fab:fab_size="mini"
-                fab:fab_title="Quedada"/>
+                fab:fab_title="Quedada"
+                android:onClick="newMeeting"
+        />
 
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
 

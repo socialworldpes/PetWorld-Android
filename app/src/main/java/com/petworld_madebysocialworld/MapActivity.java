@@ -10,6 +10,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -22,6 +23,7 @@ import android.view.View;
 
 
 import android.widget.Toast;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.GeoDataClient;
@@ -134,6 +136,7 @@ public class MapActivity extends AppCompatActivity
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        final Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         mMap = googleMap;
 
         updateLocationUI();
@@ -156,34 +159,15 @@ public class MapActivity extends AppCompatActivity
             }
         });
 
-        //Click Llarg
-
-        final Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(final LatLng point) {
                 mMap.clear();
-                vibe.vibrate(50);
+                vibe.vibrate(30);
 
-                AlertDialog alertDialog = new AlertDialog.Builder(MapActivity.this).create();
-                //alertDialog.setTitle("Alert");
-                alertDialog.setMessage("Create new event?");
-                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Evento",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                //Toast.makeText(MapActivity.this, "Crear Evento" , Toast.LENGTH_SHORT).show();
-                                newEvent(point, false);
-                                dialog.dismiss();
-                            }
-                        });
-                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancelar",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
-                alertDialog.show();
+                //newMeeting(point);
+                FloatingActionsMenu fam = (FloatingActionsMenu) findViewById(R.id.menu_fab);
+                fam.expand();
             }
         });
 
@@ -263,12 +247,47 @@ public class MapActivity extends AppCompatActivity
         updateLocationUI();
     }
 
-    /*
-     Create new event
-    */
-    public void newEvent(LatLng latLng, boolean pickLocationFirst){
+    public void newMeeting(View view){
+        newMeeting();
+    }
+
+    public void newWalk(View view){
+        newWalk();
+    }
+
+    public void newRoute(View view){
+        newRoute();
+    }
+
+    public void newMeeting(){
         Intent intent = new Intent(MapActivity.this, CreateMeetingActivity.class);
-        intent.putExtra("location", latLng);
+        startActivity(intent);
+    }
+
+    public void newWalk(){
+        Intent intent = new Intent(MapActivity.this, CreateWalkActivity.class);
+        startActivity(intent);
+    }
+
+    public void newRoute(){
+        Intent intent = new Intent(MapActivity.this, CreateRouteActivity.class);
+        startActivity(intent);
+    }
+    public void newMeeting(LatLng location){
+        Intent intent = new Intent(MapActivity.this, CreateMeetingActivity.class);
+        intent.putExtra("location", location);
+        startActivity(intent);
+    }
+
+    public void newWalk(LatLng location){
+        Intent intent = new Intent(MapActivity.this, CreateWalkActivity.class);
+        intent.putExtra("location", location);
+        startActivity(intent);
+    }
+
+    public void newRoute(LatLng location){
+        Intent intent = new Intent(MapActivity.this, CreateRouteActivity.class);
+        intent.putExtra("location", location);
         startActivity(intent);
     }
 
