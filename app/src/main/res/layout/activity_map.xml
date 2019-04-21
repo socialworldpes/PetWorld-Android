@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|right"
-            fab:fab_addButtonColorNormal="?attr/colorPrimary"
+            fab:fab_addButtonColorNormal="@color/colorPrimary"
             fab:fab_addButtonSize="normal"
             fab:fab_labelStyle="@style/FabLabel"
             fab:fab_labelsPosition="left"
@@ -40,8 +40,8 @@
                 android:id="@+id/accion_favorito"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                fab:fab_colorNormal="?attr/colorAccent"
-                fab:fab_icon="@drawable/ic_directions_walk_black_24dp"
+                fab:fab_colorNormal="@color/colorAccent"
+                fab:fab_icon="@drawable/ic_directions_walk_white_24dp"
                 fab:fab_size="mini"
                 fab:fab_title="Paseo"/>
 
@@ -49,8 +49,8 @@
                 android:id="@+id/accion_buscar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                fab:fab_colorNormal="?attr/colorAccent"
-                fab:fab_icon="@drawable/ic_timeline_black_24dp"
+                fab:fab_colorNormal="@color/colorAccent"
+                fab:fab_icon="@drawable/ic_timeline_white_24dp"
                 fab:fab_size="mini"
                 fab:fab_title="Rutas"/>
 
@@ -58,8 +58,8 @@
                 android:id="@+id/accion_carrito"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                fab:fab_colorNormal="?attr/colorAccent"
-                fab:fab_icon="@drawable/ic_nature_people_black_24dp"
+                fab:fab_colorNormal="@color/colorAccent"
+                fab:fab_icon="@drawable/ic_nature_people_white_24dp"
                 fab:fab_size="mini"
                 fab:fab_title="Quedada"/>
 
