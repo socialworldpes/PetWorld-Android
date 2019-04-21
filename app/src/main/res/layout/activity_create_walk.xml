@@ -6,13 +6,22 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".CreateWalkActivity">
-
     <TextView
-            android:text="Crear Paseo"
+            android:text="Crear paseo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/textView2" android:layout_marginTop="8dp"
-            app:layout_constraintTop_toTopOf="parent" android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"/>
+            android:id="@+id/textView2"
+            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="632dp"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="65dp"
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="269dp"/>
+    <Button
+            android:text="Elegir ruta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" tools:layout_editor_absoluteY="125dp"
+            tools:layout_editor_absoluteX="66dp" android:id="@+id/elegirRuta"/>
+    <include android:layout_width="wrap_content" android:layout_height="wrap_content" layout="@layout/list_item_lead"
+             app:layout_constraintBottom_toBottomOf="parent"
+             android:layout_marginBottom="422dp" app:layout_constraintStart_toStartOf="parent"
+             android:layout_marginStart="66dp" app:layout_constraintEnd_toEndOf="parent"
+             android:layout_marginEnd="164dp" android:id="@+id/leadSelected"/>
 </android.support.constraint.ConstraintLayout>

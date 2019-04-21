@@ -35,4 +35,6 @@ public class LeadsRepository {
     public List<Lead> getLeads() {
         return new ArrayList<>(leads.values());
     }
+
+    public Lead getLead(String id) { return leads.get(id); }
 }

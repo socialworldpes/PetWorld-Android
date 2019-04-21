@@ -24,7 +24,6 @@ public class LeadsActivity extends AppCompatActivity {
                     .add(R.id.leads_container2, leadsFragment)
                     .commit();
         }
-
     }
 
 

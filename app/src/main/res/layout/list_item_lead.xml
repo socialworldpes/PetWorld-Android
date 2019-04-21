@@ -40,4 +40,13 @@
             android:layout_below="@+id/route_place"
             android:text="Compañía"
             tools:text="Blue Insurances Ltd"/>
+    <TextView
+            android:id="@+id/route_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/route_name"
+            android:layout_below="@+id/route_place"
+            android:text="Id"
+            android:visibility="gone"
+            tools:text="Blue Insurances Ltd"/>
 </RelativeLayout>

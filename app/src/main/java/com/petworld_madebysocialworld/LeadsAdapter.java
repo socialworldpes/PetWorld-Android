@@ -38,6 +38,7 @@ public class LeadsAdapter extends ArrayAdapter<Lead> {
         TextView name = (TextView) convertView.findViewById(R.id.route_name);
         TextView place= (TextView) convertView.findViewById(R.id.route_place);
         TextView description = (TextView) convertView.findViewById(R.id.route_description);
+        TextView id = (TextView) convertView.findViewById(R.id.route_id);
 
         // Lead actual.
         Lead lead = getItem(position);
@@ -47,6 +48,7 @@ public class LeadsAdapter extends ArrayAdapter<Lead> {
         name.setText(lead.getName());
         place.setText(lead.getPlace());
         description.setText(lead.getDescription());
+        id.setText(lead.getId());
 
         return convertView;
     }
