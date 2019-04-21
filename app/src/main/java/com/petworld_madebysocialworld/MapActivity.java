@@ -93,6 +93,8 @@ public class MapActivity extends AppCompatActivity
     private RecyclerView.Adapter meetingsAdapter;
     private RecyclerView.LayoutManager layoutManager;
 
+    private FloatingActionsMenu fam;
+
     // Data beeing used
     Query locations;
 
@@ -132,6 +134,8 @@ public class MapActivity extends AppCompatActivity
         // TODO: we need the variable meetings to contain the meetings displayed in the map
         meetingsAdapter = new MeetingSmallAdapter(this, meetings);
         //recyclerView.setAdapter(meetingsAdapter);
+
+        fam = (FloatingActionsMenu) findViewById(R.id.menu_fab);
     }
 
     @Override
@@ -155,7 +159,7 @@ public class MapActivity extends AppCompatActivity
             @Override
             public void onMapClick(LatLng point) {
                 mMap.clear();
-                mMap.addMarker(new MarkerOptions().position(point));
+                fam.collapse();
             }
         });
 
@@ -163,10 +167,10 @@ public class MapActivity extends AppCompatActivity
             @Override
             public void onMapLongClick(final LatLng point) {
                 mMap.clear();
+                mMap.addMarker(new MarkerOptions().position(point));
                 vibe.vibrate(30);
 
                 //newMeeting(point);
-                FloatingActionsMenu fam = (FloatingActionsMenu) findViewById(R.id.menu_fab);
                 fam.expand();
             }
         });
