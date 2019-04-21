@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+            Log.d("PRUEBA", "Paso por el main activity");
             u = User.getInstance();
             setContentView(R.layout.activity_main);
             u.setmAuth(FirebaseAuth.getInstance());
@@ -92,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
                 try {
                     // Google Sign In was successful, authenticate with Firebase
+                    Log.d(TAG, "Google sign in done");
                     u.setAccount(task.getResult(ApiException.class));
                     firebaseAuthWithGoogle(u.getAccount());
                 } catch (ApiException e) {
