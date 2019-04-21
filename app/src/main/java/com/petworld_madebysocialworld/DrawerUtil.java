@@ -30,15 +30,18 @@ public class DrawerUtil {
     public static void getDrawer(final Activity activity, Toolbar toolbar) {
 
         GoogleSignInAccount account = User.getInstance().getAccount();
+        String personName = "Name";
+        String personEmail = "Email";
+        Uri personPhoto = Uri.parse("http://www.example.com");
+
         if (account == null) Log.d("PRUEBA==", "hola, no hay nadie en la account");
-        //info account
-        String personName = account.getDisplayName();
-        String personGivenName = account.getGivenName();
-        String personFamilyName = account.getFamilyName();
-        String personEmail = account.getEmail();
-        String personId = account.getId();
-        Uri personPhoto = account.getPhotoUrl();
-        Log.d("Prueba", personPhoto.getPath());
+        else{
+            //info account
+            personName = account.getDisplayName();
+            personEmail = account.getEmail();
+            personPhoto = account.getPhotoUrl();
+            Log.d("Prueba", personPhoto.getPath());
+        }
 
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
             @Override
