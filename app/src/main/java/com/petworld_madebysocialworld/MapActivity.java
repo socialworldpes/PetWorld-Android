@@ -94,6 +94,7 @@ public class MapActivity extends AppCompatActivity
     private RecyclerView.LayoutManager layoutManager;
 
     private FloatingActionsMenu fam;
+    private LatLng selectedLocation = null;
 
     // Data beeing used
     Query locations;
@@ -144,6 +145,7 @@ public class MapActivity extends AppCompatActivity
 
             @Override
             public void onMenuCollapsed() {
+                selectedLocation = null;
                 //TODO: remove point location
             }
         } );
@@ -181,7 +183,7 @@ public class MapActivity extends AppCompatActivity
                 mMap.addMarker(new MarkerOptions().position(point));
                 vibe.vibrate(30);
 
-                //newMeeting(point);
+                selectedLocation = point;
                 fam.expand();
             }
         });
@@ -263,15 +265,18 @@ public class MapActivity extends AppCompatActivity
     }
 
     public void newMeeting(View view){
-        newMeeting();
-    }
-
-    public void newWalk(View view){
-        newWalk();
+        if(selectedLocation == null) newMeeting();
+        else newMeeting(selectedLocation);
     }
 
     public void newRoute(View view){
-        newRoute();
+        if(selectedLocation == null) newRoute();
+        else newRoute(selectedLocation);
+    }
+
+    public void newWalk(View view){
+        if(selectedLocation == null) newWalk();
+        else newWalk(selectedLocation);
     }
 
     public void newMeeting(){
