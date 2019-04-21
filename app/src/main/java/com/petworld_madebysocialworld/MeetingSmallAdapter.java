@@ -7,17 +7,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
 
 public class MeetingSmallAdapter extends RecyclerView.Adapter<MeetingSmallAdapter.MeetingSmallViewHolder> {
 
     protected LayoutInflater inflater;
     protected Context context;
-    private List<HashMap<String,Object>> meetings;
+    private ArrayList<Map<String, Object>> meetings;
 
     // ignore
-    public MeetingSmallAdapter(Context context, List<HashMap<String,Object>> meetings) {
+    public MeetingSmallAdapter(Context context, ArrayList<Map<String,Object>> meetings) {
         this.context = context;
         this.meetings = meetings;
         inflater = (LayoutInflater) context
@@ -47,7 +47,7 @@ public class MeetingSmallAdapter extends RecyclerView.Adapter<MeetingSmallAdapte
 
     @Override
     public void onBindViewHolder(MeetingSmallViewHolder holder, int position) {
-        HashMap<String,Object> m = meetings.get(position);
+        Map<String,Object> m = meetings.get(position);
 
         holder.name.setText((String) m.get("name"));
         holder.date.setText((String) m.get("start"));

@@ -35,6 +35,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -93,10 +94,6 @@ public class MapActivity extends AppCompatActivity
     private RecyclerView recyclerView;
     private RecyclerView.Adapter meetingsAdapter;
     private RecyclerView.LayoutManager layoutManager;
-
-    // Data beeing used
-    private List<HashMap<String,Object>> meetings;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
