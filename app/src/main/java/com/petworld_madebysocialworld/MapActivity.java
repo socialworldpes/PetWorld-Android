@@ -6,11 +6,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabItem;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -22,6 +25,8 @@ import android.util.Log;
 import android.view.View;
 
 
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -44,6 +49,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.*;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 
 public class MapActivity extends AppCompatActivity
@@ -447,13 +453,23 @@ public class MapActivity extends AppCompatActivity
         DrawerUtil.getDrawer(this,toolBar);
     }
 
+
+
+
     public void searchNearPlaces(View view) {
+
+
+        TextView tvLat = (TextView)findViewById(R.id.textView12);
+        tvLat.setText("Funciona 1");
+
         view.setVisibility(View.INVISIBLE);
         LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         final CollectionReference meetingsRef = db.collection("meetings");
         Query locations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+
+        final Context context = this;
 
         locations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -462,10 +478,49 @@ public class MapActivity extends AppCompatActivity
                     ++times;
                     mMap.clear();
                     for (QueryDocumentSnapshot document: task.getResult()) {
+
                         meetings.add(document.getData());
                         GeoPoint point = (GeoPoint) document.get("placeLocation");
+                        String nameList = (String) document.get("name");
+                        String descriptionList = (String) document.get("description");
                         mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude())));
                         Log.d("Event", times + " - " + point.getLatitude() + " " + point.getLongitude());
+
+
+                        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.LayoutMeetings);
+                        LinearLayout linearLayoutList =  new LinearLayout(context);
+
+                        TextView textViewNameList = new TextView(context);
+                        textViewNameList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT));
+                        textViewNameList.setText(nameList);
+                        textViewNameList.setTextColor(Color.BLACK);
+                        textViewNameList.setTextSize(1,20);
+                        textViewNameList.setPadding(40, 20, 40, 5);
+
+                        linearLayoutList.addView(textViewNameList);
+
+                        TextView textViewTime = new TextView(context);
+                        textViewTime.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT));
+                        textViewTime.setText("19:22");
+                        textViewTime.setPadding(40, 5, 40, 20);
+
+                        linearLayoutList.addView(textViewTime);
+
+
+                        //linearLayoutList.setPadding(20, 20, 20, 20);
+
+                        linearLayout.addView(linearLayoutList);
+
+                        TextView textViewDescreList = new TextView(context);
+                        textViewDescreList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT));
+                        textViewDescreList.setText(descriptionList);
+                        textViewDescreList.setPadding(40, 20, 40, 20);
+
+                        linearLayout.addView(textViewDescreList);
+
                     }
 
                     if (task.getResult().isEmpty()) Log.d("Event", times + " - NO hay quedadas cerca");
