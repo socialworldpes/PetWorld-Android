@@ -1,15 +1,20 @@
 package com.petworld_madebysocialworld;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Intent;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 
+import java.util.Calendar;
 import java.util.List;
 
 import static java.security.AccessController.getContext;
@@ -18,6 +23,7 @@ public class CreateWalkActivity extends AppCompatActivity {
 
     LeadsAdapter mLeadsAdapter;
     List mLeadsList;
+    TextView date;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +39,30 @@ public class CreateWalkActivity extends AppCompatActivity {
                 startActivity(new Intent(CreateWalkActivity.this, LeadsActivity.class));
             }
         });
+
+        Button selectDate = findViewById(R.id.elegirHora);
+        date = findViewById(R.id.textDate);
+
+        selectDate.setOnClickListener(new View.OnClickListener() {
+            Calendar calendar = Calendar.getInstance();
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH);
+            int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
+
+            @Override
+            public void onClick(View view) {
+                DatePickerDialog datePickerDialog = new DatePickerDialog(CreateWalkActivity.this,
+                                new DatePickerDialog.OnDateSetListener() {
+                                    @Override
+                                    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                                        date.setText(day + "/" + (month+1) + "/" + year);
+                                    }
+                                }, year, month, dayOfMonth);
+                datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
+                datePickerDialog.show();
+            }
+        });
+
 
         View leadSelected = findViewById(R.id.leadSelected);
         Bundle extras = getIntent().getExtras();

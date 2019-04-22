@@ -17,11 +17,32 @@
     <Button
             android:text="Elegir ruta"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" tools:layout_editor_absoluteY="125dp"
-            tools:layout_editor_absoluteX="66dp" android:id="@+id/elegirRuta"/>
+            android:layout_height="wrap_content"
+            android:id="@+id/elegirRuta" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="66dp" android:layout_marginBottom="12dp"
+            app:layout_constraintBottom_toTopOf="@+id/leadSelected" app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="236dp" app:layout_constraintHorizontal_bias="0.0"/>
     <include android:layout_width="wrap_content" android:layout_height="wrap_content" layout="@layout/list_item_lead"
-             app:layout_constraintBottom_toBottomOf="parent"
-             android:layout_marginBottom="422dp" app:layout_constraintStart_toStartOf="parent"
+             app:layout_constraintStart_toStartOf="parent"
              android:layout_marginStart="66dp" app:layout_constraintEnd_toEndOf="parent"
-             android:layout_marginEnd="164dp" android:id="@+id/leadSelected"/>
+             android:layout_marginEnd="164dp" android:id="@+id/leadSelected"
+             app:layout_constraintHorizontal_bias="0.0" android:layout_marginBottom="444dp"
+             app:layout_constraintBottom_toBottomOf="parent"/>
+    <Button
+            android:text="elegir hora"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/elegirHora" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="66dp" android:layout_marginBottom="15dp"
+            app:layout_constraintBottom_toTopOf="@+id/textDate" app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="234dp"/>
+    <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="date"
+            android:ems="10"
+            android:id="@+id/textDate"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="66dp"
+            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="310dp"
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="132dp"/>
 </android.support.constraint.ConstraintLayout>

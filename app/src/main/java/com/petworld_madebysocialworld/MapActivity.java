@@ -131,10 +131,11 @@ public class MapActivity extends AppCompatActivity
         // TODO: we need the variable meetings to contain the meetings displayed in the map
         meetingsAdapter = new MeetingSmallAdapter(this, meetings);
         //recyclerView.setAdapter(meetingsAdapter);
-        Button but = findViewById(R.id.elegirRuta);
+        Button but = findViewById(R.id.buttonTestPaseo);
         but.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d(TAG, "onClick: IN");
                 startActivity(new Intent(MapActivity.this, LeadsActivity.class));
             }
         });

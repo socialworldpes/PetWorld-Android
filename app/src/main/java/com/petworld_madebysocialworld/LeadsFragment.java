@@ -43,26 +43,6 @@ public class LeadsFragment extends Fragment {
         if (getArguments() != null) {
             // Gets parámetros
         }
-
-        mLeadsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                RelativeLayout selItem = (RelativeLayout) parent.getAdapter().getItem(position);
-                String passId="";
-                for (int i=0; i<selItem.getChildCount(); i++){
-                    View temp = selItem.getChildAt(i);
-                    if (temp instanceof TextView) {
-                        TextView textView = (TextView) view;
-                        switch (textView.getId()){
-                            case R.id.route_id:
-                                passId = textView.getText().toString();
-                        }
-                    }
-                }
-                Intent i = new Intent(LeadsFragment.this.getActivity(), CreateWalkActivity.class);
-                i.putExtra("itemId",passId);
-                startActivity(i);
-            }
-        });
 //        initFireBase();
 //        initTextView();
     }
@@ -80,6 +60,28 @@ public class LeadsFragment extends Fragment {
 
         //Relacionando la lista con el adaptador
         mLeadsList.setAdapter(mLeadsAdapter);
+
+        mLeadsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                RelativeLayout selItem = (RelativeLayout) parent.getAdapter().getItem(position);
+//                String passId="";
+//                for (int i=0; i<selItem.getChildCount(); i++){
+//                    View temp = selItem.getChildAt(i);
+//                    if (temp instanceof TextView) {
+//                        TextView textView = (TextView) view;
+//                        switch (textView.getId()){
+//                            case R.id.route_id:
+//                                passId = textView.getText().toString();
+//                        }
+//                    }
+//                }
+                Lead selItem = (Lead) parent.getAdapter().getItem(position);
+                String passId = selItem.getId();
+                Intent i = new Intent(LeadsFragment.this.getActivity(), CreateWalkActivity.class);
+                i.putExtra("itemId",passId);
+                startActivity(i);
+            }
+        });
 
         return root;
     }
