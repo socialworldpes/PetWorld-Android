@@ -1,5 +1,6 @@
 package com.petworld_madebysocialworld;
 
+import Models.User;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
@@ -7,23 +8,27 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
-
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.security.AccessController.getContext;
 
 public class CreateWalkActivity extends AppCompatActivity {
 
-    LeadsAdapter mLeadsAdapter;
-    List mLeadsList;
     TextView date;
+    private FirebaseFirestore db;
+    private String userID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +36,8 @@ public class CreateWalkActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_walk);
 
         initNavigationDrawer();
+        db = FirebaseFirestore.getInstance();
+        userID = User.getInstance().getAccount().getId();
 
         Button but = findViewById(R.id.elegirRuta);
         but.setOnClickListener(new View.OnClickListener() {
@@ -60,6 +67,27 @@ public class CreateWalkActivity extends AppCompatActivity {
                                 }, year, month, dayOfMonth);
                 datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
                 datePickerDialog.show();
+            }
+        });
+
+        Button createPaseo = findViewById(R.id.createWalk);
+        createPaseo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("Debug", "onClick: In");
+                TextView dateToFB = findViewById(R.id.textDate);
+                Map<String, Object> docData = new HashMap<>();
+                docData.put("date",dateToFB.getText().toString());
+
+                Log.d("Debug", "onClick: docData");
+                DocumentReference res = db.collection("walks").add(docData).getResult();
+                Log.d("Debug", "onClick: Result");
+                String path = res.getPath();
+                Log.d("Debug", "onClick: Path");
+                db.collection("users/"+userID+"/routes").add(path);
+                Log.d("Debug", "onClick: Done");
+
+                startActivity(new Intent(CreateWalkActivity.this, MapActivity.class));
             }
         });
 

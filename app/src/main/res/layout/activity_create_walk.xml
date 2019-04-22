@@ -45,4 +45,12 @@
             app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="66dp"
             app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="310dp"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="132dp"/>
+    <Button
+            android:text="crear paseo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/createWalk"
+            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="47dp"
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="55dp"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="269dp"/>
 </android.support.constraint.ConstraintLayout>
