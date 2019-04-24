@@ -130,7 +130,7 @@ public class PetAddActivity extends AppCompatActivity {
         mascota.put("specie", specie.getText().toString());
         mascota.put("race", race.getText().toString());
         mascota.put("comment",comment.getText().toString());
-        mascota.put("photo", imagePerfil.toString());
+//        mascota.put("photo", imagePerfil.toString());
         mascota.put("owner", userID);
 
 

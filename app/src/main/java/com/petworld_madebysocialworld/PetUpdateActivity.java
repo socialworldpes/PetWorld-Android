@@ -1,6 +1,7 @@
 package com.petworld_madebysocialworld;
 
 import Models.User;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -114,6 +115,12 @@ public class PetUpdateActivity extends AppCompatActivity {
 
         DocumentReference petRef = db.document(petPath);
         petRef.update(mascota);
+        startMap();
+    }
+
+    private void startMap() {
+        Intent intent = new Intent (getApplicationContext(), MapActivity.class);
+        startActivityForResult(intent, 0);
     }
 
     private void initNavigationDrawer() {
