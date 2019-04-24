@@ -125,8 +125,8 @@ public class PetUpdateActivity extends AppCompatActivity {
 
     private void initNavigationDrawer() {
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
-        toolBar.setTitle("Actualizar Mascota");
+        toolBar.setTitle("Editar Mascota");
         setSupportActionBar(toolBar);
-        DrawerUtil.getDrawer(this,toolBar);
+        //DrawerUtil.getDrawer(this,toolBar);
     }
 }

@@ -96,7 +96,7 @@ public class PetAddActivity extends AppCompatActivity {
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
         toolBar.setTitle("Añadir Mascota");
         setSupportActionBar(toolBar);
-        DrawerUtil.getDrawer(this,toolBar);
+       // DrawerUtil.getDrawer(this,toolBar);
     }
 
     @Override
