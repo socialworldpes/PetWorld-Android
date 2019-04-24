@@ -5,12 +5,16 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 
 import android.widget.ImageView;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.*;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -26,10 +30,18 @@ import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
 import com.mikepenz.materialdrawer.util.DrawerImageLoader;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 public class DrawerUtil {
+    static int i;
     public static void getDrawer(final Activity activity, Toolbar toolbar) {
 
+        i = 0;
+        final HashMap<Integer, DocumentReference> mapPetRef =  new HashMap<>();
         GoogleSignInAccount account = User.getInstance().getAccount();
+
         String personName = "Name";
         String personEmail = "Email";
         Uri personPhoto = Uri.parse("http://www.example.com");
@@ -42,6 +54,7 @@ public class DrawerUtil {
             personPhoto = account.getPhotoUrl();
             Log.d("Prueba", personPhoto.getPath());
         }
+
 
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
             @Override
@@ -75,11 +88,61 @@ public class DrawerUtil {
 
         PrimaryDrawerItem drawerItemManageUser = new PrimaryDrawerItem().withIdentifier(1)
                 .withName("Usuario").withIcon(R.drawable.ic_profile);
-        ExpandableDrawerItem drawerItemManagePets = new ExpandableDrawerItem()
-                .withIdentifier(2).withName("Mascotas").withIcon(R.drawable.ic_pets).withSelectable(false).withSubItems(
-                new SecondaryDrawerItem().withName("Mascota 1").withLevel(2).withIdentifier(2001),
-                new SecondaryDrawerItem().withName("Mascota 2").withLevel(2).withIdentifier(2002)
-        );;
+        final ExpandableDrawerItem drawerItemManagePets = new ExpandableDrawerItem()
+                .withIdentifier(2).withName("Mascotas").withIcon(R.drawable.ic_pets).withSelectable(false);
+        //pets menu lateral
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String userID = User.getInstance().getAccount().getId();
+        DocumentReference docRef = db.collection("users").document(userID);
+        Log.d("test", docRef.toString());
+        Log.d("userID", userID);
+        db.collection("users").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    Log.d("task string", task.toString());
+                    Log.d("task size: ", "" + task.getResult().get("pets"));
+                    DocumentSnapshot result = task.getResult();
+                    ArrayList<DocumentReference> arrayPets = (ArrayList<DocumentReference>) result.get("pets");
+
+
+                    if (arrayPets != null) {
+                        for (final DocumentReference dr : arrayPets) {
+                            if (dr.getPath() !=  null) {
+                                dr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        DocumentSnapshot result = task.getResult();
+                                        String namePet = (String) result.get("name");
+                                        drawerItemManagePets.withSubItems(
+                                                new SecondaryDrawerItem().withName(namePet).withLevel(2).withIdentifier(2001 + i)
+                                        );
+                                        mapPetRef.put(2001 + i, dr);
+                                    }
+                                });
+                                i++;
+                            }
+
+                        }
+                        ;
+                    }
+                    i = 0;
+                  /*  for (QueryDocumentSnapshot document : task.getResult()) {
+                        Log.d("task ok", document.getId() + " => " + document.getData());
+                        Map<String, Object> aux = task.getResult().getDocuments().get(i).getData();
+                        drawerItemManagePets.withSubItems(
+                                new SecondaryDrawerItem().withName("" + aux.get("name")).withLevel(2).withIdentifier(2001 + i)
+                        );
+
+                        i++;
+
+                    }
+                    */
+                }
+            }
+        });
+
+
 
 
         SecondaryDrawerItem drawerItemAddPet = new SecondaryDrawerItem().withIdentifier(3)
@@ -117,20 +180,39 @@ public class DrawerUtil {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         if (drawerItem.getIdentifier() == 1 && !(activity instanceof UserActivity)) {
-                            // load tournament screen
                             Intent intent = new Intent(activity, UserActivity.class);
                             view.getContext().startActivity(intent);
                         }
                         if (drawerItem.getIdentifier() == 5 && !(activity instanceof MapActivity)) {
-                            // load tournament screen
                             Intent intent = new Intent(activity, MapActivity.class);
                             view.getContext().startActivity(intent);
                         }
-                        if (drawerItem.getIdentifier() == 7){
+                        //lista de mascotas
+                        boolean dentroIf = false;
+                        for (Map.Entry<Integer, DocumentReference> entry : mapPetRef.entrySet()) {
+                            if (drawerItem.getIdentifier() == entry.getKey() && !(activity instanceof PetProfileActivity)) {
+
+                                if (!dentroIf) {
+                                    Intent  intent = new Intent(activity, PetProfileActivity.class);
+                                    String petPath = entry.getValue().getPath();
+                                    Log.d("drawerPetRef", petPath);
+                                    intent.putExtra("docPetRef", petPath);
+                                    view.getContext().startActivity(intent);
+                                }
+
+                                dentroIf = true;
+                            }
+                        }
+                        if (drawerItem.getIdentifier() == 7 ){
                             //to improve
                             MainActivity aux = new MainActivity();
                             User.getInstance().setLogOut(true);
                             Intent intent = new Intent(activity, MainActivity.class);
+                            view.getContext().startActivity(intent);
+                        }
+
+                        if (drawerItem.getIdentifier() == 3 && !(activity instanceof PetAddActivity)){
+                            Intent intent = new Intent(activity, PetAddActivity.class);
                             view.getContext().startActivity(intent);
                         }
                         return true;
@@ -138,5 +220,7 @@ public class DrawerUtil {
                 })
                 .build();
     }
+
+
 }
 

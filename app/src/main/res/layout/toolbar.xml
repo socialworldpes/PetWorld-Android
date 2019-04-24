@@ -6,8 +6,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/rounded_corners"
-        app:theme="@style/AppTheme.AppBarOverlay"
-        android:elevation="2dp" app:titleTextColor="@color/colorHint"
-        app:title=" ">
-
+        app:title=" "
+        app:theme="@style/AppTheme.NoActionBar"
+        android:elevation="2dp" app:titleTextColor="@color/material_drawer_dark_background">
 </android.support.v7.widget.Toolbar>

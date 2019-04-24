@@ -16,11 +16,18 @@
             android:roundIcon="@mipmap/ic_launcher_custom_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
+
         <activity android:name=".CreateRouteActivity">
         </activity>
         <activity android:name=".CreateWalkActivity">
         </activity>
         <activity android:name=".CreateMeetingActivity">
+        </activity>
+        <activity android:name=".PetUpdateActivity">
+        </activity>
+        <activity android:name=".PetAddActivity">
+        </activity>
+        <activity android:name=".PetProfileActivity">
         </activity>
         <activity android:name=".UserActivity">
         </activity>
