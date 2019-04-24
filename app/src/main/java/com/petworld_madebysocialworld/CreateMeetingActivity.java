@@ -1,13 +1,19 @@
 package com.petworld_madebysocialworld;
 
 import Models.User;
+import android.Manifest;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.net.ConnectivityManager;
@@ -17,6 +23,8 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
@@ -30,6 +38,11 @@ import com.google.firebase.firestore.*;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.mikepenz.iconics.utils.Utils;
+import com.sangcomz.fishbun.FishBun;
+import com.sangcomz.fishbun.adapter.image.impl.GlideAdapter;
+import com.sangcomz.fishbun.adapter.image.impl.PicassoAdapter;
+import com.sangcomz.fishbun.define.Define;
 
 
 import java.io.ByteArrayOutputStream;
@@ -66,6 +79,7 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
 
     //map
     private final static int FRAGMENT_ID = 0x101;
+    private final static int REQUEST_ID_MULTIPLE_PERMISSIONS = 2;
     private GoogleMap mMap;
     private MapView mapV;
 
@@ -77,15 +91,22 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
     //strings for time and date for firestore
     String fechaFormateada = null;
     String tiempoFormateado = null;
+    private static final int REQUEST_CODE_CHOOSE = 23;
+
+    //booleans
+    private boolean imagesCanContinue;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_meeting);
 
+        imagesCanContinue = false;
         images = new ArrayList<>();
         uriImages = new ArrayList<>();
         urlImages = new ArrayList<>();
+
 
         //Widget EditText donde se mostrara la fecha obtenida
         etFecha = (EditText) findViewById(R.id.et_mostrar_fecha_picker);
@@ -100,18 +121,7 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
         //Evento setOnClickListener - clic
         ibObtenerHora.setOnClickListener(this);
 
-        MapsInitializer.initialize(this);
-
-        mapV = (MapView) findViewById(R.id.mapCreateMeeting);
-        setUpMapIfNeeded();
-
-        /*
-        location = (LatLng) getIntent().getParcelableExtra("location");
-        TextView tvLat = (TextView)findViewById(R.id.coordLat);
-        tvLat.setText("Lat: " + location.latitude);
-        TextView tvLong = (TextView)findViewById(R.id.coordLong);
-        tvLong.setText("Long: " + location.longitude);
-        */
+        //setUpMapIfNeeded();
     }
 
     private void setUpMapIfNeeded() {
@@ -123,10 +133,12 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                 TextView tvNoInternet = new TextView(this);
                 tvNoInternet.setGravity(Gravity.CENTER_HORIZONTAL);
                 tvNoInternet.setText(getString(R.string.no_net_info));
-                ((MapView) findViewById(R.id.map)).addView(tvNoInternet);
+                ((MapView) findViewById(R.id.mapCreateMeeting)).addView(tvNoInternet);
             }
 
-            mapV = ((MapView) findViewById(R.id.mapCreateMeeting));
+            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.mapCreateMeeting);
+            mapFragment.getMapAsync(this);
             mapV.getMapAsync(this);
             if (mMap != null) {
                 setUpMap();
@@ -169,27 +181,23 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        if (requestCode == 1001) {
-            Uri selectedImage = data.getData();
-            uriImages.add(selectedImage);
-            String[] filePathColumn = { MediaStore.Images.Media.DATA };
+    protected void onActivityResult(int requestCode, int resultCode, Intent imageData) {
+        super.onActivityResult(requestCode, resultCode, imageData);
+        switch (requestCode) {
+            case Define.ALBUM_REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    // path = imageData.getStringArrayListExtra(Define.INTENT_PATH);
+                    // you can get an image path(ArrayList<String>) on <0.6.2
 
-            Cursor cursor = getContentResolver().query(selectedImage,
-                    filePathColumn, null, null, null);
-            cursor.moveToFirst();
-
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            String picturePath = cursor.getString(columnIndex);
-            cursor.close();
-
-            Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
-
-            if (bitmap != null) {
-                ImageView img = (ImageView)findViewById(R.id.foto1);
-                img.setImageBitmap(bitmap);
-            }
+                    uriImages = imageData.getParcelableArrayListExtra(Define.INTENT_PATH);
+                    if (uriImages.size() > 0){
+                        imagesCanContinue = true;
+                        findViewById(R.id.tickVerde).setVisibility(1);
+                        findViewById(R.id.load_image).setVisibility(0);
+                    }
+                    // you can get an image path(ArrayList<Uri>) on 0.6.2 and later
+                    break;
+                }
         }
     }
 
@@ -211,11 +219,17 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
 
                 //TODO
                 //(EditText) findViewById(R.id.title_create_meeting).getText()) == null ||
-                if (((EditText) findViewById(R.id.des)).getText().toString().equals("")){
+                if (((EditText) findViewById(R.id.title_create_meeting)).getText().toString().equals("")){
+                    Toast.makeText(this, "El título no puede estar vacío", Toast.LENGTH_SHORT).show();
+                }
+                else if (((EditText) findViewById(R.id.des)).getText().toString().equals("")){
                     Toast.makeText(this, "La descripción no puede estar vacía", Toast.LENGTH_SHORT).show();
                 }
                 else if (tiempoFormateado == null || fechaFormateada == null){
                     Toast.makeText(this, "Por favor, elija una fecha y hora correctas", Toast.LENGTH_SHORT).show();
+                }
+                else if (imagesCanContinue == false){
+                    Toast.makeText(this, "Por favor, añada como mínimo una imagen al meeting", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     //ojo, hay que guardar todo en firestore
@@ -226,7 +240,7 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                     meeting.put("name", ((EditText)findViewById(R.id.title_create_meeting)).getText().toString());
                     LatLng loc = (LatLng) getIntent().getParcelableExtra("location");
                     meeting.put("placeLocation", new GeoPoint(loc.latitude, loc.longitude));
-                    meeting.put("placeName", "");
+                    meeting.put("placeName", ((EditText)findViewById(R.id.des2)).getText().toString());
                     meeting.put("start", Timestamp.valueOf(fechaFormateada + " " + tiempoFormateado));
                     meeting.put("visibility", "public");
                     FirebaseFirestore.getInstance().collection("meetings").add(meeting).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -301,11 +315,7 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                 }
                 break;
             case R.id.load_image:
-                Intent in = new Intent();
-                in.setType("image/*");
-                in.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(in, "Select Picture"),
-                        1001);
+                FishBun.with(this).setImageAdapter(new PicassoAdapter()).setMaxCount(3).startAlbum();
                 break;
         }
     }

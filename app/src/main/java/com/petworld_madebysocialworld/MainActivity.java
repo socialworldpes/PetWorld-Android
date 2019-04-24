@@ -1,8 +1,14 @@
 package com.petworld_madebysocialworld;
 
 import Models.User;
+import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,9 +37,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.*;
 import android.support.v7.widget.Toolbar;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -48,9 +52,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView mDetailTextView;
     private User u;
     FirebaseFirestore db;
+    private final static int REQUEST_ID_MULTIPLE_PERMISSIONS = 2;
 
-        @Override
+
+    @Override
         protected void onCreate(Bundle savedInstanceState) {
+            checkAndRequestPermissions();
             super.onCreate(savedInstanceState);
             Log.d("PRUEBA", "Paso por el main activity");
             u = User.getInstance();
@@ -63,10 +70,111 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             connect(null);
 
 
+
             // [START initialize_auth]
             // Initialize Firebase Auth
             // [END initialize_auth]
         }
+
+    private boolean checkAndRequestPermissions() {
+        int readpermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        int writepermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int locationpermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        List<String> listPermissionsNeeded = new ArrayList<>();
+
+        if (readpermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
+        if (writepermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        if (locationpermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), REQUEST_ID_MULTIPLE_PERMISSIONS);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_ID_MULTIPLE_PERMISSIONS: {
+
+                Map<String, Integer> perms = new HashMap<>();
+
+                perms.put(Manifest.permission.READ_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
+                perms.put(Manifest.permission.WRITE_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
+
+                // Fill with actual results from user
+                if (grantResults.length > 0) {
+                    for (int i = 0; i < permissions.length; i++)
+                        perms.put(permissions[i], grantResults[i]);
+                    // Check for both permissions
+                    if (perms.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                            && perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        Log.d("ERROR014", "camera & location services permission granted");
+
+                        // here you can do your logic all Permission Success Call
+
+                    } else {
+                        Log.d("ERROR015", "Some permissions are not granted ask again ");
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE) || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                            showDialogOK("Some Permissions are required for Open Camera",
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            switch (which) {
+                                                case DialogInterface.BUTTON_POSITIVE:
+                                                    break;
+                                                case DialogInterface.BUTTON_NEGATIVE:
+                                                    // proceed with logic by disabling the related features or quit the app.
+                                                    dialog.dismiss();
+                                                    break;
+                                            }
+                                        }
+                                    });
+                        } else {
+                            explain("You need to give some mandatory permissions to continue. Do you want to go to app settings?");
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    private void showDialogOK(String message, DialogInterface.OnClickListener okListener) {
+        new AlertDialog.Builder(this)
+                .setMessage(message)
+                .setPositiveButton("OK", okListener)
+                .setNegativeButton("Cancel", okListener)
+                .create()
+                .show();
+    }
+
+    private void explain(String msg) {
+        final android.support.v7.app.AlertDialog.Builder dialog = new android.support.v7.app.AlertDialog.Builder(this);
+        dialog.setMessage(msg)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                        //Utils.startInstalledAppDetailsActivity(LoginActivity.this);
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                        dialog.create().dismiss();
+                        finish();
+                    }
+                });
+        dialog.show();
+    }
 
         // [START on_start_check_user]
         @Override
@@ -215,6 +323,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         private void signIn() {
             Intent signInIntent = u.getGoogleSignInClient().getSignInIntent();
             startActivityForResult(signInIntent, RC_SIGN_IN);
+            if(checkAndRequestPermissions()){
+            }else{
+            }
         }
         // [END signin]
 
