@@ -428,11 +428,11 @@ public class MapActivity extends AppCompatActivity
 
         // Query Walks
         final CollectionReference walksRef = db.collection("walks");
-        Query walkLocations = walksRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+        final Query walkLocations = walksRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
 
         // Query Routes
         final CollectionReference routesRef = db.collection("routes");
-        Query routeLocations = routesRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+        final Query routeLocations = routesRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
 
         mMap.clear();
 
@@ -458,54 +458,53 @@ public class MapActivity extends AppCompatActivity
 
                     if (task.getResult().isEmpty()) Log.d("Meeting", "NO hay quedadas cerca");
                 }
-            }
-        });
 
-        // Its important for Walks to be queried first!
-        walkLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    walks.clear();
-                    for (QueryDocumentSnapshot document: task.getResult()) {
-                        GeoPoint point = (GeoPoint) document.get("placeLocation");
-                        Timestamp date = (Timestamp) document.get("start");
-                        LocalDateTime dateTime = LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault());
+                // Its important for Walks to be queried first!
+                walkLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            walks.clear();
+                            for (QueryDocumentSnapshot document: task.getResult()) {
+                                GeoPoint point = (GeoPoint) document.get("placeLocation");
+                                Timestamp date = (Timestamp) document.get("start");
+                                LocalDateTime dateTime = LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault());
 
-                        if (checkConditions(point, bounds, dateTime) > 0) {
-                            walks.add(document.getData());
-                            meetingAndWalkMarker(point, dateTime, "Walk");
-                            Log.d("Walk", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                                if (checkConditions(point, bounds, dateTime) > 0) {
+                                    walks.add(document.getData());
+                                    meetingAndWalkMarker(point, dateTime, "Walk");
+                                    Log.d("Walk", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                                }
+
+                            }
+
+                            if (task.getResult().isEmpty()) Log.d("Walk", "NO hay paseos cerca");
                         }
 
-                    }
+                        routeLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    routes.clear();
+                                    for (QueryDocumentSnapshot document: task.getResult()) {
+                                        GeoPoint point = (GeoPoint) document.get("placeLocation");
 
-                    if (task.getResult().isEmpty()) Log.d("Walk", "NO hay paseos cerca");
-                }
+                                        if (checkConditions(point, bounds, null) > 0 && hasWalk(document.getId()) < 0) {
+                                            routes.add(document.getData());
+                                            routeMarker(point);
+                                            Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                                        }
+
+                                    }
+
+                                    if (task.getResult().isEmpty()) Log.d("Route", "NO hay rutas cerca");
+                                }
+                            }
+                        });
+                    }
+                });
             }
         });
-
-        routeLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    routes.clear();
-                    for (QueryDocumentSnapshot document: task.getResult()) {
-                        GeoPoint point = (GeoPoint) document.get("placeLocation");
-
-                        if (checkConditions(point, bounds, null) > 0 && hasWalk(document.getId()) < 0) {
-                            routes.add(document.getData());
-                            routeMarker(point);
-                            Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
-                        }
-
-                    }
-
-                    if (task.getResult().isEmpty()) Log.d("Route", "NO hay rutas cerca");
-                }
-            }
-        });
-
     }
 
     public int checkConditions(GeoPoint point, LatLngBounds bounds, LocalDateTime dateTime) {
