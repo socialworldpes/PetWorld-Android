@@ -192,8 +192,8 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                     uriImages = imageData.getParcelableArrayListExtra(Define.INTENT_PATH);
                     if (uriImages.size() > 0){
                         imagesCanContinue = true;
-                        findViewById(R.id.tickVerde).setVisibility(1);
-                        findViewById(R.id.load_image).setVisibility(0);
+                        findViewById(R.id.tickVerde).setVisibility(View.VISIBLE);
+                        findViewById(R.id.load_image).setVisibility(View.INVISIBLE);
                     }
                     // you can get an image path(ArrayList<Uri>) on 0.6.2 and later
                     break;
