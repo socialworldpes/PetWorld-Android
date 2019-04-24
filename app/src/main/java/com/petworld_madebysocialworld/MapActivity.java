@@ -6,24 +6,30 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabItem;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
+
+
+import android.widget.LinearLayout;
 import android.widget.TextView;
-
-
 import android.widget.Toast;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.GeoDataClient;
@@ -35,19 +41,33 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.*;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.*;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Map;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class MapActivity extends AppCompatActivity
-        implements OnMapReadyCallback {
+        implements OnMapReadyCallback, GoogleMap.OnCameraMoveStartedListener {
 
     private static final String TAG = MapActivity.class.getSimpleName();
     private GoogleMap mMap;
     private CameraPosition mCameraPosition; //prova
+
+    private ArrayList<Map<String, Object>> meetings = new ArrayList<Map<String, Object>>();
+    private ArrayList<Map<String, Object>> routes = new ArrayList<Map<String, Object>>();
+    private ArrayList<Map<String, Object>> walks = new ArrayList<Map<String, Object>>();
+    
+    private String[] dayOfWeek = new String[] {"Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"};
 
     // The entry points to the Places API.
     private GeoDataClient mGeoDataClient;
@@ -81,6 +101,16 @@ public class MapActivity extends AppCompatActivity
     //user
     private User u;
 
+    // RecyclerView for meetings and walks
+    private RecyclerView recyclerView;
+    private RecyclerView.Adapter meetingsAdapter;
+    private RecyclerView.LayoutManager layoutManager;
+
+    private FloatingActionsMenu fam;
+    private LatLng selectedLocation = null;
+
+    // Data beeing used
+    Query locations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,10 +141,33 @@ public class MapActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        // RecyclerView for meetings and walks
+        layoutManager = new LinearLayoutManager(this);
+        //recyclerView.setLayoutManager(layoutManager);
+        // TODO: we need the variable meetings to contain the meetings displayed in the map
+        meetingsAdapter = new MeetingSmallAdapter(this, meetings);
+        //recyclerView.setAdapter(meetingsAdapter);
+
+        fam = (FloatingActionsMenu) findViewById(R.id.menu_fab);
+        fam.setOnFloatingActionsMenuUpdateListener( new FloatingActionsMenu.OnFloatingActionsMenuUpdateListener() {
+            @Override
+            public void onMenuExpanded() {
+
+            }
+
+            @Override
+            public void onMenuCollapsed() {
+                selectedLocation = null;
+                //TODO: remove point location
+            }
+        } );
+
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        final Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         mMap = googleMap;
 
         updateLocationUI();
@@ -133,41 +186,23 @@ public class MapActivity extends AppCompatActivity
             @Override
             public void onMapClick(LatLng point) {
                 mMap.clear();
-                mMap.addMarker(new MarkerOptions().position(point));
+                fam.collapse();
             }
         });
-
-        //Click Llarg
-
-        final Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(final LatLng point) {
                 mMap.clear();
-                vibe.vibrate(50);
+                mMap.addMarker(new MarkerOptions().position(point));
+                vibe.vibrate(30);
 
-                AlertDialog alertDialog = new AlertDialog.Builder(MapActivity.this).create();
-                //alertDialog.setTitle("Alert");
-                alertDialog.setMessage("Create new event?");
-                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Evento",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                //Toast.makeText(MapActivity.this, "Crear Evento" , Toast.LENGTH_SHORT).show();
-                                newEvent(point, false);
-                                dialog.dismiss();
-                            }
-                        });
-                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancelar",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
-                alertDialog.show();
+                selectedLocation = point;
+                fam.expand();
             }
         });
 
+        mMap.setOnCameraMoveStartedListener(this);
 
     }
 
@@ -243,12 +278,50 @@ public class MapActivity extends AppCompatActivity
         updateLocationUI();
     }
 
-    /*
-     Create new event
-    */
-    public void newEvent(LatLng latLng, boolean pickLocationFirst){
-        Intent intent = new Intent(MapActivity.this, CreateEventActivity.class);
-        intent.putExtra("location", latLng);
+    public void newMeeting(View view){
+        if(selectedLocation == null) newMeeting();
+        else newMeeting(selectedLocation);
+    }
+
+    public void newRoute(View view){
+        if(selectedLocation == null) newRoute();
+        else newRoute(selectedLocation);
+    }
+
+    public void newWalk(View view){
+        if(selectedLocation == null) newWalk();
+        else newWalk(selectedLocation);
+    }
+
+    public void newMeeting(){
+        Intent intent = new Intent(MapActivity.this, CreateMeetingActivity.class);
+        startActivity(intent);
+    }
+
+    public void newWalk(){
+        Intent intent = new Intent(MapActivity.this, CreateWalkActivity.class);
+        startActivity(intent);
+    }
+
+    public void newRoute(){
+        Intent intent = new Intent(MapActivity.this, CreateRouteActivity.class);
+        startActivity(intent);
+    }
+    public void newMeeting(LatLng location){
+        Intent intent = new Intent(MapActivity.this, CreateMeetingActivity.class);
+        intent.putExtra("location", location);
+        startActivity(intent);
+    }
+
+    public void newWalk(LatLng location){
+        Intent intent = new Intent(MapActivity.this, CreateWalkActivity.class);
+        intent.putExtra("location", location);
+        startActivity(intent);
+    }
+
+    public void newRoute(LatLng location){
+        Intent intent = new Intent(MapActivity.this, CreateRouteActivity.class);
+        intent.putExtra("location", location);
         startActivity(intent);
     }
 
@@ -355,7 +428,7 @@ public class MapActivity extends AppCompatActivity
             return;
         }
         try {
-            /*
+
             if (mLocationPermissionGranted) {
                 mMap.setMyLocationEnabled(true);
                 mMap.getUiSettings().setMyLocationButtonEnabled(true);
@@ -365,7 +438,7 @@ public class MapActivity extends AppCompatActivity
                 mLastKnownLocation = null;
                 getLocationPermission();
             }
-            */
+
         } catch (SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
         }
@@ -382,11 +455,181 @@ public class MapActivity extends AppCompatActivity
     }
 
     private void initNavigationDrawer() {
-        //to improve
+        //TODO: improve
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
-        toolBar.setTitle("Map");
         setSupportActionBar(toolBar);
         DrawerUtil.getDrawer(this,toolBar);
+    }
+
+
+
+
+    public void searchNearPlaces(View view) {
+
+
+        TextView tvLat = (TextView)findViewById(R.id.textView12);
+        tvLat.setText("Funciona 1");
+
+        view.setVisibility(View.INVISIBLE);
+        final LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Query Meetings
+        final CollectionReference meetingsRef = db.collection("meetings");
+        Query meetingLocations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+
+        // Query Walks
+        final CollectionReference walksRef = db.collection("walks");
+        final Query walkLocations = walksRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+
+        // Query Routes
+        final CollectionReference routesRef = db.collection("routes");
+        final Query routeLocations = routesRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+
+        mMap.clear();
+
+        meetingLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    meetings.clear();
+                    for (QueryDocumentSnapshot document: task.getResult()) {
+                        GeoPoint point = (GeoPoint) document.get("placeLocation");
+                        String name = (String) document.get("name");
+                        Timestamp date = (Timestamp) document.get("start");
+                        LocalDateTime dateTime = LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault());
+
+                        if (checkConditions(point, bounds, dateTime) > 0) {
+                            meetings.add(document.getData());
+                            meetingAndWalkMarker(point, dateTime, "Meeting");
+                            //mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude())).title(name)).showInfoWindow();
+                            Log.d("Meeting", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                        }
+
+                    }
+
+                    if (task.getResult().isEmpty()) Log.d("Meeting", "NO hay quedadas cerca");
+                }
+
+                // Its important for Walks to be queried first!
+                walkLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            walks.clear();
+                            for (QueryDocumentSnapshot document: task.getResult()) {
+                                GeoPoint point = (GeoPoint) document.get("placeLocation");
+                                Timestamp date = (Timestamp) document.get("start");
+                                LocalDateTime dateTime = LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault());
+
+                                if (checkConditions(point, bounds, dateTime) > 0) {
+                                    walks.add(document.getData());
+                                    meetingAndWalkMarker(point, dateTime, "Walk");
+                                    Log.d("Walk", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                                }
+
+                            }
+
+                            if (task.getResult().isEmpty()) Log.d("Walk", "NO hay paseos cerca");
+                        }
+
+                        routeLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    routes.clear();
+                                    for (QueryDocumentSnapshot document: task.getResult()) {
+                                        GeoPoint point = (GeoPoint) document.get("placeLocation");
+
+                                        if (checkConditions(point, bounds, null) > 0 && hasWalk(document.getId()) < 0) {
+                                            routes.add(document.getData());
+                                            routeMarker(point);
+                                            Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                                        }
+
+                                    }
+
+                                    if (task.getResult().isEmpty()) Log.d("Route", "NO hay rutas cerca");
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    public int checkConditions(GeoPoint point, LatLngBounds bounds, LocalDateTime dateTime) {
+        LocalDateTime now = LocalDateTime.now();
+        // Only shows the points of the following 7 days
+        LocalDateTime weekFromToday = now.plusWeeks(1);
+
+        if (point.getLongitude() <= bounds.northeast.longitude &&
+                point.getLongitude() >= bounds.southwest.longitude &&
+                (dateTime == null || (now.compareTo(dateTime) <= 0 && dateTime.compareTo(weekFromToday) <= 0))) return 1;
+        return 0;
+    }
+
+    public int hasWalk(String routeId) {
+        for (Map<String, Object> walk : walks) {
+            if (walk.get("walkForRoute").toString().equals(routeId)) return 1;
+        }
+        return -1;
+    }
+
+    @Override
+    public void onCameraMoveStarted(int reason) {
+        Log.d("HOLA", "HOLA");
+        View b = findViewById(R.id.nearPlaces);
+        b.setVisibility(View.VISIBLE);
+    }
+
+    public void addMarker(GeoPoint point, Bitmap bmp) {
+        mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(point.getLatitude(), point.getLongitude()))
+                .icon(BitmapDescriptorFactory.fromBitmap(bmp))
+                // Specifies the anchor to be at a particular point in the marker image.
+                .anchor(0.5f, 0.5f));
+    }
+
+    public static boolean isToday(LocalDate date) {
+        if (date.isEqual(LocalDate.now())) return true;
+        return false;
+    }
+
+    public void meetingAndWalkMarker(GeoPoint point, LocalDateTime date, String type) {
+        LinearLayout linearLayout = (LinearLayout) this.getLayoutInflater().inflate(type.equals("Meeting") ? R.layout.meeting_marker : R.layout.walk_marker, null, false);
+
+        TextView layoutDate = linearLayout.findViewById(R.id.date);
+
+        String day = isToday(date.toLocalDate()) ? "Hoy" : dayOfWeek[date.getDayOfWeek().getValue() - 1];
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("h:mma");
+        layoutDate.setText(day + " " + date.format(formatter));
+
+        linearLayout.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        linearLayout.layout(0, 0, linearLayout.getMeasuredWidth(), linearLayout.getMeasuredHeight());;
+
+        linearLayout.setDrawingCacheEnabled(true);
+        linearLayout.buildDrawingCache();
+        Bitmap bmp = linearLayout.getDrawingCache();
+
+        addMarker(point, bmp);
+    }
+
+    public void routeMarker(GeoPoint point) {
+        LinearLayout linearLayout = (LinearLayout) this.getLayoutInflater().inflate(R.layout.route_marker, null, false);
+
+        linearLayout.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        linearLayout.layout(0, 0, linearLayout.getMeasuredWidth(), linearLayout.getMeasuredHeight());;
+
+        linearLayout.setDrawingCacheEnabled(true);
+        linearLayout.buildDrawingCache();
+        Bitmap bmp = linearLayout.getDrawingCache();
+
+        addMarker(point, bmp);
     }
 
 }

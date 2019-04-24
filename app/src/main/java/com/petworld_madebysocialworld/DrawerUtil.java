@@ -41,22 +41,20 @@ public class DrawerUtil {
         i = 0;
         final HashMap<Integer, DocumentReference> mapPetRef =  new HashMap<>();
         GoogleSignInAccount account = User.getInstance().getAccount();
-        //info account
-        String personName = "null";
-        String personGivenName = "null";
-        String personFamilyName = "null";
-        String personEmail = "null";
-        String personId = "null";
-        Uri personPhoto = null;
-        if (account != null) {
+
+        String personName = "Name";
+        String personEmail = "Email";
+        Uri personPhoto = Uri.parse("http://www.example.com");
+
+        if (account == null) Log.d("PRUEBA==", "hola, no hay nadie en la account");
+        else{
+            //info account
             personName = account.getDisplayName();
-            personGivenName = account.getGivenName();
-            personFamilyName = account.getFamilyName();
             personEmail = account.getEmail();
-            personId = account.getId();
             personPhoto = account.getPhotoUrl();
+            Log.d("Prueba", personPhoto.getPath());
         }
-        //Log.d("Prueba", personPhoto.getPath());
+
 
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
             @Override
