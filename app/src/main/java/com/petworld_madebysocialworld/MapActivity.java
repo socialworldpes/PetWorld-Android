@@ -47,6 +47,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.*;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
@@ -111,7 +113,7 @@ public class MapActivity extends AppCompatActivity
     private TabLayout tabLayout;
     private Context context;
     private Integer position;
-    private LinearLayout linearLayout;
+    private LinearLayout linearLayoutSheet;
 
 
     // Data beeing used
@@ -171,11 +173,9 @@ public class MapActivity extends AppCompatActivity
         tabLayout = (TabLayout) findViewById(R.id.selectTab);
         context = this;
         position = 0;
-        linearLayout = (LinearLayout) findViewById(R.id.LayoutMeetings);
-        //loadListLayout(position);
+        linearLayoutSheet = (LinearLayout) findViewById(R.id.LayoutMeetings);
+        loadListLayout(position);
         listenerList();
-
-
     }
 
     @Override
@@ -471,7 +471,7 @@ public class MapActivity extends AppCompatActivity
         //TODO: improve
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolBar);
-        DrawerUtil.getDrawer(this,toolBar);
+        //DrawerUtil.getDrawer(this,toolBar);
     }
 
 
@@ -569,6 +569,9 @@ public class MapActivity extends AppCompatActivity
                 });
             }
         });
+
+        loadListLayout(position);
+
     }
 
     public int checkConditions(GeoPoint point, LatLngBounds bounds, LocalDateTime dateTime) {
@@ -648,7 +651,7 @@ public class MapActivity extends AppCompatActivity
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 position = tab.getPosition();
-                Toast.makeText(MapActivity.this, "Position es " + position, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MapActivity.this, "Position es " + position, Toast.LENGTH_SHORT).show();
                 loadListLayout(position);
             }
 
@@ -663,82 +666,59 @@ public class MapActivity extends AppCompatActivity
     }
 
     private void loadListLayout(Integer position) {
-        linearLayout.removeAllViews();
+        linearLayoutSheet.removeAllViews();
         if (position == 0) {
             if (meetings.size() != 0){
-                Toast.makeText(this, "Hi han meetings: " + meetings.size(), Toast.LENGTH_SHORT).show();
 
                 for(Map<String, Object> mapTmp : meetings) {
-                    Toast.makeText(context, "Hola", Toast.LENGTH_SHORT).show();
 
+                    LinearLayout linearLayoutList = new LinearLayout(context);
+
+                    String nameList = (String) mapTmp.get("name");
+
+                    TextView textViewNameList = new TextView(context);
+                    textViewNameList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+                    textViewNameList.setText(nameList);
+                    textViewNameList.setTextColor(Color.BLACK);
+                    textViewNameList.setTextSize(1, 20);
+                    textViewNameList.setPadding(40, 20, 40, 5);
+
+                    linearLayoutList.addView(textViewNameList);
+
+                    Timestamp timeList = (Timestamp) mapTmp.get("start");
+                    Date timeDateList = timeList.toDate();
+                    Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String timeStringList = formatter.format(timeDateList);
+
+                    TextView textViewTime = new TextView(context);
+                    textViewTime.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+                    textViewTime.setText(timeStringList);
+                    textViewTime.setPadding(40, 5, 40, 20);
+
+                    linearLayoutList.addView(textViewTime);
+
+                    linearLayoutSheet.addView(linearLayoutList);
+
+                    String descriptionList = (String) mapTmp.get("description");
+
+                    TextView textViewDescreList = new TextView(context);
+                    textViewDescreList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+                    textViewDescreList.setText(descriptionList);
+                    textViewDescreList.setPadding(40, 20, 40, 20);
+
+                    linearLayoutSheet.addView(textViewDescreList);
 
                 }
-                //private ArrayList<Map<String, Object>> meetings = new ArrayList<Map<String, Object>>();
-                /*
-
-                meetingsQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            ++times;
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-
-                                meetings.add(document.getData());
-                                String nameList = (String) document.get("name");
-                                String descriptionList = (String) document.get("description");
-
-                                LinearLayout linearLayoutList = new LinearLayout(context);
-
-                                TextView textViewNameList = new TextView(context);
-                                textViewNameList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                                        LinearLayout.LayoutParams.WRAP_CONTENT));
-                                textViewNameList.setText(nameList);
-                                textViewNameList.setTextColor(Color.BLACK);
-                                textViewNameList.setTextSize(1, 20);
-                                textViewNameList.setPadding(40, 20, 40, 5);
-
-                                linearLayoutList.addView(textViewNameList);
-                                Timestamp timeList = (Timestamp) document.get("start");
-                                Date timeDateList = timeList.toDate();
-                                Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                                String timeStringList = formatter.format(timeDateList);
-
-                                TextView textViewTime = new TextView(context);
-                                textViewTime.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                                        LinearLayout.LayoutParams.WRAP_CONTENT));
-                                textViewTime.setText(timeStringList);
-                                textViewTime.setPadding(40, 5, 40, 20);
-
-                                linearLayoutList.addView(textViewTime);
-
-
-                                //linearLayoutList.setPadding(20, 20, 20, 20);
-
-                                linearLayout.addView(linearLayoutList);
-
-                                TextView textViewDescreList = new TextView(context);
-                                textViewDescreList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                                        LinearLayout.LayoutParams.WRAP_CONTENT));
-                                textViewDescreList.setText(descriptionList);
-                                textViewDescreList.setPadding(40, 20, 40, 20);
-
-                                linearLayout.addView(textViewDescreList);
-
-                            }
-
-                            if (task.getResult().isEmpty()) Log.d("Event", times + " - NO hay quedadas cerca");
-
-                        }
-                    }
-                });
-                */
             } else {
                 TextView textViewAvis = new TextView(context);
                 textViewAvis.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT));
                 textViewAvis.setText("No hay quedadas disponibles");
                 textViewAvis.setPadding(40, 40, 40, 20);
-                linearLayout.addView(textViewAvis);
+                linearLayoutSheet.addView(textViewAvis);
 
                 TextView textViewSolucio = new TextView(context);
                 textViewSolucio.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -747,11 +727,39 @@ public class MapActivity extends AppCompatActivity
                 textViewSolucio.setTextColor(Color.BLACK);
                 textViewSolucio.setTextSize(1, 18);
                 textViewSolucio.setPadding(40, 20, 40, 40);
-                linearLayout.addView(textViewSolucio);
+                linearLayoutSheet.addView(textViewSolucio);
             }
         } else if (position == 1) {
             if (routes.size() != 0) {
-                Toast.makeText(this, "Hi han rutes: " + routes.size(), Toast.LENGTH_SHORT).show();
+
+                for(Map<String, Object> mapTmp : routes) {
+
+                    LinearLayout linearLayoutList = new LinearLayout(context);
+                    String nameList = (String) mapTmp.get("name");
+                    String descriptionList = (String) mapTmp.get("description");
+
+                    TextView textViewNameList = new TextView(context);
+                    textViewNameList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+                    textViewNameList.setText(nameList);
+                    textViewNameList.setTextColor(Color.BLACK);
+                    textViewNameList.setTextSize(1, 20);
+                    textViewNameList.setPadding(40, 20, 40, 5);
+
+                    linearLayoutList.addView(textViewNameList);
+
+
+                    linearLayoutSheet.addView(linearLayoutList);
+
+                    //Obtenir Descripcio
+                    TextView textViewDescriList = new TextView(context);
+                    textViewDescriList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+                    textViewDescriList.setText(descriptionList);
+                    textViewDescriList.setPadding(40, 20, 40, 20);
+
+                    linearLayoutSheet.addView(textViewDescriList);
+                }
                 /*
                 routesQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -798,7 +806,7 @@ public class MapActivity extends AppCompatActivity
                         LinearLayout.LayoutParams.WRAP_CONTENT));
                 textViewAvis.setText("No hay rutas disponibles");
                 textViewAvis.setPadding(40, 40, 40, 20);
-                linearLayout.addView(textViewAvis);
+                linearLayoutSheet.addView(textViewAvis);
 
                 TextView textViewSolucio = new TextView(context);
                 textViewSolucio.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -807,7 +815,7 @@ public class MapActivity extends AppCompatActivity
                 textViewSolucio.setTextColor(Color.BLACK);
                 textViewSolucio.setTextSize(1, 18);
                 textViewSolucio.setPadding(40, 20, 40, 40);
-                linearLayout.addView(textViewSolucio);
+                linearLayoutSheet.addView(textViewSolucio);
             }
         } else {
             Toast.makeText(this, "Error al LoadList", Toast.LENGTH_SHORT).show();
