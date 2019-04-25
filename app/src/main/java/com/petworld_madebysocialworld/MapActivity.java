@@ -66,7 +66,7 @@ public class MapActivity extends AppCompatActivity
     private ArrayList<Map<String, Object>> meetings = new ArrayList<Map<String, Object>>();
     private ArrayList<Map<String, Object>> routes = new ArrayList<Map<String, Object>>();
     private ArrayList<Map<String, Object>> walks = new ArrayList<Map<String, Object>>();
-    
+
     private String[] dayOfWeek = new String[] {"Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"};
 
     // The entry points to the Places API.
@@ -108,6 +108,11 @@ public class MapActivity extends AppCompatActivity
 
     private FloatingActionsMenu fam;
     private LatLng selectedLocation = null;
+    private TabLayout tabLayout;
+    private Context context;
+    private Integer position;
+    private LinearLayout linearLayout;
+
 
     // Data beeing used
     Query locations;
@@ -162,6 +167,14 @@ public class MapActivity extends AppCompatActivity
                 //TODO: remove point location
             }
         } );
+
+        tabLayout = (TabLayout) findViewById(R.id.selectTab);
+        context = this;
+        position = 0;
+        linearLayout = (LinearLayout) findViewById(R.id.LayoutMeetings);
+        //loadListLayout(position);
+        //listenerList();
+
 
     }
 
@@ -228,7 +241,7 @@ public class MapActivity extends AppCompatActivity
                             Location currentLocation = (Location) task.getResult();
                             if (currentLocation != null){
                                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()),
-                                DEFAULT_ZOOM));
+                                        DEFAULT_ZOOM));
                             } else {
                                 Toast.makeText(MapActivity.this, "NULL", Toast.LENGTH_SHORT).show();
                             }
@@ -418,7 +431,7 @@ public class MapActivity extends AppCompatActivity
 
         // Display the dialog.
         AlertDialog dialog = new AlertDialog.Builder(this)
-              //  .setTitle(R.string.pick_place)
+                //  .setTitle(R.string.pick_place)
                 .setItems(mLikelyPlaceNames, listener)
                 .show();
     }
@@ -445,13 +458,13 @@ public class MapActivity extends AppCompatActivity
     }
 
     public void goToLogIn (View view){
-       // Intent nextActivity = new Intent(this, MainActivity.class);
-       // startActivity(nextActivity);
+        // Intent nextActivity = new Intent(this, MainActivity.class);
+        // startActivity(nextActivity);
     }
 
     public void goToUserProfile (View view){
-      //  Intent nextActivity = new Intent(this, UserActivity.class);
-       // startActivity(nextActivity);
+        //  Intent nextActivity = new Intent(this, UserActivity.class);
+        // startActivity(nextActivity);
     }
 
     private void initNavigationDrawer() {
@@ -498,14 +511,15 @@ public class MapActivity extends AppCompatActivity
                         GeoPoint point = (GeoPoint) document.get("placeLocation");
                         String name = (String) document.get("name");
                         Timestamp date = (Timestamp) document.get("start");
-                        LocalDateTime dateTime = LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault());
+                        //LocalDateTime dateTime = LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault());
 
-                        if (checkConditions(point, bounds, dateTime) > 0) {
-                            meetings.add(document.getData());
-                            meetingAndWalkMarker(point, dateTime, "Meeting");
-                            //mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude())).title(name)).showInfoWindow();
-                            Log.d("Meeting", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
-                        }
+                        //if (checkConditions(point, bounds, dateTime) > 0) {
+
+                        meetings.add(document.getData());
+                        //meetingAndWalkMarker(point, dateTime, "Meeting");
+                        //mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude())).title(name)).showInfoWindow();
+                        Log.d("Meeting", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                        //}
 
                     }
 
@@ -521,13 +535,13 @@ public class MapActivity extends AppCompatActivity
                             for (QueryDocumentSnapshot document: task.getResult()) {
                                 GeoPoint point = (GeoPoint) document.get("placeLocation");
                                 Timestamp date = (Timestamp) document.get("start");
-                                LocalDateTime dateTime = LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault());
+                                //LocalDateTime dateTime = LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault());
 
-                                if (checkConditions(point, bounds, dateTime) > 0) {
-                                    walks.add(document.getData());
-                                    meetingAndWalkMarker(point, dateTime, "Walk");
-                                    Log.d("Walk", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
-                                }
+                                //if (checkConditions(point, bounds, dateTime) > 0) {
+                                walks.add(document.getData());
+                                //meetingAndWalkMarker(point, dateTime, "Walk");
+                                Log.d("Walk", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                                //}
 
                             }
 
@@ -542,11 +556,11 @@ public class MapActivity extends AppCompatActivity
                                     for (QueryDocumentSnapshot document: task.getResult()) {
                                         GeoPoint point = (GeoPoint) document.get("placeLocation");
 
-                                        if (checkConditions(point, bounds, null) > 0 && hasWalk(document.getId()) < 0) {
-                                            routes.add(document.getData());
-                                            routeMarker(point);
-                                            Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
-                                        }
+                                        //if (checkConditions(point, bounds, null) > 0 && hasWalk(document.getId()) < 0) {
+                                        routes.add(document.getData());
+                                        routeMarker(point);
+                                        Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                                        //}
 
                                     }
 
@@ -632,4 +646,7 @@ public class MapActivity extends AppCompatActivity
         addMarker(point, bmp);
     }
 
+
+
 }
+
