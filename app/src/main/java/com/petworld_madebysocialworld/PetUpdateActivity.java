@@ -35,7 +35,7 @@ public class PetUpdateActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pet_update);
+        setContentView(R.layout.activity_pet_update_2);
         initFireBase();
         initItems();
         initListeners();

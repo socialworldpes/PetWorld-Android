@@ -48,7 +48,7 @@ public class PetAddActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pet_add);
+        setContentView(R.layout.activity_pet_add_2);
         initNavigationDrawer();
         initFireBase();
         initLayout();

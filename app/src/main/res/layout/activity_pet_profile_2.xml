@@ -70,7 +70,8 @@
                         android:fontFamily="sans-serif-light"
                         android:text="name"
                         android:textColor="#000000"
-                        android:textSize="20sp" />
+                        android:textSize="20sp"
+                        android:textStyle="bold"/>
 
                 <View
                         android:layout_width="match_parent"
@@ -100,7 +101,8 @@
                         android:fontFamily="sans-serif-light"
                         android:text="Gender"
                         android:textColor="#000000"
-                        android:textSize="20sp" />
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
 
                 <View
                         android:layout_width="match_parent"
@@ -130,7 +132,8 @@
                         android:fontFamily="sans-serif-light"
                         android:text="Specie"
                         android:textColor="#000000"
-                        android:textSize="20sp" />
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
 
                 <View
                         android:layout_width="match_parent"
@@ -160,7 +163,8 @@
                         android:fontFamily="sans-serif-light"
                         android:text="Race"
                         android:textColor="#000000"
-                        android:textSize="20sp" />
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
 
                 <View
                         android:layout_width="match_parent"
@@ -190,7 +194,8 @@
                         android:fontFamily="sans-serif-light"
                         android:text="Comment"
                         android:textColor="#000000"
-                        android:textSize="20sp" />
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
 
                 <View
                         android:layout_width="match_parent"
@@ -204,17 +209,35 @@
                           android:layout_marginTop="15dp"
                           android:orientation="horizontal" android:gravity="center">
                 <Button
-                        android:text="Borrar"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" android:id="@+id/buttonBorrar"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="30dp"/>
+                        android:text="Editar" android:id="@+id/buttonEdit"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginBottom="30dp"
+                        android:textColor="#FFFFFF"
+                        android:textSize="19sp"
+
+                        android:layout_width="110dp"
+                        android:layout_height="30dp"
+                        android:background="@drawable/buttonshape"
+                        android:shadowColor="#A8A8A8"
+                        android:shadowDx="0"
+                        android:shadowDy="0"
+                        android:shadowRadius="5"
+                        android:layout_marginRight="20dp"/>
                 <Button
-                        android:text="Editar"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" android:id="@+id/buttonEdit"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="30dp"/>
+                        android:text="Borrar" android:id="@+id/buttonBorrar"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginBottom="30dp"
+                        android:textColor="#FFFFFF"
+                        android:textSize="19sp"
+
+                        android:layout_width="110dp"
+                        android:layout_height="30dp"
+                        android:background="@drawable/buttonshape2"
+                        android:shadowColor="#A8A8A8"
+                        android:shadowDx="0"
+                        android:shadowDy="0"
+                        android:shadowRadius="5"/>
+
 
 
             </LinearLayout>

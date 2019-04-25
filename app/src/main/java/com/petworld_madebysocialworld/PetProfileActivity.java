@@ -174,8 +174,8 @@ public class PetProfileActivity extends AppCompatActivity {
 
     private void initNavigationDrawer() {
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
-        toolBar.setTitle("PerfilMascota");
+        toolBar.setTitle("Perfil Mascota");
         setSupportActionBar(toolBar);
-        //DrawerUtil.getDrawer(this,toolBar);
+        DrawerUtil.getDrawer(this,toolBar);
     }
 }
