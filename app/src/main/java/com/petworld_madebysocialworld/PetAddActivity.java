@@ -176,6 +176,8 @@ public class PetAddActivity extends AppCompatActivity {
                          } else {
                              Log.w("task ko", "Error getting documents.", task.getException());
                          }
+                         Toast.makeText(getApplicationContext(), "Mascota Añadida",
+                                 Toast.LENGTH_LONG).show();
                          startMap();
                      }
                  });

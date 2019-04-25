@@ -109,10 +109,13 @@ public class PetProfileActivity extends AppCompatActivity {
                         }
                     }
                 }
+                Toast.makeText(getApplicationContext(), "Mascota Borrada",
+                        Toast.LENGTH_LONG).show();
                 startMap();
             }
 
         });
+
         Log.d("alPetRef: ", "out");
 
     }
