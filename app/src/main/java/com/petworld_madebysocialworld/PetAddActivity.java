@@ -11,18 +11,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Toast;
+import android.widget.*;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.*;
 import com.google.firebase.auth.FirebaseAuth;
+import org.w3c.dom.Text;
 
 
 import java.io.FileNotFoundException;
@@ -48,7 +47,7 @@ public class PetAddActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pet_add);
+        setContentView(R.layout.activity_pet_add_2);
         initNavigationDrawer();
         initFireBase();
         initLayout();
@@ -96,7 +95,7 @@ public class PetAddActivity extends AppCompatActivity {
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
         toolBar.setTitle("Añadir Mascota");
         setSupportActionBar(toolBar);
-        DrawerUtil.getDrawer(this,toolBar);
+       // DrawerUtil.getDrawer(this,toolBar);
     }
 
     @Override
@@ -125,68 +124,118 @@ public class PetAddActivity extends AppCompatActivity {
         String userID = User.getInstance().getAccount().getId();
         Log.d("userID", userID);
         HashMap<String, Object> mascota =  new HashMap<String, Object>();
-        mascota.put("name", name.getText().toString());
-        mascota.put("gender", gender.getText().toString());
-        mascota.put("specie", specie.getText().toString());
-        mascota.put("race", race.getText().toString());
-        mascota.put("comment",comment.getText().toString());
-//        mascota.put("photo", imagePerfil.toString());
-        mascota.put("owner", userID);
+        if (checkNulls()) {
+            mascota.put("name", name.getText().toString());
+            mascota.put("gender", gender.getText().toString());
+            mascota.put("specie", specie.getText().toString());
+            mascota.put("race", race.getText().toString());
+            mascota.put("comment", comment.getText().toString());
+            //        mascota.put("photo", imagePerfil.toString());
+            mascota.put("owner", userID);
 
 
-         db.collection("pets").add(mascota).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-             @Override
-             public void onSuccess(final DocumentReference documentReference) {
-                 Log.d("mascotaRefenrece:" , documentReference.getId());
+            db.collection("pets").add(mascota).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                @Override
+                public void onSuccess(final DocumentReference documentReference) {
+                    Log.d("mascotaRefenrece:", documentReference.getId());
 
-                 String userID = User.getInstance().getAccount().getId();
+                    String userID = User.getInstance().getAccount().getId();
 
-                 Log.d("userID", userID);
-                 DocumentReference docRef = db.collection("users").document(userID);
-
-
-
-                 docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                     @Override
-                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                         if (task.isSuccessful()) {
-                             String userID = User.getInstance().getAccount().getId();
-                             DocumentSnapshot result = task.getResult();
-                             ArrayList<DocumentReference> arrayReference = (ArrayList<DocumentReference>) result.get("pets");
-                             if (arrayReference == null) arrayReference =  new ArrayList<>();
-                             arrayReference.add(documentReference);
-
-                             //añadir pet a users(userID)
-                             db.collection("users").document(userID)
-                                     .update("pets", arrayReference)
-                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                         @Override
-                                         public void onSuccess(Void aVoid) {
-                                             Log.d("mascota", "DocumentSnapshot successfully written!");
-                                         }
-                                     })
-                                     .addOnFailureListener(new OnFailureListener() {
-                                         @Override
-                                         public void onFailure(@NonNull Exception e) {
-                                             Log.w("mascota", "Error writing document", e);
-                                         }
-                                     });
+                    Log.d("userID", userID);
+                    DocumentReference docRef = db.collection("users").document(userID);
 
 
-                         } else {
-                             Log.w("task ko", "Error getting documents.", task.getException());
-                         }
-                         startMap();
-                     }
-                 });
+                    docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                String userID = User.getInstance().getAccount().getId();
+                                DocumentSnapshot result = task.getResult();
+                                ArrayList<DocumentReference> arrayReference = (ArrayList<DocumentReference>) result.get("pets");
+                                if (arrayReference == null) arrayReference = new ArrayList<>();
+                                arrayReference.add(documentReference);
+
+                                //añadir pet a users(userID)
+                                db.collection("users").document(userID)
+                                        .update("pets", arrayReference)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d("mascota", "DocumentSnapshot successfully written!");
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.w("mascota", "Error writing document", e);
+                                            }
+                                        });
 
 
-             }
+                            } else {
+                                Log.w("task ko", "Error getting documents.", task.getException());
+                            }
+                            Toast.makeText(getApplicationContext(), "Mascota Añadida",
+                                    Toast.LENGTH_LONG).show();
+                            startMap();
+                        }
+                    });
 
-        });
+
+                }
+
+            });
+        }
 
 
 
+    }
+
+    private boolean checkNulls() {
+        String check;
+        boolean result = true;
+        check = name.getText().toString();
+        if (check == null || check.equals("")) {
+            printErrorNull(findViewById(R.id.headingName));
+            result = false;
+        }
+        else resetHeading(R.id.headingName);
+        check = gender.getText().toString();
+        if (check == null || check.equals("")) {
+            printErrorNull(findViewById(R.id.headingGender));
+            result = false;
+        }
+        else resetHeading(R.id.headingGender);
+        check = specie.getText().toString();
+        if (check == null || check.equals("")) {
+            printErrorNull(findViewById(R.id.headingSpecie));
+            result = false;
+        }
+        else resetHeading(R.id.headingSpecie);
+        check = race.getText().toString();
+        if (check == null || check.equals("")) {
+            printErrorNull(findViewById(R.id.headingRace));
+            result = false;
+        }
+        else resetHeading(R.id.headingRace);
+        check = comment.getText().toString();
+        if (check == null || check.equals("")) {
+            printErrorNull(findViewById(R.id.headingComment));
+            result = false;
+        }
+        else resetHeading(R.id.headingComment);
+        return result;
+    }
+
+    private void resetHeading(int headingName) {
+        TextView textView = (TextView)findViewById(headingName);
+        textView.setText(textView.getText().toString().substring(0));
+    }
+
+    private void printErrorNull(View viewById) {
+        TextView textView = (TextView) viewById;
+        String oldText = textView.getText().toString();
+        if (oldText.length() < 10) textView.setText(oldText + "         Error: "+ oldText.substring(0) +" no puede ser nulo");
     }
 
     private void startMap() {

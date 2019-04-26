@@ -10,4 +10,6 @@
     <color name="black_semitransparent">#80000000</color>
     <color name="redRoute">#E55659</color>
     <color name="redWalk">#E55659</color>
+    <color name="headings">#2FB903</color>
+    <color name="grey">#BBBCBA</color>
 </resources>

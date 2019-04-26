@@ -48,6 +48,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.*;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
@@ -67,7 +69,7 @@ public class MapActivity extends AppCompatActivity
     private ArrayList<Map<String, Object>> meetings = new ArrayList<Map<String, Object>>();
     private ArrayList<Map<String, Object>> routes = new ArrayList<Map<String, Object>>();
     private ArrayList<Map<String, Object>> walks = new ArrayList<Map<String, Object>>();
-    
+
     private String[] dayOfWeek = new String[] {"Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"};
 
     // The entry points to the Places API.
@@ -109,6 +111,11 @@ public class MapActivity extends AppCompatActivity
 
     private FloatingActionsMenu fam;
     private LatLng selectedLocation = null;
+    private TabLayout tabLayout;
+    private Context context;
+    private Integer position;
+    private LinearLayout linearLayoutSheet;
+
 
     // Data beeing used
     Query locations;
@@ -179,6 +186,12 @@ public class MapActivity extends AppCompatActivity
             }
         });*/
 
+        tabLayout = (TabLayout) findViewById(R.id.selectTab);
+        context = this;
+        position = 0;
+        linearLayoutSheet = (LinearLayout) findViewById(R.id.LayoutMeetings);
+        loadListLayout(position);
+        listenerList();
     }
 
     @Override
@@ -201,7 +214,7 @@ public class MapActivity extends AppCompatActivity
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng point) {
-                mMap.clear();
+                //mMap.clear();
                 fam.collapse();
             }
         });
@@ -244,7 +257,7 @@ public class MapActivity extends AppCompatActivity
                             Location currentLocation = (Location) task.getResult();
                             if (currentLocation != null){
                                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()),
-                                DEFAULT_ZOOM));
+                                        DEFAULT_ZOOM));
                             } else {
                                 Toast.makeText(MapActivity.this, "NULL", Toast.LENGTH_SHORT).show();
                             }
@@ -315,7 +328,7 @@ public class MapActivity extends AppCompatActivity
     }
 
     public void newWalk(){
-        Intent intent = new Intent(MapActivity.this, CreateWalkActivity.class);
+        Intent intent = new Intent(MapActivity.this, LeadsActivity.class);
         startActivity(intent);
     }
 
@@ -434,7 +447,7 @@ public class MapActivity extends AppCompatActivity
 
         // Display the dialog.
         AlertDialog dialog = new AlertDialog.Builder(this)
-              //  .setTitle(R.string.pick_place)
+                //  .setTitle(R.string.pick_place)
                 .setItems(mLikelyPlaceNames, listener)
                 .show();
     }
@@ -461,13 +474,13 @@ public class MapActivity extends AppCompatActivity
     }
 
     public void goToLogIn (View view){
-       // Intent nextActivity = new Intent(this, MainActivity.class);
-       // startActivity(nextActivity);
+        // Intent nextActivity = new Intent(this, MainActivity.class);
+        // startActivity(nextActivity);
     }
 
     public void goToUserProfile (View view){
-      //  Intent nextActivity = new Intent(this, UserActivity.class);
-       // startActivity(nextActivity);
+        //  Intent nextActivity = new Intent(this, UserActivity.class);
+        // startActivity(nextActivity);
     }
 
     private void initNavigationDrawer() {
@@ -482,9 +495,6 @@ public class MapActivity extends AppCompatActivity
 
     public void searchNearPlaces(View view) {
 
-
-        TextView tvLat = (TextView)findViewById(R.id.textView12);
-        tvLat.setText("Funciona 1");
 
         view.setVisibility(View.INVISIBLE);
         final LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
@@ -584,9 +594,9 @@ public class MapActivity extends AppCompatActivity
                                         GeoPoint point = (GeoPoint) document.get("placeLocation");
 
                                         if (checkConditions(point, bounds, null) > 0 && hasWalk(document.getId()) < 0) {
-                                            routes.add(document.getData());
-                                            routeMarker(point);
-                                            Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                                        routes.add(document.getData());
+                                        routeMarker(point);
+                                        Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                                         }
 
                                     }
@@ -599,6 +609,9 @@ public class MapActivity extends AppCompatActivity
                 });
             }
         });
+
+        loadListLayout(position);
+
     }
 
     public int checkConditions(GeoPoint point, LatLngBounds bounds, LocalDateTime dateTime) {
@@ -689,4 +702,142 @@ public class MapActivity extends AppCompatActivity
         addMarker(point, bmp);
     }
 
+    private void listenerList() {
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                position = tab.getPosition();
+                //Toast.makeText(MapActivity.this, "Position es " + position, Toast.LENGTH_SHORT).show();
+                loadListLayout(position);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
+        });
+    }
+
+    private void loadListLayout(Integer position) {
+        linearLayoutSheet.removeAllViews();
+        if (position == 0) {
+            if (meetings.size() != 0){
+
+                for(Map<String, Object> mapTmp : meetings) {
+
+                    LinearLayout linearLayoutList = new LinearLayout(context);
+
+                    String nameList = (String) mapTmp.get("name");
+
+                    TextView textViewNameList = new TextView(context);
+                    textViewNameList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+                    textViewNameList.setText(nameList);
+                    textViewNameList.setTextColor(Color.BLACK);
+                    textViewNameList.setTextSize(1, 20);
+                    textViewNameList.setPadding(40, 20, 40, 5);
+
+                    linearLayoutList.addView(textViewNameList);
+
+                    Timestamp timeList = (Timestamp) mapTmp.get("start");
+                    Date timeDateList = timeList.toDate();
+                    Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String timeStringList = formatter.format(timeDateList);
+
+                    TextView textViewTime = new TextView(context);
+                    textViewTime.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+                    textViewTime.setText(timeStringList);
+                    textViewTime.setPadding(40, 5, 40, 20);
+
+                    linearLayoutList.addView(textViewTime);
+
+                    linearLayoutSheet.addView(linearLayoutList);
+
+                    String descriptionList = (String) mapTmp.get("description");
+
+                    TextView textViewDescreList = new TextView(context);
+                    textViewDescreList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+                    textViewDescreList.setText(descriptionList);
+                    textViewDescreList.setPadding(40, 20, 40, 20);
+
+                    linearLayoutSheet.addView(textViewDescreList);
+
+                }
+            } else {
+                TextView textViewAvis = new TextView(context);
+                textViewAvis.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT));
+                textViewAvis.setText("No hay quedadas disponibles");
+                textViewAvis.setPadding(40, 40, 40, 20);
+                linearLayoutSheet.addView(textViewAvis);
+
+                TextView textViewSolucio = new TextView(context);
+                textViewSolucio.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT));
+                textViewSolucio.setText("Actualiza el mapa");
+                textViewSolucio.setTextColor(Color.BLACK);
+                textViewSolucio.setTextSize(1, 18);
+                textViewSolucio.setPadding(40, 20, 40, 40);
+                linearLayoutSheet.addView(textViewSolucio);
+            }
+        } else if (position == 1) {
+            if (routes.size() != 0) {
+
+                for(Map<String, Object> mapTmp : routes) {
+
+                    LinearLayout linearLayoutList = new LinearLayout(context);
+                    String nameList = (String) mapTmp.get("name");
+                    String descriptionList = (String) mapTmp.get("description");
+
+                    TextView textViewNameList = new TextView(context);
+                    textViewNameList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+                    textViewNameList.setText(nameList);
+                    textViewNameList.setTextColor(Color.BLACK);
+                    textViewNameList.setTextSize(1, 20);
+                    textViewNameList.setPadding(40, 20, 40, 5);
+
+                    linearLayoutList.addView(textViewNameList);
+
+
+                    linearLayoutSheet.addView(linearLayoutList);
+
+                    //Obtenir Descripcio
+                    TextView textViewDescriList = new TextView(context);
+                    textViewDescriList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+                    textViewDescriList.setText(descriptionList);
+                    textViewDescriList.setPadding(40, 20, 40, 20);
+
+                    linearLayoutSheet.addView(textViewDescriList);
+                }
+            } else {
+                TextView textViewAvis = new TextView(context);
+                textViewAvis.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT));
+                textViewAvis.setText("No hay rutas disponibles");
+                textViewAvis.setPadding(40, 40, 40, 20);
+                linearLayoutSheet.addView(textViewAvis);
+
+                TextView textViewSolucio = new TextView(context);
+                textViewSolucio.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT));
+                textViewSolucio.setText("Actualiza el mapa");
+                textViewSolucio.setTextColor(Color.BLACK);
+                textViewSolucio.setTextSize(1, 18);
+                textViewSolucio.setPadding(40, 20, 40, 40);
+                linearLayoutSheet.addView(textViewSolucio);
+            }
+        } else {
+            Toast.makeText(this, "Error al LoadList", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
 }
+

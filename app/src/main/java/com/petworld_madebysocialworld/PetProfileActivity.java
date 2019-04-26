@@ -1,12 +1,14 @@
 package com.petworld_madebysocialworld;
 
 import Models.User;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -46,7 +48,7 @@ public class PetProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pet_profile);
+        setContentView(R.layout.activity_pet_profile_2);
         initFireBase();
         initTextView();
         initIntent();
@@ -78,7 +80,8 @@ public class PetProfileActivity extends AppCompatActivity {
     }
 
     private void borrarMascota() {
-        borrarReferenciaUsuario();
+        AlertDialog diaBox = AskOption();
+        diaBox.show();
 
     }
 
@@ -106,10 +109,13 @@ public class PetProfileActivity extends AppCompatActivity {
                         }
                     }
                 }
+                Toast.makeText(getApplicationContext(), "Mascota Borrada",
+                        Toast.LENGTH_LONG).show();
                 startMap();
             }
 
         });
+
         Log.d("alPetRef: ", "out");
 
     }
@@ -136,11 +142,11 @@ public class PetProfileActivity extends AppCompatActivity {
     }
 
     private void initTextView() {
-        name = findViewById(R.id.textViewName);
-        gender = findViewById(R.id.textViewGender);
-        race = findViewById(R.id.textViewRace);
-        specie = findViewById(R.id.textViewSpecie);
-        comment = findViewById(R.id.textViewComment);
+        name = findViewById(R.id.textViewName2);
+        gender = findViewById(R.id.textViewGender2);
+        race = findViewById(R.id.textViewRace2);
+        specie = findViewById(R.id.textViewSpecie2);
+        comment = findViewById(R.id.textViewComment2);
     }
 
     private void initLayout() {
@@ -174,8 +180,40 @@ public class PetProfileActivity extends AppCompatActivity {
 
     private void initNavigationDrawer() {
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
-        toolBar.setTitle("PerfilMascota");
+        toolBar.setTitle("Perfil Mascota");
         setSupportActionBar(toolBar);
         DrawerUtil.getDrawer(this,toolBar);
+    }
+    private AlertDialog AskOption()
+    {
+        AlertDialog myQuittingDialogBox =new AlertDialog.Builder(this)
+                //set message, title, and icon
+                .setTitle("Borrar")
+                .setMessage("¿Borrar mascota?")
+                .setIcon(R.drawable.ic_delete)
+
+                .setPositiveButton("Borrar", new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        //your deleting code
+
+                        borrarReferenciaUsuario();
+                        dialog.dismiss();
+                    }
+
+                })
+
+
+
+                .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+
+                    }
+                })
+                .create();
+        return myQuittingDialogBox;
+
     }
 }
