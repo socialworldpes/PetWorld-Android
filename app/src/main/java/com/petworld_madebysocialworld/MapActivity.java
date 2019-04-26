@@ -471,7 +471,7 @@ public class MapActivity extends AppCompatActivity
         //TODO: improve
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolBar);
-        //DrawerUtil.getDrawer(this,toolBar);
+        DrawerUtil.getDrawer(this,toolBar);
     }
 
 
