@@ -312,7 +312,7 @@ public class MapActivity extends AppCompatActivity
     }
 
     public void newWalk(){
-        Intent intent = new Intent(MapActivity.this, CreateWalkActivity.class);
+        Intent intent = new Intent(MapActivity.this, LeadsActivity.class);
         startActivity(intent);
     }
 

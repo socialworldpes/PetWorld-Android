@@ -21,7 +21,8 @@
             android:roundIcon="@mipmap/ic_launcher_custom_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
-
+        <activity android:name=".LeadsActivity">
+        </activity>
         <activity android:name=".CreateRouteActivity">
         </activity>
         <activity android:name=".CreateWalkActivity">
