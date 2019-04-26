@@ -8,6 +8,11 @@
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+
 
     <application
             android:allowBackup="true"
@@ -16,8 +21,6 @@
             android:roundIcon="@mipmap/ic_launcher_custom_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
-        <activity android:name=".MyWalks2Activity">
-        </activity>
         <activity android:name=".LeadsActivity">
         </activity>
         <activity android:name=".CreateRouteActivity">
@@ -25,6 +28,14 @@
         <activity android:name=".CreateWalkActivity">
         </activity>
         <activity android:name=".CreateMeetingActivity">
+        </activity>
+        <activity android:name=".PetUpdateActivity">
+        </activity>
+        <activity android:name=".PetAddActivity">
+        </activity>
+        <activity android:name=".PetProfileActivity">
+        </activity>
+        <activity android:name=".ViewMeetingActivity">
         </activity>
         <activity android:name=".UserActivity">
         </activity>

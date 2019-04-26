@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
+    <color name="colorPrimary">#8BC34A</color>
+    <color name="colorPrimaryDark">#9E9D24</color>
+    <color name="colorAccent">#8B624A</color>
     <color name="colorLightGray">#ddd</color>
     <color name="colorText">#111</color>
     <color name="colorHint">#54000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black_semitransparent">#80000000</color>
+    <color name="redRoute">#E55659</color>
+    <color name="redWalk">#E55659</color>
 </resources>

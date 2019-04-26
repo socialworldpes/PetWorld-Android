@@ -23,6 +23,53 @@
             app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginBottom="184dp"/>
 
+    <com.getbase.floatingactionbutton.FloatingActionsMenu
+            android:id="@+id/menu_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            fab:fab_addButtonColorNormal="@color/colorPrimary"
+            fab:fab_addButtonSize="normal"
+            fab:fab_labelStyle="@style/FabLabel"
+            fab:fab_labelsPosition="left"
+            android:layout_marginBottom="200dp"
+    >
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+                android:id="@+id/accion_favorito"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                fab:fab_colorNormal="@color/colorAccent"
+                fab:fab_icon="@drawable/ic_directions_walk_white_24dp"
+                fab:fab_size="mini"
+                fab:fab_title="Paseo"
+                android:onClick="newWalk"
+        />
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+                android:id="@+id/accion_buscar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                fab:fab_colorNormal="@color/colorAccent"
+                fab:fab_icon="@drawable/ic_timeline_white_24dp"
+                fab:fab_size="mini"
+                fab:fab_title="Rutas"
+                android:onClick="newRoute"
+        />
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+                android:id="@+id/accion_carrito"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                fab:fab_colorNormal="@color/colorAccent"
+                fab:fab_icon="@drawable/ic_nature_people_white_24dp"
+                fab:fab_size="mini"
+                fab:fab_title="Quedada"
+                android:onClick="newMeeting"
+        />
+
+    </com.getbase.floatingactionbutton.FloatingActionsMenu>
+
     <View
             android:layout_width="match_parent"
             android:layout_height="8dp"
@@ -38,15 +85,24 @@
             android:ems="10" android:background="@null" android:layout_marginTop="20dp"
             android:layout_marginRight="16dp" android:layout_marginLeft="80dp"
             android:textSize="24sp"/>
-    <ImageButton
-            android:layout_width="58dp"
-            android:layout_height="54dp" app:srcCompat="@drawable/anabohueles" android:id="@+id/nearPlaces"
-            app:layout_anchorGravity="right|center" app:layout_anchor="@+id/map"
-            android:onClick="searchNearPlaces" android:visibility="invisible"/>
-    <Button
-            android:text="Paseo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/buttonTestPaseo"
-            app:layout_anchorGravity="right|center"
-            app:layout_anchor="@+id/map"/>
+    <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <Button
+                android:text="Buscar en esta zona"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp" android:id="@+id/nearPlaces"
+                android:onClick="searchNearPlaces"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:layout_marginTop="72dp"
+                app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="130dp" app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="129dp"
+                android:background="@drawable/btn_rounded"
+                android:textColor="@color/md_blue_700" android:textAlignment="center"
+                app:layout_constraintHorizontal_bias="0.666" android:fontFamily="sans-serif-medium"/>
+    </android.support.constraint.ConstraintLayout>
 </android.support.design.widget.CoordinatorLayout>
