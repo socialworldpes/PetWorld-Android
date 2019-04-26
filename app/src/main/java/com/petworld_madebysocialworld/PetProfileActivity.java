@@ -142,11 +142,11 @@ public class PetProfileActivity extends AppCompatActivity {
     }
 
     private void initTextView() {
-        name = findViewById(R.id.textViewName);
-        gender = findViewById(R.id.textViewGender);
-        race = findViewById(R.id.textViewRace);
-        specie = findViewById(R.id.textViewSpecie);
-        comment = findViewById(R.id.textViewComment);
+        name = findViewById(R.id.textViewName2);
+        gender = findViewById(R.id.textViewGender2);
+        race = findViewById(R.id.textViewRace2);
+        specie = findViewById(R.id.textViewSpecie2);
+        comment = findViewById(R.id.textViewComment2);
     }
 
     private void initLayout() {
