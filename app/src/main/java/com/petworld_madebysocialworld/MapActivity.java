@@ -198,7 +198,7 @@ public class MapActivity extends AppCompatActivity
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng point) {
-                mMap.clear();
+                //mMap.clear();
                 fam.collapse();
             }
         });
