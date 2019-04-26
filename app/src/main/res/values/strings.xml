@@ -6,4 +6,8 @@
     <string name="Meetings">Quedadas</string>
     <string name="Walks">Paseos</string>
     <string name="Search">Buscar</string>
+    <string name="titlulo_pickers">Obtener fecha y hora</string>
+    <string name="formato_fecha">dd/mm/yyyy</string>
+    <string name="formato_hora">hh:mm</string>
+    <string name="no_net_info">Sin conexión a internet</string>
 </resources>
