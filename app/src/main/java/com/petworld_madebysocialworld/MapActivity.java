@@ -508,15 +508,15 @@ public class MapActivity extends AppCompatActivity
                         GeoPoint point = (GeoPoint) document.get("placeLocation");
                         String name = (String) document.get("name");
                         Timestamp date = (Timestamp) document.get("start");
-                        //LocalDateTime dateTime = LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault());
+                        LocalDateTime dateTime = LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault());
 
-                        //if (checkConditions(point, bounds, dateTime) > 0) {
+                        if (checkConditions(point, bounds, dateTime) > 0) {
 
                         meetings.add(document.getData());
-                        //meetingAndWalkMarker(point, dateTime, "Meeting");
-                        //mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude())).title(name)).showInfoWindow();
+                        meetingAndWalkMarker(point, dateTime, "Meeting");
+                        mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude())).title(name)).showInfoWindow();
                         Log.d("Meeting", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
-                        //}
+                        }
 
                     }
 
@@ -532,13 +532,13 @@ public class MapActivity extends AppCompatActivity
                             for (QueryDocumentSnapshot document: task.getResult()) {
                                 GeoPoint point = (GeoPoint) document.get("placeLocation");
                                 Timestamp date = (Timestamp) document.get("start");
-                                //LocalDateTime dateTime = LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault());
+                                LocalDateTime dateTime = LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault());
 
-                                //if (checkConditions(point, bounds, dateTime) > 0) {
+                                if (checkConditions(point, bounds, dateTime) > 0) {
                                 walks.add(document.getData());
-                                //meetingAndWalkMarker(point, dateTime, "Walk");
+                                meetingAndWalkMarker(point, dateTime, "Walk");
                                 Log.d("Walk", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
-                                //}
+                                }
 
                             }
 
@@ -553,11 +553,11 @@ public class MapActivity extends AppCompatActivity
                                     for (QueryDocumentSnapshot document: task.getResult()) {
                                         GeoPoint point = (GeoPoint) document.get("placeLocation");
 
-                                        //if (checkConditions(point, bounds, null) > 0 && hasWalk(document.getId()) < 0) {
+                                        if (checkConditions(point, bounds, null) > 0 && hasWalk(document.getId()) < 0) {
                                         routes.add(document.getData());
                                         routeMarker(point);
                                         Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
-                                        //}
+                                        }
 
                                     }
 
@@ -760,46 +760,6 @@ public class MapActivity extends AppCompatActivity
 
                     linearLayoutSheet.addView(textViewDescriList);
                 }
-                /*
-                routesQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            ++times;
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                LinearLayout linearLayoutList = new LinearLayout(context);
-
-                                //Obtenir nom
-                                String nameList = (String) document.get("name");
-                                TextView textViewNameList = new TextView(context);
-                                textViewNameList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                                        LinearLayout.LayoutParams.WRAP_CONTENT));
-                                textViewNameList.setText(nameList);
-                                textViewNameList.setTextColor(Color.BLACK);
-                                textViewNameList.setTextSize(1, 20);
-                                textViewNameList.setPadding(40, 20, 40, 5);
-
-                                linearLayoutList.addView(textViewNameList);
-
-
-                                linearLayout.addView(linearLayoutList);
-
-                                //Obtenir Descripcio
-                                String descriptionList = (String) document.get("description");
-                                TextView textViewDescriList = new TextView(context);
-                                textViewDescriList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                                        LinearLayout.LayoutParams.WRAP_CONTENT));
-                                textViewDescriList.setText(descriptionList);
-                                textViewDescriList.setPadding(40, 20, 40, 20);
-
-                                linearLayout.addView(textViewDescriList);
-                            }
-
-                            if (task.getResult().isEmpty()) Log.d("Event", times + " - NO hay quedadas cerca");
-                        }
-                    }
-                });
-                */
             } else {
                 TextView textViewAvis = new TextView(context);
                 textViewAvis.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
