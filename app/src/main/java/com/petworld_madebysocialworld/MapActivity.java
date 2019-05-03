@@ -70,8 +70,7 @@ public class MapActivity extends AppCompatActivity
     private ArrayList<Map<String, Object>> routes = new ArrayList<Map<String, Object>>();
     private ArrayList<Map<String, Object>> walks = new ArrayList<Map<String, Object>>();
 
-    private String[] dayOfWeek = new String[] {"Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"};
-    private String[] newDayOfWeek = new String[] {"Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"};
+    private String[] dayOfWeek = new String[] {"Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"};
 
     // The entry points to the Places API.
     private GeoDataClient mGeoDataClient;
@@ -524,27 +523,13 @@ public class MapActivity extends AppCompatActivity
                     for (QueryDocumentSnapshot document: task.getResult()) {
                         GeoPoint point = (GeoPoint) document.get("placeLocation");
                         String name = (String) document.get("name");
-                        Timestamp date = (Timestamp) document.get("start");
-                        LocalDateTime dateTime = null;
-                        Date dateTime2 = null;
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                            dateTime = LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault());
-                            if (checkConditions(point, bounds, dateTime, date.toDate()) > 0) {
-                                meetings.add(document.getData());
-                                meetingAndWalkMarker(point, dateTime, date.toDate(), "Meeting");
-                                //mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude())).title(name)).showInfoWindow();
-                                Log.d("Meeting", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
-                            }
-                        } else {
-                            dateTime2 = date.toDate();
-                            if (checkConditions(point, bounds, null, date.toDate()) > 0) {
-                                meetings.add(document.getData());
-                                meetingAndWalkMarker(point, null, date.toDate(), "Meeting");
-                                //mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude())).title(name)).showInfoWindow();
-                                Log.d("Meeting", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
-                            }
+                        Timestamp timestamp = (Timestamp) document.get("start");
+                        Date date = timestamp.toDate();
+                        if (checkConditions(point, bounds, date)) {
+                            meetings.add(document.getData());
+                            meetingAndWalkMarker(point, date, "Meeting");
+                            Log.d("Meeting", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                         }
-
                     }
 
                     if (task.getResult().isEmpty()) Log.d("Meeting", "NO hay quedadas cerca");
@@ -558,29 +543,13 @@ public class MapActivity extends AppCompatActivity
                             walks.clear();
                             for (QueryDocumentSnapshot document: task.getResult()) {
                                 GeoPoint point = (GeoPoint) document.get("placeLocation");
-                                Timestamp date = (Timestamp) document.get("start");
-                                LocalDateTime dateTime = null;
-                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                                    dateTime = LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault());
+                                Timestamp timestamp = (Timestamp) document.get("start");
+                                Date date = timestamp.toDate();
+                                if (checkConditions(point, bounds, date)) {
+                                    walks.add(document.getData());
+                                    meetingAndWalkMarker(point, date, "Walk");
+                                    Log.d("Walk", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                                 }
-                                Date dateTime2 = null;
-
-                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                                    dateTime = LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault());
-                                    if (checkConditions(point, bounds, dateTime, date.toDate()) > 0) {
-                                        walks.add(document.getData());
-                                        meetingAndWalkMarker(point, dateTime, date.toDate(), "Walk");
-                                        Log.d("Walk", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
-                                    }
-                                } else {
-                                    dateTime2 = date.toDate();
-                                    if (checkConditions(point, bounds, null, date.toDate()) > 0) {
-                                        walks.add(document.getData());
-                                        meetingAndWalkMarker(point, dateTime, date.toDate(), "Walk");
-                                        Log.d("Walk", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
-                                    }
-                                }
-
                             }
 
                             if (task.getResult().isEmpty()) Log.d("Walk", "NO hay paseos cerca");
@@ -594,7 +563,7 @@ public class MapActivity extends AppCompatActivity
                                     for (QueryDocumentSnapshot document: task.getResult()) {
                                         GeoPoint point = (GeoPoint) document.get("placeLocation");
 
-                                        if (checkConditions(point, bounds, null, null) > 0 && hasWalk(document.getId()) < 0) {
+                                        if (checkConditions(point, bounds, null) && !hasWalk(document.getId())) {
                                         routes.add(document.getData());
                                         routeMarker(point);
                                         Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
@@ -615,7 +584,7 @@ public class MapActivity extends AppCompatActivity
 
     }
 
-    public int checkConditions(GeoPoint point, LatLngBounds bounds, LocalDateTime dateTime, Date date) {
+    public boolean checkConditions(GeoPoint point, LatLngBounds bounds, Date date) {
         Calendar calendar = Calendar.getInstance();
         Date now1 = calendar.getTime();
 
@@ -624,35 +593,16 @@ public class MapActivity extends AppCompatActivity
 
         if (point.getLongitude() <= bounds.northeast.longitude &&
                 point.getLongitude() >= bounds.southwest.longitude &&
-                (date == null || (now1.compareTo(date) <= 0 && date.compareTo(weekFromToday1) <= 0))) {
-            if (date != null) Log.d("dateC", String.valueOf(isToday(date)) + " " + getDayOfWeek(date) + ":" + newDayOfWeek[getDayOfWeek(date) - 1]);
-        }
+                (date == null || (now1.compareTo(date) <= 0 && date.compareTo(weekFromToday1) <= 0))) return true;
 
-        LocalDateTime now = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            now = LocalDateTime.now();
-        }
-        // Only shows the points of the following 7 days
-        LocalDateTime weekFromToday = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            weekFromToday = now.plusWeeks(1);
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (point.getLongitude() <= bounds.northeast.longitude &&
-                    point.getLongitude() >= bounds.southwest.longitude &&
-                    (dateTime == null || (now.compareTo(dateTime) <= 0 && dateTime.compareTo(weekFromToday) <= 0))) return 1;
-        } else if (point.getLongitude() <= bounds.northeast.longitude &&
-                point.getLongitude() >= bounds.southwest.longitude) return 1;
-
-        return 0;
+        return false;
     }
 
-    public int hasWalk(String routeId) {
+    public boolean hasWalk(String routeId) {
         for (Map<String, Object> walk : walks) {
-            if (walk.get("walkForRoute").toString().equals(routeId)) return 1;
+            if (walk.get("walkForRoute").toString().equals(routeId)) return true;
         }
-        return -1;
+        return false;
     }
 
     @Override
@@ -668,13 +618,6 @@ public class MapActivity extends AppCompatActivity
                 .icon(BitmapDescriptorFactory.fromBitmap(bmp))
                 // Specifies the anchor to be at a particular point in the marker image.
                 .anchor(0.5f, 0.5f));
-    }
-
-    public static boolean isToday(LocalDate date) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (date.isEqual(LocalDate.now())) return true;
-        }
-        return false;
     }
 
     public static boolean isToday(Date date) {
@@ -696,20 +639,14 @@ public class MapActivity extends AppCompatActivity
         return calendar.get(Calendar.DAY_OF_WEEK);
     }
 
-    public void meetingAndWalkMarker(GeoPoint point, LocalDateTime date, Date goodDate, String type) {
+    public void meetingAndWalkMarker(GeoPoint point,Date date, String type) {
         LinearLayout linearLayout = (LinearLayout) this.getLayoutInflater().inflate(type.equals("Meeting") ? R.layout.meeting_marker : R.layout.walk_marker, null, false);
 
         TextView layoutDate = linearLayout.findViewById(R.id.date);
 
-        SimpleDateFormat format = new SimpleDateFormat("h:mma");
-
-        Log.d("DATE", String.valueOf(isToday(goodDate)) + " " + getDayOfWeek(goodDate) + ":" + newDayOfWeek[getDayOfWeek(goodDate) - 1] + " " + format.format(goodDate));
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            String day = isToday(date.toLocalDate()) ? "Hoy" : dayOfWeek[date.getDayOfWeek().getValue() - 1];
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("h:mma");
-            layoutDate.setText(day + " " + date.format(formatter));
-        } else layoutDate.setText("Lun 17:00AM");
+        String day = isToday(date) ? "Hoy" : dayOfWeek[getDayOfWeek(date) - 1];
+        SimpleDateFormat formatter = new SimpleDateFormat("h:mma");
+        layoutDate.setText(day + " " + formatter.format(date));
 
         linearLayout.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
