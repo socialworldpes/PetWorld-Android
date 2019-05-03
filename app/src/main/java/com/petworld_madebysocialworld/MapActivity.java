@@ -9,12 +9,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Bitmap;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.TabItem;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -53,10 +50,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class MapActivity extends AppCompatActivity
@@ -527,7 +520,7 @@ public class MapActivity extends AppCompatActivity
                         Date date = timestamp.toDate();
                         if (checkConditions(point, bounds, date)) {
                             meetings.add(document.getData());
-                            meetingAndWalkMarker(point, date, "Meeting");
+                            createMarker(point, date, "Meeting");
                             Log.d("Meeting", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                         }
                     }
@@ -547,7 +540,7 @@ public class MapActivity extends AppCompatActivity
                                 Date date = timestamp.toDate();
                                 if (checkConditions(point, bounds, date)) {
                                     walks.add(document.getData());
-                                    meetingAndWalkMarker(point, date, "Walk");
+                                    createMarker(point, date, "Walk");
                                     Log.d("Walk", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                                 }
                             }
@@ -565,7 +558,7 @@ public class MapActivity extends AppCompatActivity
 
                                         if (checkConditions(point, bounds, null) && !hasWalk(document.getId())) {
                                         routes.add(document.getData());
-                                        routeMarker(point);
+                                        createMarker(point, null, "Route");
                                         Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                                         }
 
@@ -639,28 +632,18 @@ public class MapActivity extends AppCompatActivity
         return calendar.get(Calendar.DAY_OF_WEEK);
     }
 
-    public void meetingAndWalkMarker(GeoPoint point,Date date, String type) {
-        LinearLayout linearLayout = (LinearLayout) this.getLayoutInflater().inflate(type.equals("Meeting") ? R.layout.meeting_marker : R.layout.walk_marker, null, false);
+    public void createMarker(GeoPoint point, Date date, String type) {
+        LinearLayout linearLayout;
 
-        TextView layoutDate = linearLayout.findViewById(R.id.date);
+        if (!type.equals("Route")) {
+            linearLayout = (LinearLayout) this.getLayoutInflater().inflate(type.equals("Meeting") ? R.layout.meeting_marker : R.layout.walk_marker, null, false);
 
-        String day = isToday(date) ? "Hoy" : dayOfWeek[getDayOfWeek(date) - 1];
-        SimpleDateFormat formatter = new SimpleDateFormat("h:mma");
-        layoutDate.setText(day + " " + formatter.format(date));
+            TextView layoutDate = linearLayout.findViewById(R.id.date);
 
-        linearLayout.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-        linearLayout.layout(0, 0, linearLayout.getMeasuredWidth(), linearLayout.getMeasuredHeight());;
-
-        linearLayout.setDrawingCacheEnabled(true);
-        linearLayout.buildDrawingCache();
-        Bitmap bmp = linearLayout.getDrawingCache();
-
-        addMarker(point, bmp);
-    }
-
-    public void routeMarker(GeoPoint point) {
-        LinearLayout linearLayout = (LinearLayout) this.getLayoutInflater().inflate(R.layout.route_marker, null, false);
+            String day = isToday(date) ? "Hoy" : dayOfWeek[getDayOfWeek(date) - 1];
+            SimpleDateFormat formatter = new SimpleDateFormat("h:mma");
+            layoutDate.setText(day + " " + formatter.format(date));
+        } else linearLayout = (LinearLayout) this.getLayoutInflater().inflate(R.layout.route_marker, null, false);
 
         linearLayout.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
