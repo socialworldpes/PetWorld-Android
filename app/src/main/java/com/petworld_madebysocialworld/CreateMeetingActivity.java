@@ -31,6 +31,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.*;
 import com.google.android.gms.maps.*;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.*;
@@ -53,7 +54,7 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class CreateMeetingActivity extends AppCompatActivity implements View.OnClickListener, OnMapReadyCallback {
+public class CreateMeetingActivity extends AppCompatActivity implements View.OnClickListener {
     public static final int PICK_IMAGE = 1;
     boolean isCreating = true, toLocationPicker = false;
     private static final String CERO = "0";
@@ -96,17 +97,21 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
     //booleans
     private boolean imagesCanContinue;
 
+    //valores cambiados como location
+    LatLng location;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_meeting);
 
+        location = (LatLng) getIntent().getParcelableExtra("location");
+
         imagesCanContinue = false;
         images = new ArrayList<>();
         uriImages = new ArrayList<>();
         urlImages = new ArrayList<>();
-
 
         //Widget EditText donde se mostrara la fecha obtenida
         etFecha = (EditText) findViewById(R.id.et_mostrar_fecha_picker);
@@ -121,63 +126,39 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
         //Evento setOnClickListener - clic
         ibObtenerHora.setOnClickListener(this);
 
+        setUpMap();
+
         //setUpMapIfNeeded();
-    }
-
-    private void setUpMapIfNeeded() {
-
-        if (mMap == null) {
-            ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-            if (networkInfo == null || !networkInfo.isConnected()) {
-                TextView tvNoInternet = new TextView(this);
-                tvNoInternet.setGravity(Gravity.CENTER_HORIZONTAL);
-                tvNoInternet.setText(getString(R.string.no_net_info));
-                ((MapView) findViewById(R.id.mapCreateMeeting)).addView(tvNoInternet);
-            }
-
-            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.mapCreateMeeting);
-            mapFragment.getMapAsync(this);
-            mapV.getMapAsync(this);
-            if (mMap != null) {
-                setUpMap();
-            }
-        }
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng point) {
-                mMap.clear();
-                mMap.addMarker(new MarkerOptions().position(point));
-            }
-        });
-
-        //Click Llarg
-
-        final Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-
-        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-            @Override
-            public void onMapLongClick(final LatLng point) {
-                //detectar nuevo sitio de ubicación automáticamente
-            }
-        });
     }
 
     private void setUpMap() {
 
-        double lat = Double.parseDouble("0");
-        double lon = Double.parseDouble("0");
-        LatLng coords = new LatLng(lon, lat);
+        Toast.makeText(this, "dENTRO MARP READY", Toast.LENGTH_SHORT).show();
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 10));
-        mMap.addMarker(new MarkerOptions().position(coords));
+
+        ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapCreateMeeting)).getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                mMap = googleMap;
+                CameraUpdate cameraupdate = CameraUpdateFactory.newLatLngZoom(location, (float) 30.2);
+                mMap.moveCamera(cameraupdate);
+                mMap.addMarker(new MarkerOptions()
+                        .position(location)
+                );
+                mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                    @Override
+                    public void onMapLongClick(LatLng latLng) {
+                        location = latLng;
+                        mMap.clear();
+                        //CameraUpdate cameraupdate = CameraUpdateFactory.newLatLng(location);
+                        //mMap.moveCamera(cameraupdate);
+                        mMap.addMarker(new MarkerOptions()
+                                .position(latLng)
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                    }
+                });
+            }
+        });
     }
 
     @Override
@@ -238,7 +219,7 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                     meeting.put("description", ((EditText)findViewById(R.id.des)).getText().toString());
                     meeting.put("images", Arrays.asList());
                     meeting.put("name", ((EditText)findViewById(R.id.title_create_meeting)).getText().toString());
-                    LatLng loc = (LatLng) getIntent().getParcelableExtra("location");
+                    LatLng loc = location;
                     meeting.put("placeLocation", new GeoPoint(loc.latitude, loc.longitude));
                     meeting.put("placeName", ((EditText)findViewById(R.id.des2)).getText().toString());
                     meeting.put("start", Timestamp.valueOf(fechaFormateada + " " + tiempoFormateado));
