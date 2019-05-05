@@ -164,21 +164,6 @@ public class MapActivity extends AppCompatActivity
             }
         } );
 
-        /*mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                String locAddress = marker.getTitle();
-                fillTextViews(locAddress);
-                if (previousMarker != null) {
-                    previousMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-                }
-                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-                previousMarker = marker;
-
-                return true;
-            }
-        });*/
-
         tabLayout = (TabLayout) findViewById(R.id.selectTab);
         context = this;
         position = 0;
@@ -225,6 +210,14 @@ public class MapActivity extends AppCompatActivity
         });
 
         mMap.setOnCameraMoveStartedListener(this);
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                if(marker.getSnippet().equals("Meeting")) showMeeting(marker.getPosition());
+                return true;
+            }
+        });
 
     }
 
@@ -329,6 +322,7 @@ public class MapActivity extends AppCompatActivity
         Intent intent = new Intent(MapActivity.this, CreateRouteActivity.class);
         startActivity(intent);
     }
+
     public void newMeeting(LatLng location){
         Intent intent = new Intent(MapActivity.this, CreateMeetingActivity.class);
         intent.putExtra("location", location);
@@ -343,6 +337,12 @@ public class MapActivity extends AppCompatActivity
 
     public void newRoute(LatLng location){
         Intent intent = new Intent(MapActivity.this, CreateRouteActivity.class);
+        intent.putExtra("location", location);
+        startActivity(intent);
+    }
+
+    public void showMeeting(LatLng location){
+        Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
         intent.putExtra("location", location);
         startActivity(intent);
     }
@@ -605,9 +605,10 @@ public class MapActivity extends AppCompatActivity
         b.setVisibility(View.VISIBLE);
     }
 
-    public void addMarker(GeoPoint point, Bitmap bmp) {
+    public void addMarker(GeoPoint point, Bitmap bmp, String markerType) {
         mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(point.getLatitude(), point.getLongitude()))
+                .snippet(markerType)
                 .icon(BitmapDescriptorFactory.fromBitmap(bmp))
                 // Specifies the anchor to be at a particular point in the marker image.
                 .anchor(0.5f, 0.5f));
@@ -634,16 +635,21 @@ public class MapActivity extends AppCompatActivity
 
     public void createMarker(GeoPoint point, Date date, String type) {
         LinearLayout linearLayout;
+        String markerType = "";
 
         if (!type.equals("Route")) {
             linearLayout = (LinearLayout) this.getLayoutInflater().inflate(type.equals("Meeting") ? R.layout.meeting_marker : R.layout.walk_marker, null, false);
+            markerType = type.equals("Meeting") ? "Meeting" : "Walk";
 
             TextView layoutDate = linearLayout.findViewById(R.id.date);
 
             String day = isToday(date) ? "Hoy" : dayOfWeek[getDayOfWeek(date) - 1];
             SimpleDateFormat formatter = new SimpleDateFormat("h:mma");
             layoutDate.setText(day + " " + formatter.format(date));
-        } else linearLayout = (LinearLayout) this.getLayoutInflater().inflate(R.layout.route_marker, null, false);
+        } else {
+            linearLayout = (LinearLayout) this.getLayoutInflater().inflate(R.layout.route_marker, null, false);
+            markerType = "Route";
+        }
 
         linearLayout.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
@@ -653,7 +659,7 @@ public class MapActivity extends AppCompatActivity
         linearLayout.buildDrawingCache();
         Bitmap bmp = linearLayout.getDrawingCache();
 
-        addMarker(point, bmp);
+        addMarker(point, bmp, markerType);
     }
 
     private void listenerList() {
