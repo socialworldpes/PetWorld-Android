@@ -214,7 +214,8 @@ public class MapActivity extends AppCompatActivity
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                if(marker.getSnippet().equals("Meeting")) showMeeting(marker.getPosition());
+                String[] parts = marker.getSnippet().split("-");
+                if(parts[0].equals("Meeting")) showMeeting(parts[1]);
                 return true;
             }
         });
@@ -341,9 +342,10 @@ public class MapActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    public void showMeeting(LatLng location){
+    public void showMeeting(String id){
         Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
-        intent.putExtra("location", location);
+        Log.d("id", id);
+        intent.putExtra("id", id);
         startActivity(intent);
     }
 
@@ -520,7 +522,7 @@ public class MapActivity extends AppCompatActivity
                         Date date = timestamp.toDate();
                         if (checkConditions(point, bounds, date)) {
                             meetings.add(document.getData());
-                            createMarker(point, date, "Meeting");
+                            createMarker(point, date, "Meeting-".concat(document.getId()));
                             Log.d("Meeting", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                         }
                     }
@@ -540,7 +542,7 @@ public class MapActivity extends AppCompatActivity
                                 Date date = timestamp.toDate();
                                 if (checkConditions(point, bounds, date)) {
                                     walks.add(document.getData());
-                                    createMarker(point, date, "Walk");
+                                    createMarker(point, date, "Walk-".concat(document.getId()));
                                     Log.d("Walk", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                                 }
                             }
@@ -558,7 +560,7 @@ public class MapActivity extends AppCompatActivity
 
                                         if (checkConditions(point, bounds, null) && !hasWalk(document.getId())) {
                                         routes.add(document.getData());
-                                        createMarker(point, null, "Route");
+                                        createMarker(point, null, "Route-".concat(document.getId()));
                                         Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                                         }
 
@@ -633,23 +635,19 @@ public class MapActivity extends AppCompatActivity
         return calendar.get(Calendar.DAY_OF_WEEK);
     }
 
-    public void createMarker(GeoPoint point, Date date, String type) {
+    public void createMarker(GeoPoint point, Date date, String markerType) {
         LinearLayout linearLayout;
-        String markerType = "";
 
-        if (!type.equals("Route")) {
-            linearLayout = (LinearLayout) this.getLayoutInflater().inflate(type.equals("Meeting") ? R.layout.meeting_marker : R.layout.walk_marker, null, false);
-            markerType = type.equals("Meeting") ? "Meeting" : "Walk";
+        if (!markerType.contains("Route")) {
+            linearLayout = (LinearLayout) this.getLayoutInflater().inflate(markerType.contains("Meeting") ? R.layout.meeting_marker : R.layout.walk_marker, null, false);
 
             TextView layoutDate = linearLayout.findViewById(R.id.date);
 
             String day = isToday(date) ? "Hoy" : dayOfWeek[getDayOfWeek(date) - 1];
             SimpleDateFormat formatter = new SimpleDateFormat("h:mma");
             layoutDate.setText(day + " " + formatter.format(date));
-        } else {
-            linearLayout = (LinearLayout) this.getLayoutInflater().inflate(R.layout.route_marker, null, false);
-            markerType = "Route";
-        }
+        } else linearLayout = (LinearLayout) this.getLayoutInflater().inflate(R.layout.route_marker, null, false);
+
 
         linearLayout.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
