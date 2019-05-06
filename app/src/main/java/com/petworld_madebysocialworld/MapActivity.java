@@ -515,13 +515,16 @@ public class MapActivity extends AppCompatActivity
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     meetings.clear();
+                    Map<String, Object> map;
                     for (QueryDocumentSnapshot document: task.getResult()) {
                         GeoPoint point = (GeoPoint) document.get("placeLocation");
                         String name = (String) document.get("name");
                         Timestamp timestamp = (Timestamp) document.get("start");
                         Date date = timestamp.toDate();
                         if (checkConditions(point, bounds, date)) {
-                            meetings.add(document.getData());
+                            map = document.getData();
+                            map.put("id", document.getId());
+                            meetings.add(map);
                             createMarker(point, date, "Meeting-".concat(document.getId()));
                             Log.d("Meeting", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                         }
@@ -536,12 +539,15 @@ public class MapActivity extends AppCompatActivity
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             walks.clear();
+                            Map<String, Object> map;
                             for (QueryDocumentSnapshot document: task.getResult()) {
                                 GeoPoint point = (GeoPoint) document.get("placeLocation");
                                 Timestamp timestamp = (Timestamp) document.get("start");
                                 Date date = timestamp.toDate();
                                 if (checkConditions(point, bounds, date)) {
-                                    walks.add(document.getData());
+                                    map = document.getData();
+                                    map.put("id", document.getId());
+                                    walks.add(map);
                                     createMarker(point, date, "Walk-".concat(document.getId()));
                                     Log.d("Walk", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                                 }
@@ -555,13 +561,16 @@ public class MapActivity extends AppCompatActivity
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if (task.isSuccessful()) {
                                     routes.clear();
+                                    Map<String, Object> map;
                                     for (QueryDocumentSnapshot document: task.getResult()) {
                                         GeoPoint point = (GeoPoint) document.get("placeLocation");
 
                                         if (checkConditions(point, bounds, null) && !hasWalk(document.getId())) {
-                                        routes.add(document.getData());
-                                        createMarker(point, null, "Route-".concat(document.getId()));
-                                        Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                                            map = document.getData();
+                                            map.put("id", document.getId());
+                                            routes.add(map);
+                                            createMarker(point, null, "Route-".concat(document.getId()));
+                                            Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                                         }
 
                                     }
