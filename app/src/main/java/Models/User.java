@@ -4,6 +4,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import org.w3c.dom.Document;
 
 public class User {
     private static final User ourInstance = new User();
@@ -17,6 +19,7 @@ public class User {
     private GoogleSignInClient mGoogleSignInClient;
     private boolean logout = false;
     private DocumentReference docRef;
+    private DocumentSnapshot docSnap;
 
 
     public void setmAuth(FirebaseAuth instance) {
@@ -29,6 +32,10 @@ public class User {
 
     public FirebaseAuth getmAuth() {
         return mAuth;
+    }
+
+    public DocumentSnapshot getDocSnap() {
+        return docSnap;
     }
 
     public void setAccount(GoogleSignInAccount result) {
@@ -54,4 +61,6 @@ public class User {
     public void setDocumentReference(DocumentReference docRef) {
         this.docRef = docRef;
     }
+
+    public void setDocumentSnapshot(DocumentSnapshot docSnap) {this.docSnap = docSnap; }
 }

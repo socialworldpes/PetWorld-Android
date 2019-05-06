@@ -87,6 +87,22 @@
           }
         },
         {
+          "client_id": "381871766664-751tokc0gt0kqjr35f0fand9jpphg62g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.petworld_madebysocialworld",
+            "certificate_hash": "a2cd2658081cbeb94443488c2883df5218e82dff"
+          }
+        },
+        {
+          "client_id": "381871766664-t5kb7t0kd9nak0aqp8kvj556d7dkgn9t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.petworld_madebysocialworld",
+            "certificate_hash": "bf00c7130dd70170913a928e1d4a96ffee37fa9b"
+          }
+        },
+        {
           "client_id": "381871766664-4ubsph6qd8885a37gfu0mvc1i5lga0g0.apps.googleusercontent.com",
           "client_type": 3
         }

@@ -9,5 +9,4 @@
         app:theme="@style/AppTheme.AppBarOverlay"
         android:elevation="2dp" app:titleTextColor="@color/colorHint"
         app:title=" ">
-
 </android.support.v7.widget.Toolbar>
