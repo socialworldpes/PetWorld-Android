@@ -482,7 +482,7 @@ public class MapActivity extends AppCompatActivity
         //TODO: improve
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolBar);
-        DrawerUtil.getDrawer(this,toolBar);
+        //DrawerUtil.getDrawer(this,toolBar);
     }
 
 
@@ -568,6 +568,11 @@ public class MapActivity extends AppCompatActivity
                                         if (checkConditions(point, bounds, null) && !hasWalk(document.getId())) {
                                             map = document.getData();
                                             map.put("id", document.getId());
+                                            /*
+                                            if (document.getId() == null)
+                                                Toast.makeText(MapActivity.this, "El get id falla", Toast.LENGTH_SHORT).show();
+                                            else Toast.makeText(MapActivity.this, "GetID: " + document.getId(), Toast.LENGTH_SHORT).show();
+                                            */
                                             routes.add(map);
                                             createMarker(point, null, "Route-".concat(document.getId()));
                                             Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
@@ -693,7 +698,7 @@ public class MapActivity extends AppCompatActivity
         if (position == 0) {
             if (meetings.size() != 0){
 
-                for(Map<String, Object> mapTmp : meetings) {
+                for(final Map<String, Object> mapTmp : meetings) {
 
                     LinearLayout linearLayoutList = new LinearLayout(context);
 
@@ -707,6 +712,24 @@ public class MapActivity extends AppCompatActivity
                     textViewNameList.setTextSize(1, 20);
                     textViewNameList.setPadding(40, 20, 40, 5);
 
+                    textViewNameList.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            LatLng location = new LatLng(0,0);
+                            Intent intent = new Intent(MapActivity.this, CreateMeetingActivity.class);
+                            intent.putExtra("location", location);
+                            startActivity(intent);
+                            /*
+                            String id = (String) mapTmp.get("id");
+                            Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
+                            intent.putExtra("id", id);
+                            startActivity(intent);
+                            */
+                        }
+
+                    });
+                    
                     linearLayoutList.addView(textViewNameList);
 
                     Timestamp timeList = (Timestamp) mapTmp.get("start");
@@ -755,7 +778,7 @@ public class MapActivity extends AppCompatActivity
         } else if (position == 1) {
             if (routes.size() != 0) {
 
-                for(Map<String, Object> mapTmp : routes) {
+                for(final Map<String, Object> mapTmp : routes) {
 
                     LinearLayout linearLayoutList = new LinearLayout(context);
                     String nameList = (String) mapTmp.get("name");
@@ -769,8 +792,24 @@ public class MapActivity extends AppCompatActivity
                     textViewNameList.setTextSize(1, 20);
                     textViewNameList.setPadding(40, 20, 40, 5);
 
-                    linearLayoutList.addView(textViewNameList);
+                    textViewNameList.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
 
+                            String id = (String) mapTmp.get("id");
+                            Intent intent = new Intent(MapActivity.this, ViewWalkActivity.class);
+                            /*
+                            if (id == null)
+                                Toast.makeText(MapActivity.this, "id falla", Toast.LENGTH_SHORT).show();
+                            else Toast.makeText(MapActivity.this, "ID: " +id, Toast.LENGTH_SHORT).show();
+                            */
+                            intent.putExtra("id", id);
+                            startActivity(intent);
+                        }
+
+                    });
+
+                    linearLayoutList.addView(textViewNameList);
 
                     linearLayoutSheet.addView(linearLayoutList);
 

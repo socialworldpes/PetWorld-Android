@@ -12,8 +12,6 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
 
-
-
     <application
             android:allowBackup="true"
             android:icon="@mipmap/ic_launcher_custom"
@@ -21,6 +19,8 @@
             android:roundIcon="@mipmap/ic_launcher_custom_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
+        <activity android:name=".ViewWalkActivity">
+        </activity>
         <activity android:name=".LeadsActivity">
         </activity>
         <activity android:name=".CreateRouteActivity">
