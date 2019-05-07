@@ -43,7 +43,7 @@ public class ViewMeetingActivity extends AppCompatActivity implements OnMapReady
         FirebaseFirestore.getInstance().collection("meetings").document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                imageUrls = (ArrayList<String>)documentSnapshot.get("images");
+                //imageUrls = (ArrayList<String>)documentSnapshot.get("images");
                 creator = (String)documentSnapshot.get("creator");
                 description = (String)documentSnapshot.get("description");
                 name = (String)documentSnapshot.get("name");

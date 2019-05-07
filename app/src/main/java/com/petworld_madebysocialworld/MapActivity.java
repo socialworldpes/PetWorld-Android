@@ -9,12 +9,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Bitmap;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.TabItem;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -53,10 +50,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class MapActivity extends AppCompatActivity
@@ -71,7 +64,7 @@ public class MapActivity extends AppCompatActivity
     private ArrayList<Map<String, Object>> routes = new ArrayList<Map<String, Object>>();
     private ArrayList<Map<String, Object>> walks = new ArrayList<Map<String, Object>>();
 
-    private String[] dayOfWeek = new String[] {"Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"};
+    private String[] dayOfWeek = new String[] {"Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"};
 
     // The entry points to the Places API.
     private GeoDataClient mGeoDataClient;
@@ -178,21 +171,6 @@ public class MapActivity extends AppCompatActivity
             }
         } );
 
-        /*mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                String locAddress = marker.getTitle();
-                fillTextViews(locAddress);
-                if (previousMarker != null) {
-                    previousMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-                }
-                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-                previousMarker = marker;
-
-                return true;
-            }
-        });*/
-
         tabLayout = (TabLayout) findViewById(R.id.selectTab);
         context = this;
         position = 0;
@@ -239,6 +217,15 @@ public class MapActivity extends AppCompatActivity
         });
 
         mMap.setOnCameraMoveStartedListener(this);
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                String[] parts = marker.getSnippet().split("-");
+                if(parts[0].equals("Meeting")) showMeeting(parts[1]);
+                return true;
+            }
+        });
 
     }
 
@@ -343,6 +330,7 @@ public class MapActivity extends AppCompatActivity
         Intent intent = new Intent(MapActivity.this, CreateRouteActivity.class);
         startActivity(intent);
     }
+
     public void newMeeting(LatLng location){
         Intent intent = new Intent(MapActivity.this, CreateMeetingActivity.class);
         intent.putExtra("location", location);
@@ -358,6 +346,13 @@ public class MapActivity extends AppCompatActivity
     public void newRoute(LatLng location){
         Intent intent = new Intent(MapActivity.this, CreateRouteActivity.class);
         intent.putExtra("location", location);
+        startActivity(intent);
+    }
+
+    public void showMeeting(String id){
+        Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
+        Log.d("id", id);
+        intent.putExtra("id", id);
         startActivity(intent);
     }
 
@@ -494,7 +489,7 @@ public class MapActivity extends AppCompatActivity
         //TODO: improve
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolBar);
-        DrawerUtil.getDrawer(this,toolBar);
+        //DrawerUtil.getDrawer(this,toolBar);
     }
 
 
@@ -527,30 +522,19 @@ public class MapActivity extends AppCompatActivity
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     meetings.clear();
+                    Map<String, Object> map;
                     for (QueryDocumentSnapshot document: task.getResult()) {
                         GeoPoint point = (GeoPoint) document.get("placeLocation");
                         String name = (String) document.get("name");
-                        Timestamp date = (Timestamp) document.get("start");
-                        LocalDateTime dateTime = null;
-                        Date dateTime2 = null;
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                            dateTime = LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault());
-                            if (checkConditions(point, bounds, dateTime) > 0) {
-                                meetings.add(document.getData());
-                                meetingAndWalkMarker(point, dateTime, "Meeting");
-                                //mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude())).title(name)).showInfoWindow();
-                                Log.d("Meeting", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
-                            }
-                        } else {
-                            dateTime2 = date.toDate();
-                            if (checkConditions(point, bounds, null) > 0) {
-                                meetings.add(document.getData());
-                                meetingAndWalkMarker(point, null, "Meeting");
-                                //mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(), point.getLongitude())).title(name)).showInfoWindow();
-                                Log.d("Meeting", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
-                            }
+                        Timestamp timestamp = (Timestamp) document.get("start");
+                        Date date = timestamp.toDate();
+                        if (checkConditions(point, bounds, date)) {
+                            map = document.getData();
+                            map.put("id", document.getId());
+                            meetings.add(map);
+                            createMarker(point, date, "Meeting-".concat(document.getId()));
+                            Log.d("Meeting", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                         }
-
                     }
 
                     if (task.getResult().isEmpty()) Log.d("Meeting", "NO hay quedadas cerca");
@@ -562,31 +546,18 @@ public class MapActivity extends AppCompatActivity
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             walks.clear();
+                            Map<String, Object> map;
                             for (QueryDocumentSnapshot document: task.getResult()) {
                                 GeoPoint point = (GeoPoint) document.get("placeLocation");
-                                Timestamp date = (Timestamp) document.get("start");
-                                LocalDateTime dateTime = null;
-                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                                    dateTime = LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault());
+                                Timestamp timestamp = (Timestamp) document.get("start");
+                                Date date = timestamp.toDate();
+                                if (checkConditions(point, bounds, date)) {
+                                    map = document.getData();
+                                    map.put("id", document.getId());
+                                    walks.add(map);
+                                    createMarker(point, date, "Walk-".concat(document.getId()));
+                                    Log.d("Walk", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                                 }
-                                Date dateTime2 = null;
-
-                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                                    dateTime = LocalDateTime.ofInstant(date.toDate().toInstant(), ZoneId.systemDefault());
-                                    if (checkConditions(point, bounds, dateTime) > 0) {
-                                        walks.add(document.getData());
-                                        meetingAndWalkMarker(point, dateTime, "Walk");
-                                        Log.d("Walk", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
-                                    }
-                                } else {
-                                    dateTime2 = date.toDate();
-                                    if (checkConditions(point, bounds, null) > 0) {
-                                        walks.add(document.getData());
-                                        meetingAndWalkMarker(point, dateTime, "Walk");
-                                        Log.d("Walk", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
-                                    }
-                                }
-
                             }
 
                             if (task.getResult().isEmpty()) Log.d("Walk", "NO hay paseos cerca");
@@ -597,13 +568,21 @@ public class MapActivity extends AppCompatActivity
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if (task.isSuccessful()) {
                                     routes.clear();
+                                    Map<String, Object> map;
                                     for (QueryDocumentSnapshot document: task.getResult()) {
                                         GeoPoint point = (GeoPoint) document.get("placeLocation");
 
-                                        if (checkConditions(point, bounds, null) > 0 && hasWalk(document.getId()) < 0) {
-                                        routes.add(document.getData());
-                                        routeMarker(point);
-                                        Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                                        if (checkConditions(point, bounds, null) && !hasWalk(document.getId())) {
+                                            map = document.getData();
+                                            map.put("id", document.getId());
+                                            /*
+                                            if (document.getId() == null)
+                                                Toast.makeText(MapActivity.this, "El get id falla", Toast.LENGTH_SHORT).show();
+                                            else Toast.makeText(MapActivity.this, "GetID: " + document.getId(), Toast.LENGTH_SHORT).show();
+                                            */
+                                            routes.add(map);
+                                            createMarker(point, null, "Route-".concat(document.getId()));
+                                            Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                                         }
 
                                     }
@@ -621,32 +600,25 @@ public class MapActivity extends AppCompatActivity
 
     }
 
-    public int checkConditions(GeoPoint point, LatLngBounds bounds, LocalDateTime dateTime) {
-        LocalDateTime now = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            now = LocalDateTime.now();
-        }
-        // Only shows the points of the following 7 days
-        LocalDateTime weekFromToday = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            weekFromToday = now.plusWeeks(1);
-        }
+    public boolean checkConditions(GeoPoint point, LatLngBounds bounds, Date date) {
+        Calendar calendar = Calendar.getInstance();
+        Date now1 = calendar.getTime();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (point.getLongitude() <= bounds.northeast.longitude &&
-                    point.getLongitude() >= bounds.southwest.longitude &&
-                    (dateTime == null || (now.compareTo(dateTime) <= 0 && dateTime.compareTo(weekFromToday) <= 0))) return 1;
-        } else if (point.getLongitude() <= bounds.northeast.longitude &&
-                point.getLongitude() >= bounds.southwest.longitude) return 1;
+        calendar.add(Calendar.DATE, 7);
+        Date weekFromToday1 = calendar.getTime();
 
-        return 0;
+        if (point.getLongitude() <= bounds.northeast.longitude &&
+                point.getLongitude() >= bounds.southwest.longitude &&
+                (date == null || (now1.compareTo(date) <= 0 && date.compareTo(weekFromToday1) <= 0))) return true;
+
+        return false;
     }
 
-    public int hasWalk(String routeId) {
+    public boolean hasWalk(String routeId) {
         for (Map<String, Object> walk : walks) {
-            if (walk.get("walkForRoute").toString().equals(routeId)) return 1;
+            if (walk.get("walkForRoute").toString().equals(routeId)) return true;
         }
-        return -1;
+        return false;
     }
 
     @Override
@@ -656,33 +628,47 @@ public class MapActivity extends AppCompatActivity
         b.setVisibility(View.VISIBLE);
     }
 
-    public void addMarker(GeoPoint point, Bitmap bmp) {
+    public void addMarker(GeoPoint point, Bitmap bmp, String markerType) {
         mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(point.getLatitude(), point.getLongitude()))
+                .snippet(markerType)
                 .icon(BitmapDescriptorFactory.fromBitmap(bmp))
                 // Specifies the anchor to be at a particular point in the marker image.
                 .anchor(0.5f, 0.5f));
     }
 
-    public static boolean isToday(LocalDate date) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (date.isEqual(LocalDate.now())) return true;
-        }
-        return false;
+    public static boolean isToday(Date date) {
+        Date today = Calendar.getInstance().getTime();
+
+        Calendar cal1 = Calendar.getInstance();
+        cal1.setTime(date);
+        Calendar cal2 = Calendar.getInstance();
+        cal2.setTime(today);
+
+        return (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
+                cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR));
     }
 
-    public void meetingAndWalkMarker(GeoPoint point, LocalDateTime date, String type) {
-        LinearLayout linearLayout = (LinearLayout) this.getLayoutInflater().inflate(type.equals("Meeting") ? R.layout.meeting_marker : R.layout.walk_marker, null, false);
+    public static int getDayOfWeek(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.DAY_OF_WEEK);
+    }
 
-        TextView layoutDate = linearLayout.findViewById(R.id.date);
+    public void createMarker(GeoPoint point, Date date, String markerType) {
+        LinearLayout linearLayout;
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            String day = isToday(date.toLocalDate()) ? "Hoy" : dayOfWeek[date.getDayOfWeek().getValue() - 1];
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("h:mma");
-            layoutDate.setText(day + " " + date.format(formatter));
-        } else layoutDate.setText("Lun 17:00AM");
+        if (!markerType.contains("Route")) {
+            linearLayout = (LinearLayout) this.getLayoutInflater().inflate(markerType.contains("Meeting") ? R.layout.meeting_marker : R.layout.walk_marker, null, false);
 
-        Log.d("MIERDA", "HELLO");
+            TextView layoutDate = linearLayout.findViewById(R.id.date);
+
+            String day = isToday(date) ? "Hoy" : dayOfWeek[getDayOfWeek(date) - 1];
+            SimpleDateFormat formatter = new SimpleDateFormat("h:mma");
+            layoutDate.setText(day + " " + formatter.format(date));
+        } else linearLayout = (LinearLayout) this.getLayoutInflater().inflate(R.layout.route_marker, null, false);
+
 
         linearLayout.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
@@ -692,21 +678,7 @@ public class MapActivity extends AppCompatActivity
         linearLayout.buildDrawingCache();
         Bitmap bmp = linearLayout.getDrawingCache();
 
-        addMarker(point, bmp);
-    }
-
-    public void routeMarker(GeoPoint point) {
-        LinearLayout linearLayout = (LinearLayout) this.getLayoutInflater().inflate(R.layout.route_marker, null, false);
-
-        linearLayout.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-        linearLayout.layout(0, 0, linearLayout.getMeasuredWidth(), linearLayout.getMeasuredHeight());;
-
-        linearLayout.setDrawingCacheEnabled(true);
-        linearLayout.buildDrawingCache();
-        Bitmap bmp = linearLayout.getDrawingCache();
-
-        addMarker(point, bmp);
+        addMarker(point, bmp, markerType);
     }
 
     private void listenerList() {
@@ -733,7 +705,7 @@ public class MapActivity extends AppCompatActivity
         if (position == 0) {
             if (meetings.size() != 0){
 
-                for(Map<String, Object> mapTmp : meetings) {
+                for(final Map<String, Object> mapTmp : meetings) {
 
                     LinearLayout linearLayoutList = new LinearLayout(context);
 
@@ -747,6 +719,24 @@ public class MapActivity extends AppCompatActivity
                     textViewNameList.setTextSize(1, 20);
                     textViewNameList.setPadding(40, 20, 40, 5);
 
+                    textViewNameList.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            LatLng location = new LatLng(0,0);
+                            Intent intent = new Intent(MapActivity.this, CreateMeetingActivity.class);
+                            intent.putExtra("location", location);
+                            startActivity(intent);
+                            /*
+                            String id = (String) mapTmp.get("id");
+                            Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
+                            intent.putExtra("id", id);
+                            startActivity(intent);
+                            */
+                        }
+
+                    });
+                    
                     linearLayoutList.addView(textViewNameList);
 
                     Timestamp timeList = (Timestamp) mapTmp.get("start");
@@ -795,7 +785,7 @@ public class MapActivity extends AppCompatActivity
         } else if (position == 1) {
             if (routes.size() != 0) {
 
-                for(Map<String, Object> mapTmp : routes) {
+                for(final Map<String, Object> mapTmp : routes) {
 
                     LinearLayout linearLayoutList = new LinearLayout(context);
                     String nameList = (String) mapTmp.get("name");
@@ -809,8 +799,25 @@ public class MapActivity extends AppCompatActivity
                     textViewNameList.setTextSize(1, 20);
                     textViewNameList.setPadding(40, 20, 40, 5);
 
-                    linearLayoutList.addView(textViewNameList);
+                    textViewNameList.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
 
+                            String id = (String) mapTmp.get("id");
+                            Intent intent = new Intent(MapActivity.this, ViewWalkActivity.class);
+                            /*
+                            if (id == null)
+                                Toast.makeText(MapActivity.this, "id falla", Toast.LENGTH_SHORT).show();
+                            else Toast.makeText(MapActivity.this, "ID: " +id, Toast.LENGTH_SHORT).show();
+                            */
+
+                            intent.putExtra("id", id);
+                            startActivity(intent);
+                        }
+
+                    });
+
+                    linearLayoutList.addView(textViewNameList);
 
                     linearLayoutSheet.addView(linearLayoutList);
 
