@@ -13,8 +13,8 @@ public class ViewWalkActivity extends AppCompatActivity {
         setContentView(R.layout.activity_view_walk);
 
         String exemple = getIntent().getExtras().getString("id");
-        if (exemple == null) Toast.makeText(this, "Error, null", Toast.LENGTH_SHORT).show();
-        else Toast.makeText(this, "El intent es " + exemple, Toast.LENGTH_SHORT).show();
+        //if (exemple == null) Toast.makeText(this, "Error, null", Toast.LENGTH_SHORT).show();
+        //else Toast.makeText(this, "El intent es " + exemple, Toast.LENGTH_SHORT).show();
         TextView tv = findViewById(R.id.intentView);
         tv.setText("La id es: " + exemple);
 

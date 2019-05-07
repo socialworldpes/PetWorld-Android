@@ -803,6 +803,7 @@ public class MapActivity extends AppCompatActivity
                                 Toast.makeText(MapActivity.this, "id falla", Toast.LENGTH_SHORT).show();
                             else Toast.makeText(MapActivity.this, "ID: " +id, Toast.LENGTH_SHORT).show();
                             */
+
                             intent.putExtra("id", id);
                             startActivity(intent);
                         }
