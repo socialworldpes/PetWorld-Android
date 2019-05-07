@@ -62,6 +62,7 @@ import java.util.*;
 public class MapActivity extends AppCompatActivity
         implements OnMapReadyCallback, GoogleMap.OnCameraMoveStartedListener {
 
+    private LeadsRepository repo = LeadsRepository.getInstance();
     private static final String TAG = MapActivity.class.getSimpleName();
     private GoogleMap mMap;
     private CameraPosition mCameraPosition; //prova
@@ -134,6 +135,12 @@ public class MapActivity extends AppCompatActivity
             mCameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION);
         }
 
+        if (repo.getLeads().isEmpty()) {
+            Log.d(TAG, "onCreate: repo no creat");
+        }
+        else{
+            Log.d(TAG, "onCreate: repo creat");
+        }
         getLocationPermission();
 
         // Construct a GeoDataClient.

@@ -1,12 +1,16 @@
 package com.petworld_madebysocialworld;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class LeadsActivity extends AppCompatActivity {
+    LeadsFragment leadsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -15,8 +19,10 @@ public class LeadsActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        LeadsFragment leadsFragment = (LeadsFragment)
-                getSupportFragmentManager().findFragmentById(R.id.leads_container2);
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        leadsFragment = (LeadsFragment) getSupportFragmentManager().findFragmentById(R.id.leads_container2);
 
         if (leadsFragment == null) {
             leadsFragment = LeadsFragment.newInstance();
@@ -26,11 +32,4 @@ public class LeadsActivity extends AppCompatActivity {
         }
     }
 
-
-    private void initNavigationDrawer() {
-        Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
-        toolBar.setTitle("PerfilMascota");
-        setSupportActionBar(toolBar);
-        DrawerUtil.getDrawer(this,toolBar);
-    }
 }
