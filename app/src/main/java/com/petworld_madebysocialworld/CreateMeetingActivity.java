@@ -216,6 +216,7 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                     //ojo, hay que guardar todo en firestore
                     Map<String, Object> meeting = new HashMap<>();
                     meeting.put("creator", User.getInstance().getAccount().getId());
+                    meeting.put("nameCreator", User.getInstance().getAccount().getDisplayName());
                     meeting.put("description", ((EditText)findViewById(R.id.des)).getText().toString());
                     meeting.put("images", Arrays.asList());
                     meeting.put("name", ((EditText)findViewById(R.id.title_create_meeting)).getText().toString());
