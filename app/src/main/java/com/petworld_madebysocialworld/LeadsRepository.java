@@ -21,12 +21,15 @@ import static android.support.constraint.Constraints.TAG;
  * Repositorio ficticio de leads
  */
 public class LeadsRepository {
-    private static LeadsRepository repository = new LeadsRepository();
+    private static volatile LeadsRepository repository = new LeadsRepository();
     private HashMap<String, Lead> leads = new HashMap<>();
     private FirebaseFirestore db;
     String userID;
 
-    public static LeadsRepository getInstance() {
+    public synchronized static LeadsRepository getInstance() {
+        if (repository == null){ //if there is no instance available... create new one
+            repository = new LeadsRepository();
+        }
         return repository;
     }
 

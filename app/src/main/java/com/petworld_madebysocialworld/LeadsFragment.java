@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,8 +25,6 @@ public class LeadsFragment extends Fragment {
 
     ListView mLeadsList;
     ArrayAdapter<Lead> mLeadsAdapter;
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
 
     public LeadsFragment() {
         // Required empty public constructor
@@ -43,8 +42,6 @@ public class LeadsFragment extends Fragment {
         if (getArguments() != null) {
             // Gets parámetros
         }
-//        initFireBase();
-//        initTextView();
     }
 
     @Override
@@ -52,29 +49,20 @@ public class LeadsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_leads, container, false);
 
-        // Instancia del ListView.
-        mLeadsList = (ListView) root.findViewById(R.id.leads_list);
 
         // Inicializar el adaptador con la fuente de datos.
-        mLeadsAdapter = new LeadsAdapter(getActivity(), LeadsRepository.getInstance().getLeads());
+        List<Lead> repo = LeadsRepository.getInstance().getLeads();
+        //es buit
+        mLeadsAdapter = new LeadsAdapter(getActivity(), repo);
+
+        // Instancia del ListView.
+        mLeadsList = (ListView) root.findViewById(R.id.leads_list);
 
         //Relacionando la lista con el adaptador
         mLeadsList.setAdapter(mLeadsAdapter);
 
         mLeadsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                RelativeLayout selItem = (RelativeLayout) parent.getAdapter().getItem(position);
-//                String passId="";
-//                for (int i=0; i<selItem.getChildCount(); i++){
-//                    View temp = selItem.getChildAt(i);
-//                    if (temp instanceof TextView) {
-//                        TextView textView = (TextView) view;
-//                        switch (textView.getId()){
-//                            case R.id.route_id:
-//                                passId = textView.getText().toString();
-//                        }
-//                    }
-//                }
                 Lead selItem = (Lead) parent.getAdapter().getItem(position);
                 String passId = selItem.getId();
                 Intent i = new Intent(LeadsFragment.this.getActivity(), CreateWalkActivity.class);
@@ -82,7 +70,6 @@ public class LeadsFragment extends Fragment {
                 startActivity(i);
             }
         });
-
         return root;
     }
 }
