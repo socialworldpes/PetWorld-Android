@@ -1,19 +1,23 @@
 package com.petworld_madebysocialworld;
 
+import Models.User;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
-public class ViewMeetingActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class ViewMeetingActivity extends AppCompatActivity {
 
     private String id;
     private ArrayList<String> imageUrls;
@@ -35,10 +39,9 @@ public class ViewMeetingActivity extends AppCompatActivity implements OnMapReady
         context = this;
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
 
         //OJO, hay que pasar la id del meeting
-        id = getIntent().getParcelableExtra("id");
+        id = getIntent().getStringExtra("id");
 
         FirebaseFirestore.getInstance().collection("meetings").document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -49,12 +52,12 @@ public class ViewMeetingActivity extends AppCompatActivity implements OnMapReady
                 name = (String)documentSnapshot.get("name");
                 location = (LatLng)documentSnapshot.get("location");
                 placeName = (String)documentSnapshot.get("placeName");
-                start = (String)documentSnapshot.get("start");
+                start = ((Timestamp)documentSnapshot.get("start")).toString();
                 visibility = (String)documentSnapshot.get("visibility");
 
-                ViewPager viewPager = findViewById(R.id.viewPager);
+                /*ViewPager viewPager = findViewById(R.id.viewPager);
                 ViewPagerAdapter adapter = new ViewPagerAdapter(context, imageUrls);
-                viewPager.setAdapter(adapter);
+                viewPager.setAdapter(adapter);*/
 
                 ((TextView)findViewById(R.id.Titulo)).setText(name);
                 ((TextView)findViewById(R.id.Descripcion)).setText(description);
@@ -79,18 +82,22 @@ public class ViewMeetingActivity extends AppCompatActivity implements OnMapReady
 
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+    private void setUpMap() {
         while (location == null);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(location));
-        //desactivar funciones mapa
-        UiSettings opciones = mMap.getUiSettings();
-        opciones.setScrollGesturesEnabled(false);
-        opciones.setRotateGesturesEnabled(false);
-        opciones.setScrollGesturesEnabledDuringRotateOrZoom(false);
-        opciones.setTiltGesturesEnabled(false);
-        opciones.setZoomControlsEnabled(false);
-        opciones.setZoomGesturesEnabled(false);
+        ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapCreateMeeting)).getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                mMap = googleMap;
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(location));
+                //desactivar funciones mapa
+                UiSettings opciones = mMap.getUiSettings();
+                opciones.setScrollGesturesEnabled(false);
+                opciones.setRotateGesturesEnabled(false);
+                opciones.setScrollGesturesEnabledDuringRotateOrZoom(false);
+                opciones.setTiltGesturesEnabled(false);
+                opciones.setZoomControlsEnabled(false);
+                opciones.setZoomGesturesEnabled(false);
+            }
+        });
     }
 }
