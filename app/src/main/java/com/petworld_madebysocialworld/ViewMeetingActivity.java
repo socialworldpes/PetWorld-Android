@@ -10,10 +10,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
 
@@ -50,10 +52,14 @@ public class ViewMeetingActivity extends AppCompatActivity {
                 creator = (String)documentSnapshot.get("creator");
                 description = (String)documentSnapshot.get("description");
                 name = (String)documentSnapshot.get("name");
-                location = (LatLng)documentSnapshot.get("location");
+                GeoPoint aux = ((GeoPoint)documentSnapshot.get("placeLocation"));
+                location = new LatLng(aux.getLatitude(), aux.getLongitude());
                 placeName = (String)documentSnapshot.get("placeName");
                 start = ((Timestamp)documentSnapshot.get("start")).toString();
                 visibility = (String)documentSnapshot.get("visibility");
+
+                //mapa
+                setUpMap();
 
                 ViewPager viewPager = findViewById(R.id.viewPager);
                 ViewPagerAdapter adapter = new ViewPagerAdapter(context, imageUrls);
@@ -63,9 +69,6 @@ public class ViewMeetingActivity extends AppCompatActivity {
                 ((TextView)findViewById(R.id.Descripcion)).setText(description);
                 ((TextView)findViewById(R.id.Lugar)).setText(placeName);
                 ((TextView)findViewById(R.id.Fecha)).setText(start);
-
-                //mapa
-
 
                 //TODO GET NAME from user
                 /*FirebaseFirestore.getInstance().collection("users").document(creator).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -79,24 +82,22 @@ public class ViewMeetingActivity extends AppCompatActivity {
             }
         });
 
-
     }
 
     private void setUpMap() {
+        Log.d("MAPAAA", "BIEN!!");
         while (location == null);
-        ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapCreateMeeting)).getMapAsync(new OnMapReadyCallback() {
+
+        ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapViewMeeting)).getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 mMap = googleMap;
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(location));
-                //desactivar funciones mapa
-                UiSettings opciones = mMap.getUiSettings();
-                opciones.setScrollGesturesEnabled(false);
-                opciones.setRotateGesturesEnabled(false);
-                opciones.setScrollGesturesEnabledDuringRotateOrZoom(false);
-                opciones.setTiltGesturesEnabled(false);
-                opciones.setZoomControlsEnabled(false);
-                opciones.setZoomGesturesEnabled(false);
+                mMap.getUiSettings().setAllGesturesEnabled(false);
+                CameraUpdate cameraupdate = CameraUpdateFactory.newLatLngZoom(location, (float) 18);
+                mMap.moveCamera(cameraupdate);
+                mMap.addMarker(new MarkerOptions()
+                        .position(location)
+                );
             }
         });
     }
