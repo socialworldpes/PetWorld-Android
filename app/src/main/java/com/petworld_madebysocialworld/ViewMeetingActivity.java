@@ -46,7 +46,7 @@ public class ViewMeetingActivity extends AppCompatActivity {
         FirebaseFirestore.getInstance().collection("meetings").document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                //imageUrls = (ArrayList<String>)documentSnapshot.get("images");
+                imageUrls = (ArrayList<String>)documentSnapshot.get("images");
                 creator = (String)documentSnapshot.get("creator");
                 description = (String)documentSnapshot.get("description");
                 name = (String)documentSnapshot.get("name");
@@ -55,9 +55,9 @@ public class ViewMeetingActivity extends AppCompatActivity {
                 start = ((Timestamp)documentSnapshot.get("start")).toString();
                 visibility = (String)documentSnapshot.get("visibility");
 
-                /*ViewPager viewPager = findViewById(R.id.viewPager);
+                ViewPager viewPager = findViewById(R.id.viewPager);
                 ViewPagerAdapter adapter = new ViewPagerAdapter(context, imageUrls);
-                viewPager.setAdapter(adapter);*/
+                viewPager.setAdapter(adapter);
 
                 ((TextView)findViewById(R.id.Titulo)).setText(name);
                 ((TextView)findViewById(R.id.Descripcion)).setText(description);
