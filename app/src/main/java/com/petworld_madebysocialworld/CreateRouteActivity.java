@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.google.android.gms.tasks.*;
@@ -42,9 +43,10 @@ public class CreateRouteActivity extends AppCompatActivity {
 
     //booleans
     private boolean imagesCanContinue;
+
     private EditText descriptionInput;
     private EditText nameInput;
-    private EditText placeNameInput;
+    private EditText locationNameInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +61,9 @@ public class CreateRouteActivity extends AppCompatActivity {
 
 
     private void initLayout() {
+        descriptionInput = findViewById(R.id.descriptionInput);
+        nameInput = findViewById(R.id.nameInput);
+        locationNameInput = findViewById(R.id.locationNameInput);
     }
 
     private void initVariables() {
@@ -100,7 +105,7 @@ public class CreateRouteActivity extends AppCompatActivity {
         startActivityForResult(intent, 0);
     }
 
-    private void createRoute() {
+    private void createRoute(View view) {
         HashMap<String, Object> route =  new HashMap<String, Object>();
         String userID = User.getInstance().getAccount().getId();
 
@@ -108,14 +113,30 @@ public class CreateRouteActivity extends AppCompatActivity {
         route.put("creator", userID);
         route.put("description", descriptionInput.getText().toString());
         route.put("name", nameInput.getText().toString());
-        route.put("placeName", placeNameInput.getText().toString());
+        route.put("placeName", locationNameInput.getText().toString());
         route.put("images", Arrays.asList());
 
         List<LatLng> path = readPath();
         route.put("path", path);
         route.put("placeLocation", path.get(0));
 
-        //add route to fireBase
+        addRouteToFireBase(route);
+    }
+
+    private List<LatLng> readPath() {
+        List<LatLng> path = new ArrayList<LatLng>();
+        LatLng point = null;
+        // TODO: use an actual point
+        //LatLng point = new LatLng((double) 1, (double) 1);
+        path.add(point);
+        return path;
+    }
+
+    private void loadImage(View view){
+        FishBun.with(this).setImageAdapter(new PicassoAdapter()).setMaxCount(3).startAlbum();
+    }
+
+    private void addRouteToFireBase(HashMap<String, Object> route) {
         db.collection("routes").add(route).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
             public void onSuccess(final DocumentReference documentReference) {
@@ -127,7 +148,7 @@ public class CreateRouteActivity extends AppCompatActivity {
                 for (int i = 0; i < uriImages.size(); i++) {
                     Log.d("PRUEBA005", "Después de entrar en el for");
                     final int j = i;
-                    final StorageReference imagesRef = FirebaseStorage.getInstance().getReference().child("pets/" + documentReference.getId() + "_" + i);
+                    final StorageReference imagesRef = FirebaseStorage.getInstance().getReference().child("routes/" + documentReference.getId() + "_" + i);
                     Uri file = uriImages.get(i);
                     Log.d("PRUEBA006", "Cojo la urii");
 
@@ -138,7 +159,6 @@ public class CreateRouteActivity extends AppCompatActivity {
                             if (!task.isSuccessful()) {
                                 throw task.getException();
                             }
-
                             // Continue with the task to get the download URL
                             return imagesRef.getDownloadUrl();
                         }
@@ -147,10 +167,10 @@ public class CreateRouteActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<Uri> task) {
                             if (task.isSuccessful()) {
                                 Log.d("PRUEBA002", "He entrado");
-                                Log.d("PRUEBA007", "pets/" + documentReference.getId() + "_" + j);
+                                Log.d("PRUEBA007", "routes/" + documentReference.getId() + "_" + j);
                                 urlImages.add(task.getResult().toString());
                                 Log.d("Tamaño url", String.valueOf(urlImages.size()));
-                                docRAux.update("photo", urlImages);
+                                docRAux.update("images", urlImages);
                             } else {
                                 // Handle failures
                                 // ...
@@ -160,69 +180,42 @@ public class CreateRouteActivity extends AppCompatActivity {
                     });
                 }
 
-                Log.d("mascotaRefenrece:", documentReference.getId());
-
                 String userID = User.getInstance().getAccount().getId();
-
-                Log.d("userID", userID);
-                DocumentReference docRef = db.collection("users").document(userID);
-
-
-                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            String userID = User.getInstance().getAccount().getId();
-                            DocumentSnapshot result = task.getResult();
-                            ArrayList<DocumentReference> arrayReference = (ArrayList<DocumentReference>) result.get("pets");
-                            if (arrayReference == null) arrayReference = new ArrayList<>();
-                            arrayReference.add(documentReference);
-
-                            //añadir pet a users(userID)
-                            db.collection("users").document(userID)
-                                    .update("pets", arrayReference)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Log.d("mascota", "DocumentSnapshot successfully written!");
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.w("mascota", "Error writing document", e);
-                                        }
-                                    });
-
-
-                        } else {
-                            Log.w("task ko", "Error getting documents.", task.getException());
-                        }
-                        Toast.makeText(getApplicationContext(), "Mascota Añadida",
-                                Toast.LENGTH_LONG).show();
-                        startMap();
-                    }
-                });
-
-
+                addRouteRefToUser(documentReference, userID);
             }
 
         });
-
-
-
-
-
-
-
     }
 
-    private List<LatLng> readPath() {
-        List<LatLng> path = new ArrayList<LatLng>();
-        LatLng point = null;
-        // TODO: use an actual point
-        //LatLng point = new LatLng((double) 1, (double) 1);
-        path.add(point);
-        return path;
+    private void addRouteRefToUser(final DocumentReference documentReference, String userID) {
+        db.collection("users").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    String userID = User.getInstance().getAccount().getId();
+                    DocumentSnapshot result = task.getResult();
+                    ArrayList<DocumentReference> arrayReference = (ArrayList<DocumentReference>) result.get("routes");
+                    if (arrayReference == null) arrayReference = new ArrayList<>();
+                    arrayReference.add(documentReference);
+
+                    //añadir ruta a users(userID)
+                    db.collection("users").document(userID)
+                            .update("routes", arrayReference)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) { Log.d("route", "DocumentSnapshot successfully written!"); }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) { Log.w("route", "Error writing document", e); }
+                            });
+                } else {
+                    Log.w("task ko", "Error getting documents.", task.getException());
+                }
+                Toast.makeText(getApplicationContext(), "route Añadida",
+                        Toast.LENGTH_LONG).show();
+                startMap();
+            }
+        });
     }
 }
