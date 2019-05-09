@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.google.android.gms.tasks.*;
@@ -48,6 +49,9 @@ public class CreateRouteActivity extends AppCompatActivity {
     private EditText nameInput;
     private EditText locationNameInput;
 
+    private Button btnAddRoute;
+    private Button btnUploadImage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +68,9 @@ public class CreateRouteActivity extends AppCompatActivity {
         descriptionInput = findViewById(R.id.descriptionInput);
         nameInput = findViewById(R.id.nameInput);
         locationNameInput = findViewById(R.id.locationNameInput);
+
+        btnAddRoute = findViewById(R.id.createButton);
+        btnUploadImage = findViewById(R.id.uploadImagesButton);
     }
 
     private void initVariables() {
@@ -74,6 +81,18 @@ public class CreateRouteActivity extends AppCompatActivity {
     }
 
     private void initListeners() {
+        btnAddRoute.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createRoute();
+            }
+        });
+        btnUploadImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadImage();
+            }
+        });
     }
 
     private void initFireBase() {
@@ -105,9 +124,9 @@ public class CreateRouteActivity extends AppCompatActivity {
         startActivityForResult(intent, 0);
     }
 
-    private void createRoute(View view) {
+    private void createRoute() {
         HashMap<String, Object> route =  new HashMap<String, Object>();
-        String userID = User.getInstance().getAccount().getId();
+        String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         // Read fields
         route.put("creator", userID);
@@ -130,10 +149,6 @@ public class CreateRouteActivity extends AppCompatActivity {
         //LatLng point = new LatLng((double) 1, (double) 1);
         path.add(point);
         return path;
-    }
-
-    private void loadImage(View view){
-        FishBun.with(this).setImageAdapter(new PicassoAdapter()).setMaxCount(3).startAlbum();
     }
 
     private void addRouteToFireBase(HashMap<String, Object> route) {
@@ -180,7 +195,7 @@ public class CreateRouteActivity extends AppCompatActivity {
                     });
                 }
 
-                String userID = User.getInstance().getAccount().getId();
+                String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
                 addRouteRefToUser(documentReference, userID);
             }
 
@@ -192,7 +207,7 @@ public class CreateRouteActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    String userID = User.getInstance().getAccount().getId();
+                    String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
                     DocumentSnapshot result = task.getResult();
                     ArrayList<DocumentReference> arrayReference = (ArrayList<DocumentReference>) result.get("routes");
                     if (arrayReference == null) arrayReference = new ArrayList<>();
