@@ -219,7 +219,9 @@ public class CreateRouteActivity extends AppCompatActivity {
 
     private List<LatLng> readPath() {
         List<LatLng> path = new ArrayList<LatLng>();
-        LatLng point = new LatLng((double) 1, (double) 1);
+        LatLng point = null;
+        // TODO: use an actual point
+        //LatLng point = new LatLng((double) 1, (double) 1);
         path.add(point);
         return path;
     }
