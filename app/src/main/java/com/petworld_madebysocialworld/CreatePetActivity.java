@@ -107,7 +107,7 @@ public class CreatePetActivity extends AppCompatActivity {
     }
 
 
-    private void loadImage(){;
+    private void loadImage(){
         FishBun.with(this).setImageAdapter(new PicassoAdapter()).setMaxCount(3).startAlbum();
     }
     private void addPet() {
