@@ -1,6 +1,7 @@
 package com.petworld_madebysocialworld;
 
 import Models.User;
+import android.app.assist.AssistStructure;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -9,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.Toast;
 import com.google.android.gms.tasks.*;
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,6 +42,9 @@ public class CreateRouteActivity extends AppCompatActivity {
 
     //booleans
     private boolean imagesCanContinue;
+    private EditText descriptionInput;
+    private EditText nameInput;
+    private EditText placeNameInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,20 +101,22 @@ public class CreateRouteActivity extends AppCompatActivity {
     }
 
     private void createRoute() {
-        String userID = User.getInstance().getAccount().getId();
         HashMap<String, Object> route =  new HashMap<String, Object>();
-        List<LatLng> path =  new ArrayList<LatLng>();
+        String userID = User.getInstance().getAccount().getId();
+
+        // Read fields
         route.put("creator", userID);
         route.put("description", descriptionInput.getText().toString());
-        route.put("name", namaeInput.getText().toString());
+        route.put("name", nameInput.getText().toString());
         route.put("placeName", placeNameInput.getText().toString());
-        route.put("images", path);
-        // TODO: fill array
+        route.put("images", Arrays.asList());
+
+        List<LatLng> path = readPath();
         route.put("path", path);
         route.put("placeLocation", path.get(0));
 
         //add route to fireBase
-        db.collection("pets").add(mascota).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+        db.collection("routes").add(route).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
             public void onSuccess(final DocumentReference documentReference) {
 
@@ -208,5 +215,12 @@ public class CreateRouteActivity extends AppCompatActivity {
 
 
 
+    }
+
+    private List<LatLng> readPath() {
+        List<LatLng> path = new ArrayList<LatLng>();
+        LatLng point = new LatLng((double) 1, (double) 1);
+        path.add(point);
+        return path;
     }
 }
