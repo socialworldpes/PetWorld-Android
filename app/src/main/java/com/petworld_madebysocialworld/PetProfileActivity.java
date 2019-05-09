@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -44,6 +45,7 @@ public class PetProfileActivity extends AppCompatActivity {
     private Button btnEditar;
     private Button btnBorrar;
     private String userID;
+    private ArrayList<String> imageUrls;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,12 +165,18 @@ public class PetProfileActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     Log.d("task size: ", "" + task.getResult());
                     DocumentSnapshot result = task.getResult();
+                    imageUrls = (ArrayList<String>)result.get("photo");
 
                     name.setText("" + task.getResult().get("name"));
                     gender.setText("" + task.getResult().get("gender"));
                     specie.setText("" + task.getResult().get("specie"));
                     race.setText("" + task.getResult().get("race"));
                     comment.setText("" + task.getResult().get("comment"));
+
+                    //images
+                    ViewPager viewPager = findViewById(R.id.viewPager);
+                    ViewPagerAdapter adapter = new ViewPagerAdapter(getApplicationContext(), imageUrls);
+                    viewPager.setAdapter(adapter);
                 } else {
                     Log.w("task ko", "Error getting documents.", task.getException());
                 }
