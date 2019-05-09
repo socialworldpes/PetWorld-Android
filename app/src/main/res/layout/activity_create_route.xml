@@ -21,6 +21,13 @@
                 android:ems="10"
                 android:id="@+id/nameInput" tools:layout_conversion_absoluteHeight="45dp"
                 tools:layout_conversion_absoluteWidth="213dp"/>
+        <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine"
+                android:gravity="start|top"
+                android:ems="10"
+                android:id="@+id/descriptionInput"/>
         <TextView
                 android:text="Path"
                 android:layout_width="match_parent"
