@@ -3,32 +3,28 @@ package com.petworld_madebysocialworld;
 import Models.User;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.*;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.*;
 import com.google.firebase.firestore.*;
 import com.google.firebase.auth.FirebaseAuth;
-import org.w3c.dom.Text;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.sangcomz.fishbun.FishBun;
+import com.sangcomz.fishbun.adapter.image.impl.PicassoAdapter;
+import com.sangcomz.fishbun.define.Define;
 
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 
 public class PetAddActivity extends AppCompatActivity {
 
@@ -44,6 +40,14 @@ public class PetAddActivity extends AppCompatActivity {
     private Button btnUploadImage;
     private Bitmap imagePerfil;
 
+    //images
+    ArrayList<Bitmap> images;
+    ArrayList<Uri> uriImages;
+    ArrayList<String> urlImages;
+
+    //booleans
+    private boolean imagesCanContinue;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +61,10 @@ public class PetAddActivity extends AppCompatActivity {
     }
 
     private void initVariables() {
+        imagesCanContinue = false;
+        images = new ArrayList<>();
+        uriImages = new ArrayList<>();
+        urlImages = new ArrayList<>();
 
     }
 
@@ -98,29 +106,12 @@ public class PetAddActivity extends AppCompatActivity {
        // DrawerUtil.getDrawer(this,toolBar);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-       if (requestCode == PICK_IMAGE) {
-            Uri selectedImage = data.getData();
-            Toast.makeText(this, "Imatge Pillada + URI: " + selectedImage, Toast.LENGTH_SHORT).show();
-            try {
-                Toast.makeText(this, "Dins Try", Toast.LENGTH_SHORT).show();
-                Bitmap bmp = BitmapFactory.decodeStream(getContentResolver().openInputStream(selectedImage));
-                imagePerfil = bmp;
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
 
-    }
-    private void loadImage(){
-        Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        getIntent.setType("image/*");
-        startActivityForResult(getIntent, 1);
+    private void loadImage(){;
+        FishBun.with(this).setImageAdapter(new PicassoAdapter()).setMaxCount(3).startAlbum();
     }
     private void addPet() {
-
+        Log.d("PRUEBAImagesSize", "Images size: " + uriImages.size());
         String userID = User.getInstance().getAccount().getId();
         Log.d("userID", userID);
         HashMap<String, Object> mascota =  new HashMap<String, Object>();
@@ -130,13 +121,54 @@ public class PetAddActivity extends AppCompatActivity {
             mascota.put("specie", specie.getText().toString());
             mascota.put("race", race.getText().toString());
             mascota.put("comment", comment.getText().toString());
-            //        mascota.put("photo", imagePerfil.toString());
+            mascota.put("photo", Arrays.asList());
             mascota.put("owner", userID);
 
 
             db.collection("pets").add(mascota).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                 @Override
                 public void onSuccess(final DocumentReference documentReference) {
+
+                    //ojo, ahora hay que guardar las fotos en su sitio y ponerlas en firebase RECOGER LINK y añadir a lugar correspondiente
+                    final DocumentReference docRAux = documentReference;
+                    // do something with result.
+                    Log.d("PRUEBA004", "Antes de entrar en el for");
+                    for (int i = 0; i < uriImages.size(); i++) {
+                        Log.d("PRUEBA005", "Después de entrar en el for");
+                        final int j = i;
+                        final StorageReference imagesRef = FirebaseStorage.getInstance().getReference().child("pets/" + documentReference.getId() + "_" + i);
+                        Uri file = uriImages.get(i);
+                        Log.d("PRUEBA006", "Cojo la urii");
+
+                        UploadTask uploadTask = imagesRef.putFile(file);
+                        Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                            @Override
+                            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                                if (!task.isSuccessful()) {
+                                    throw task.getException();
+                                }
+
+                                // Continue with the task to get the download URL
+                                return imagesRef.getDownloadUrl();
+                            }
+                        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Uri> task) {
+                                if (task.isSuccessful()) {
+                                    Log.d("PRUEBA002", "He entrado");
+                                    Log.d("PRUEBA007", "pets/" + documentReference.getId() + "_" + j);
+                                    urlImages.add(task.getResult().toString());
+                                    Log.d("Tamaño url", String.valueOf(urlImages.size()));
+                                    docRAux.update("photo", urlImages);
+                                } else {
+                                    // Handle failures
+                                    // ...
+                                }
+                            }
+
+                        });
+                    }
+
                     Log.d("mascotaRefenrece:", documentReference.getId());
 
                     String userID = User.getInstance().getAccount().getId();
@@ -189,6 +221,21 @@ public class PetAddActivity extends AppCompatActivity {
 
 
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent imageData) {
+        super.onActivityResult(requestCode, resultCode, imageData);
+        switch (requestCode) {
+            case Define.ALBUM_REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    uriImages = imageData.getParcelableArrayListExtra(Define.INTENT_PATH);
+                    if (uriImages.size() > 0){
+                        imagesCanContinue = true;
+                    }
+                    break;
+                }
+        }
     }
 
     private boolean checkNulls() {
