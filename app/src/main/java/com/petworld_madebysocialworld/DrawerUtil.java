@@ -190,10 +190,10 @@ public class DrawerUtil {
                         //lista de mascotas
                         boolean dentroIf = false;
                         for (Map.Entry<Integer, DocumentReference> entry : mapPetRef.entrySet()) {
-                            if (drawerItem.getIdentifier() == entry.getKey() && !(activity instanceof PetProfileActivity)) {
+                            if (drawerItem.getIdentifier() == entry.getKey() && !(activity instanceof ViewPetActivity)) {
 
                                 if (!dentroIf) {
-                                    Intent  intent = new Intent(activity, PetProfileActivity.class);
+                                    Intent  intent = new Intent(activity, ViewPetActivity.class);
                                     String petPath = entry.getValue().getPath();
                                     Log.d("drawerPetRef", petPath);
                                     intent.putExtra("docPetRef", petPath);
@@ -211,8 +211,8 @@ public class DrawerUtil {
                             view.getContext().startActivity(intent);
                         }
 
-                        if (drawerItem.getIdentifier() == 3 && !(activity instanceof PetAddActivity)){
-                            Intent intent = new Intent(activity, PetAddActivity.class);
+                        if (drawerItem.getIdentifier() == 3 && !(activity instanceof CreatePetActivity)){
+                            Intent intent = new Intent(activity, CreatePetActivity.class);
                             view.getContext().startActivity(intent);
                         }
                         return true;

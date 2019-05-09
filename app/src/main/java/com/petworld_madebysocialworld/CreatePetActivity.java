@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class PetAddActivity extends AppCompatActivity {
+public class CreatePetActivity extends AppCompatActivity {
 
     public static final int PICK_IMAGE = 1;
     private FirebaseAuth mAuth;

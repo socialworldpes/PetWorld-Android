@@ -29,11 +29,11 @@
         </activity>
         <activity android:name=".CreateMeetingActivity">
         </activity>
-        <activity android:name=".PetUpdateActivity">
+        <activity android:name=".EditPetActivity">
         </activity>
-        <activity android:name=".PetAddActivity">
+        <activity android:name=".CreatePetActivity">
         </activity>
-        <activity android:name=".PetProfileActivity">
+        <activity android:name=".ViewPetActivity">
         </activity>
         <activity android:name=".ViewMeetingActivity">
         </activity>
