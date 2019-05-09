@@ -5,14 +5,39 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".CreateRouteActivity">
+        tools:context=".CreateRouteActivity" android:orientation="vertical" android:id="@+id/linearLayout2">
 
-    <TextView
-            android:text="Crear Ruta"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/textView4" android:layout_marginTop="8dp"
-            app:layout_constraintTop_toTopOf="parent" android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"/>
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
+        <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:text="Name"
+                android:ems="10"
+                android:id="@+id/nameInput" tools:layout_conversion_absoluteHeight="45dp"
+                tools:layout_conversion_absoluteWidth="213dp"/>
+        <TextView
+                android:text="Path"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:id="@+id/pathInput"/>
+        <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:text="LocationName"
+                android:ems="10"
+                android:id="@+id/locationNameInput"/>
+        <TextView
+                android:text="Images"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/imagesInput"
+                tools:layout_conversion_absoluteHeight="19dp"
+                tools:layout_conversion_absoluteWidth="47dp"/>
+    </LinearLayout>
+
 </android.support.constraint.ConstraintLayout>
