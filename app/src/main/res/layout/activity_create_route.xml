@@ -7,56 +7,96 @@
         android:layout_height="match_parent"
         tools:context=".CreateRouteActivity" android:orientation="vertical" android:id="@+id/linearLayout2">
 
+    <ScrollView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:fillViewport="true">
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
+            <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName"
+                    android:text="Name"
+                    android:ems="10"
+                    android:id="@+id/nameInput" tools:layout_conversion_absoluteHeight="45dp"
+                    tools:layout_conversion_absoluteWidth="213dp"/>
+            <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:gravity="start|top"
+                    android:ems="10"
+                    android:id="@+id/descriptionInput"/>
+            <TextView
+                    android:text="Path"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:id="@+id/pathInput"/>
+            <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName"
+                    android:text="LocationName"
+                    android:ems="10"
+                    android:id="@+id/locationNameInput"/>
+            <android.support.v4.view.ViewPager
+                    android:layout_width="match_parent"
+                    android:layout_height="280dp" android:id="@+id/viewPager"
+                    android:layout_below="@id/locationNameInput"
+            />
+            <Button
+                    android:text="Subir imágenes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:id="@+id/uploadImagesButton"
+            />
 
-    <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
-        <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:text="Name"
-                android:ems="10"
-                android:id="@+id/nameInput" tools:layout_conversion_absoluteHeight="45dp"
-                tools:layout_conversion_absoluteWidth="213dp"/>
-        <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textMultiLine"
-                android:gravity="start|top"
-                android:ems="10"
-                android:id="@+id/descriptionInput"/>
-        <TextView
-                android:text="Path"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:id="@+id/pathInput"/>
-        <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:text="LocationName"
-                android:ems="10"
-                android:id="@+id/locationNameInput"/>
-        <android.support.v4.view.ViewPager
-                android:layout_width="match_parent"
-                android:layout_height="280dp" android:id="@+id/viewPager"
-                android:layout_below="@id/locationNameInput"
-        />
-        <Button
-                android:text="Subir imágenes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:id="@+id/uploadImagesButton"
-        />
-    </LinearLayout>
-    <Button
-            android:text="Crear"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/createButton" android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
-            android:background="#4CAF50" android:textColor="#fff"/>
+            <TextView
+                    android:text="Ubicación"
+                    android:layout_width="wrap_content"
+                    android:layout_height="33dp"
+                    android:id="@+id/textView"
+                    app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="50dp"
+                    android:textStyle="bold" android:textSize="24sp" android:fontFamily="sans-serif-medium"
+                    app:layout_constraintTop_toBottomOf="@+id/uploadImagesButton"/>
+            <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+                      xmlns:tools="http://schemas.android.com/tools"
+                      android:layout_width="match_parent"
+                      android:layout_height="300px"
+                      tools:context=".MapsActivity"
+                      android:name="com.google.android.gms.maps.SupportMapFragment"
+                      android:id="@+id/mapCreateRoute"
+                      android:layout_marginStart="50dp"
+                      app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+                      android:layout_marginEnd="32dp"
+                      app:layout_constraintTop_toBottomOf="@+id/textView" android:layout_marginTop="8dp"/>
+            <View android:id="@+id/separator2"
+                  android:background="#000000"
+                  android:layout_width="fill_parent"
+                  android:layout_height="1dip"
+                  android:layout_centerVertical="true"
+                  android:layout_alignParentTop="true"
+                  app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="50dp"
+                  app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="32dp"
+                  app:layout_constraintHorizontal_bias="0.1"
+                  app:layout_constraintTop_toBottomOf="@+id/mapCreateRoute" android:layout_marginTop="8dp"/>
+            <Button
+                    android:text="Crear"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/createButton" android:layout_marginBottom="8dp"
+                    android:layout_marginTop="10dp"
+                    app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent"
+                    android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_marginEnd="8dp"
+                    android:background="#4CAF50" android:textColor="#fff"
+                    app:layout_constraintTop_toBottomOf="@+id/separator2"/>
+        </LinearLayout>
+
+    </ScrollView>
+
 
 </android.support.constraint.ConstraintLayout>

@@ -4,6 +4,7 @@ import Models.User;
 import android.app.assist.AssistStructure;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import com.google.android.gms.maps.model.LatLng;
 import android.net.Uri;
 import android.os.Debug;
 import android.support.annotation.NonNull;
@@ -16,6 +17,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import com.google.android.gms.maps.*;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.*;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -25,7 +29,7 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.google.type.LatLng;
+
 import com.sangcomz.fishbun.FishBun;
 import com.sangcomz.fishbun.adapter.image.impl.PicassoAdapter;
 import com.sangcomz.fishbun.define.Define;
@@ -39,6 +43,12 @@ public class CreateRouteActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
+
+    //map
+    private GoogleMap mMap;
+
+    //valores cambiados como location
+    LatLng location;
 
     //images
     ArrayList<Bitmap> images;
@@ -63,6 +73,7 @@ public class CreateRouteActivity extends AppCompatActivity {
         initLayout();
         initVariables();
         initListeners();
+        setUpMap();
     }
 
 
@@ -81,6 +92,7 @@ public class CreateRouteActivity extends AppCompatActivity {
         images = new ArrayList<>();
         uriImages = new ArrayList<>();
         urlImages = new ArrayList<>();
+        location =  new LatLng(41.3818, 2.1685);
     }
 
     private void initListeners() {
@@ -165,16 +177,16 @@ public class CreateRouteActivity extends AppCompatActivity {
         //init path
         List<LatLng> path = new ArrayList<LatLng>();
         //init points
-        LatLng point = LatLng.newBuilder().setLatitude(1).setLongitude(1).build();
-        LatLng point2 = LatLng.newBuilder().setLatitude(2).setLongitude(1).build();
+        LatLng point2 = new LatLng(2.0, 1.0);
         //add points to path
-        path.add(point);
+        //location es puntoPartida
+        path.add(location);
         path.add(point2);
 
         //convert path<LatLng> to path<GeoPoint>
         List<GeoPoint> pathGeoPoint = new ArrayList<GeoPoint>();
         for (LatLng ll: path) {
-            pathGeoPoint.add(new GeoPoint(ll.getLatitude(), ll.getLongitude()));
+            pathGeoPoint.add(new GeoPoint(ll.latitude, ll.longitude));
         }
 
 
@@ -260,6 +272,36 @@ public class CreateRouteActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "route Añadida",
                         Toast.LENGTH_LONG).show();
                 startMap();
+            }
+        });
+    }
+
+    private void setUpMap() {
+
+        Toast.makeText(this, "dENTRO MARP READY", Toast.LENGTH_SHORT).show();
+
+
+        ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapCreateRoute)).getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                mMap = googleMap;
+                CameraUpdate cameraupdate = CameraUpdateFactory.newLatLngZoom(location, (float) 30.2);
+                mMap.moveCamera(cameraupdate);
+                mMap.addMarker(new MarkerOptions()
+                        .position(location)
+                );
+                mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                    @Override
+                    public void onMapLongClick(com.google.android.gms.maps.model.LatLng latLng) {
+                        location = latLng;
+                        mMap.clear();
+                        CameraUpdate cameraupdate = CameraUpdateFactory.newLatLng(location);
+                        mMap.moveCamera(cameraupdate);
+                        mMap.addMarker(new MarkerOptions()
+                                .position(latLng)
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                    }
+                });
             }
         });
     }
