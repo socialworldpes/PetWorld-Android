@@ -241,28 +241,24 @@ public class MapActivity extends AppCompatActivity
          */
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         try {
-
             if (mLocationPermissionGranted){
-                //Toast.makeText(this, "Dins mLocation", Toast.LENGTH_SHORT).show();
                 Task location = mFusedLocationProviderClient.getLastLocation();
-
                 location.addOnCompleteListener(new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
                         if (task.isSuccessful()){
                             Location currentLocation = (Location) task.getResult();
                             if (currentLocation != null){
-                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()),
-                                        DEFAULT_ZOOM));
-                            } else {
-                                Toast.makeText(MapActivity.this, "NULL", Toast.LENGTH_SHORT).show();
-                            }
-                        }
+
+                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()), DEFAULT_ZOOM));
+
+                            } else Toast.makeText(MapActivity.this, "Tu ubicación es nula", Toast.LENGTH_SHORT).show();
+                        } else Toast.makeText(MapActivity.this, "Error al obtener la ubicación", Toast.LENGTH_LONG).show();
                     }
                 });
-            }
+            }else Toast.makeText(MapActivity.this, "Da permiso para acceder a la ubicación", Toast.LENGTH_LONG).show();
         } catch (SecurityException e){
-
+            Toast.makeText(MapActivity.this, "Seleciona un punto en el mapa primero", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -319,8 +315,29 @@ public class MapActivity extends AppCompatActivity
     }
 
     public void newMeeting(){
-        Intent intent = new Intent(MapActivity.this, CreateMeetingActivity.class);
-        startActivity(intent);
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        try {
+            if (mLocationPermissionGranted){
+                Task location = mFusedLocationProviderClient.getLastLocation();
+                location.addOnCompleteListener(new OnCompleteListener() {
+                    @Override
+                    public void onComplete(@NonNull Task task) {
+                        if (task.isSuccessful()){
+                            Location currentLocation = (Location) task.getResult();
+                            if (currentLocation != null){
+
+                                Intent intent = new Intent(MapActivity.this, CreateMeetingActivity.class);
+                                intent.putExtra("location", new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                                startActivity(intent);
+
+                            } else Toast.makeText(MapActivity.this, "Tu ubicación es nula", Toast.LENGTH_SHORT).show();
+                        } else Toast.makeText(MapActivity.this, "Error al obtener la ubicación", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }else Toast.makeText(MapActivity.this, "Da permiso para acceder a la ubicación", Toast.LENGTH_LONG).show();
+        } catch (SecurityException e){
+            Toast.makeText(MapActivity.this, "Seleciona un punto en el mapa primero", Toast.LENGTH_LONG).show();
+        }
     }
 
     public void newWalk(){
