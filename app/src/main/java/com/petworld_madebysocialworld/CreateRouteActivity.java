@@ -100,9 +100,6 @@ public class CreateRouteActivity extends AppCompatActivity {
     }
 
     private void refreshImageView() {
-        Log.d("refreshing image view:", "in function");
-
-
 
         for (Uri uri: uriImages)
             urlImages.add(uri.toString());
@@ -164,21 +161,22 @@ public class CreateRouteActivity extends AppCompatActivity {
     }
 
     private List<GeoPoint> readPath() {
-        List<LatLng> path = new ArrayList<LatLng>();
 
+        //init path
+        List<LatLng> path = new ArrayList<LatLng>();
+        //init points
         LatLng point = LatLng.newBuilder().setLatitude(1).setLongitude(1).build();
         LatLng point2 = LatLng.newBuilder().setLatitude(2).setLongitude(1).build();
-
-        Log.d("LatLng point = ", point.getLatitude() + " --- " + point.getLongitude());
-        // TODO: use an actual point
-        //LatLng point = new LatLng((double) 1, (double) 1);
+        //add points to path
         path.add(point);
         path.add(point2);
 
+        //convert path<LatLng> to path<GeoPoint>
         List<GeoPoint> pathGeoPoint = new ArrayList<GeoPoint>();
         for (LatLng ll: path) {
             pathGeoPoint.add(new GeoPoint(ll.getLatitude(), ll.getLongitude()));
         }
+
 
         return pathGeoPoint;
     }
