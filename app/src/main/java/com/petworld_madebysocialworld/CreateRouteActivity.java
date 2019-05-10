@@ -79,12 +79,12 @@ public class CreateRouteActivity extends AppCompatActivity {
 
 
     private void initLayout() {
-        descriptionInput = findViewById(R.id.descriptionInput);
+        /*descriptionInput = findViewById(R.id.descriptionInput);
         nameInput = findViewById(R.id.nameInput);
         locationNameInput = findViewById(R.id.locationNameInput);
 
         btnAddRoute = findViewById(R.id.createButton);
-        btnUploadImage = findViewById(R.id.uploadImagesButton);
+        btnUploadImage = findViewById(R.id.uploadImagesButton);*/
     }
 
     private void initVariables() {
@@ -281,7 +281,7 @@ public class CreateRouteActivity extends AppCompatActivity {
         Toast.makeText(this, "dENTRO MARP READY", Toast.LENGTH_SHORT).show();
 
 
-        ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapCreateRoute)).getMapAsync(new OnMapReadyCallback() {
+        /*((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapCreateRoute)).getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 mMap = googleMap;
@@ -303,6 +303,6 @@ public class CreateRouteActivity extends AppCompatActivity {
                     }
                 });
             }
-        });
+        });*/
     }
 }

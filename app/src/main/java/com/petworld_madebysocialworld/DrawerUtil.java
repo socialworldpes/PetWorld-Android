@@ -14,8 +14,6 @@ import android.widget.ImageView;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.*;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -42,13 +40,20 @@ public class DrawerUtil {
 
         i = 0;
         final HashMap<Integer, DocumentReference> mapPetRef =  new HashMap<>();
+        GoogleSignInAccount account = User.getInstance().getAccount();
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        //info account
-        String personName = user.getDisplayName();
-        String personEmail = user.getEmail();
-        Uri personPhoto = user.getPhotoUrl();
-        String userID = user.getUid();
+        String personName = "Name";
+        String personEmail = "Email";
+        Uri personPhoto = Uri.parse("http://www.example.com");
+
+        if (account == null) Log.d("PRUEBA==", "hola, no hay nadie en la account");
+        else{
+            //info account
+            personName = account.getDisplayName();
+            personEmail = account.getEmail();
+            personPhoto = account.getPhotoUrl();
+            Log.d("Prueba", personPhoto.getPath());
+        }
 
 
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
@@ -87,6 +92,7 @@ public class DrawerUtil {
                 .withIdentifier(2).withName("Mascotas").withIcon(R.drawable.ic_pets).withSelectable(false);
         //pets menu lateral
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String userID = User.getInstance().getAccount().getId();
         DocumentReference docRef = db.collection("users").document(userID);
         Log.d("test", docRef.toString());
         Log.d("userID", userID);
@@ -142,7 +148,7 @@ public class DrawerUtil {
         SecondaryDrawerItem drawerItemAddPet = new SecondaryDrawerItem().withIdentifier(3)
                 .withName("Añadir mascota").withIcon(R.drawable.ic_add);
         SecondaryDrawerItem drawerItemGroups = new SecondaryDrawerItem().withIdentifier(4)
-                .withName("Grupos").withIcon(R.drawable.ic_group);
+                .withName("Amigos").withIcon(R.drawable.ic_group);
         SecondaryDrawerItem drawerItemRoutes = new SecondaryDrawerItem().withIdentifier(5)
                 .withName("Tus rutas").withIcon(R.drawable.ic_rutas);
         SecondaryDrawerItem drawerItemSettings = new SecondaryDrawerItem().withIdentifier(6)
@@ -209,6 +215,12 @@ public class DrawerUtil {
                             Intent intent = new Intent(activity, CreatePetActivity.class);
                             view.getContext().startActivity(intent);
                         }
+
+                        if (drawerItem.getIdentifier() == 4 && !(activity instanceof FriendsActivity)){
+                            Intent intent = new Intent(activity, FriendsActivity.class);
+                            view.getContext().startActivity(intent);
+                        }
+
                         return true;
                     }
                 })
