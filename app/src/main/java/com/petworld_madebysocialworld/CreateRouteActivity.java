@@ -21,6 +21,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -155,20 +156,31 @@ public class CreateRouteActivity extends AppCompatActivity {
         route.put("placeName", locationNameInput.getText().toString());
         route.put("images", Arrays.asList());
 
-        List<LatLng> path = readPath();
+        List<GeoPoint> path = readPath();
         route.put("path", path);
         route.put("placeLocation", path.get(0));
 
         addRouteToFireBase(route);
     }
 
-    private List<LatLng> readPath() {
+    private List<GeoPoint> readPath() {
         List<LatLng> path = new ArrayList<LatLng>();
-        LatLng point = null;
+
+        LatLng point = LatLng.newBuilder().setLatitude(1).setLongitude(1).build();
+        LatLng point2 = LatLng.newBuilder().setLatitude(2).setLongitude(1).build();
+
+        Log.d("LatLng point = ", point.getLatitude() + " --- " + point.getLongitude());
         // TODO: use an actual point
         //LatLng point = new LatLng((double) 1, (double) 1);
         path.add(point);
-        return path;
+        path.add(point2);
+
+        List<GeoPoint> pathGeoPoint = new ArrayList<GeoPoint>();
+        for (LatLng ll: path) {
+            pathGeoPoint.add(new GeoPoint(ll.getLatitude(), ll.getLongitude()));
+        }
+
+        return pathGeoPoint;
     }
 
     private void addRouteToFireBase(HashMap<String, Object> route) {
