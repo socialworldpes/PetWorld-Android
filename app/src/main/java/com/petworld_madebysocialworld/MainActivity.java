@@ -36,6 +36,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.*;
 import android.support.v7.widget.Toolbar;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 import java.util.*;
 
@@ -69,12 +71,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 signOut();
             connect(null);
 
-
+            getToken();
 
             // [START initialize_auth]
             // Initialize Firebase Auth
             // [END initialize_auth]
         }
+
+    private void getToken() {
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+
+                        // Log and toast
+                    }
+                });
+    }
 
     private boolean checkAndRequestPermissions() {
         int readpermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);

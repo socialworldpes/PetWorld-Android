@@ -14,8 +14,8 @@ import com.petworld_madebysocialworld.R;
  */
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-    @StringRes
-    private static final int[] TAB_TITLES = new int[]{R.string.Friends, R.string.Requests};
+    @StringRes //hardcoded de momento por el bien del no crasheo
+    private static final int[] TAB_TITLES = new int[]{R.id.Fecha, R.id.Fecha};
     private final Context mContext;
 
     public SectionsPagerAdapter(Context context, FragmentManager fm) {
@@ -27,9 +27,9 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         Fragment fragment = null;
         if (position == 0) {
-            fragment = new FriendsFragment(mContext);
+           // fragment = new FriendsFragment(mContext);
         } else if (position == 1) {
-            fragment = new RequestsFragment(mContext);
+           // fragment = new RequestsFragment(mContext);
         }
         return fragment;
     }
