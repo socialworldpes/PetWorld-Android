@@ -9,7 +9,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 import com.petworld_madebysocialworld.ui.main.SectionsPagerAdapter;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FriendsActivity extends AppCompatActivity {
 

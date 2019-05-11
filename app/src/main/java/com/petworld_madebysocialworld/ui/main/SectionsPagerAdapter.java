@@ -15,7 +15,7 @@ import com.petworld_madebysocialworld.R;
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     @StringRes
-    private static final int[] TAB_TITLES = new int[]{R.string.tab_text_1, R.string.tab_text_2};
+    private static final int[] TAB_TITLES = new int[]{R.string.Friends, R.string.Requests};
     private final Context mContext;
 
     public SectionsPagerAdapter(Context context, FragmentManager fm) {
@@ -25,9 +25,13 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        // getItem is called to instantiate the fragment for the given page.
-        // Return a PlaceholderFragment (defined as a static inner class below).
-        return PlaceholderFragment.newInstance(position + 1);
+        Fragment fragment = null;
+        if (position == 0) {
+            fragment = new FriendsFragment(mContext);
+        } else if (position == 1) {
+            fragment = new RequestsFragment(mContext);
+        }
+        return fragment;
     }
 
     @Nullable
