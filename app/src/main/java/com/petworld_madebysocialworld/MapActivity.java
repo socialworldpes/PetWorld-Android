@@ -122,7 +122,6 @@ public class MapActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        u = User.getInstance();
         super.onCreate(savedInstanceState);
         // Retrieve the content view that renders the map.
         setContentView(R.layout.activity_map);
@@ -664,7 +663,6 @@ public class MapActivity extends AppCompatActivity
 
     @Override
     public void onCameraMoveStarted(int reason) {
-        Log.d("HOLA", "HOLA");
         View b = findViewById(R.id.nearPlaces);
         b.setVisibility(View.VISIBLE);
     }

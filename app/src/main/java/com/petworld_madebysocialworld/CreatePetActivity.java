@@ -112,7 +112,7 @@ public class CreatePetActivity extends AppCompatActivity {
     }
     private void addPet() {
         Log.d("PRUEBAImagesSize", "Images size: " + uriImages.size());
-        String userID = User.getInstance().getAccount().getId();
+        String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Log.d("userID", userID);
         HashMap<String, Object> mascota =  new HashMap<String, Object>();
         if (checkNulls()) {
@@ -171,7 +171,7 @@ public class CreatePetActivity extends AppCompatActivity {
 
                     Log.d("mascotaRefenrece:", documentReference.getId());
 
-                    String userID = User.getInstance().getAccount().getId();
+                    String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
                     Log.d("userID", userID);
                     DocumentReference docRef = db.collection("users").document(userID);
@@ -181,7 +181,7 @@ public class CreatePetActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                             if (task.isSuccessful()) {
-                                String userID = User.getInstance().getAccount().getId();
+                                String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
                                 DocumentSnapshot result = task.getResult();
                                 ArrayList<DocumentReference> arrayReference = (ArrayList<DocumentReference>) result.get("pets");
                                 if (arrayReference == null) arrayReference = new ArrayList<>();

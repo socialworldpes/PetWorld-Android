@@ -14,6 +14,7 @@ import android.widget.*;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -37,7 +38,7 @@ public class CreateWalkActivity extends AppCompatActivity {
 
         //initNavigationDrawer();
         db = FirebaseFirestore.getInstance();
-        userID = User.getInstance().getAccount().getId();
+        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         Button but = findViewById(R.id.elegirRuta);
         but.setOnClickListener(new View.OnClickListener() {

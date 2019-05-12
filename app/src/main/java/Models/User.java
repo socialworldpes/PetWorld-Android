@@ -3,6 +3,7 @@ package Models;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import org.w3c.dom.Document;
@@ -14,7 +15,6 @@ public class User {
         return ourInstance;
     }
 
-    private GoogleSignInAccount account;
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
     private boolean logout = false;
@@ -38,12 +38,8 @@ public class User {
         return docSnap;
     }
 
-    public void setAccount(GoogleSignInAccount result) {
-        account = result;
-    }
-
-    public GoogleSignInAccount getAccount() {
-        return account;
+    public FirebaseUser getAccount() {
+        return FirebaseAuth.getInstance().getCurrentUser();
     }
 
     public void setmGoogleSignInClient(GoogleSignInClient client) {
