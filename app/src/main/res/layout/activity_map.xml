@@ -54,7 +54,7 @@
                 fab:fab_colorNormal="@color/colorAccent"
                 fab:fab_icon="@drawable/ic_timeline_white_24dp"
                 fab:fab_size="mini"
-                fab:fab_title="Rutas"
+                fab:fab_title="Ruta"
                 android:onClick="newRoute"
         />
 
