@@ -19,6 +19,8 @@
             android:roundIcon="@mipmap/ic_launcher_custom_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
+        <activity android:name=".SearchFriendsActivity">
+        </activity>
         <activity android:name=".ViewWalkActivity">
         </activity>
         <activity android:name=".LeadsActivity">
@@ -60,7 +62,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-
         </activity>
 
         <meta-data
