@@ -802,9 +802,9 @@ public class MapActivity extends AppCompatActivity
                 linearLayoutSheet.addView(textViewSolucio);
             }
         } else if (position == 1) {
-            if (routes.size() != 0) {
+            if (walks.size() != 0) {
 
-                for(final Map<String, Object> mapTmp : routes) {
+                for(final Map<String, Object> mapTmp : walks) {
 
                     LinearLayout linearLayoutList = new LinearLayout(context);
                     String nameList = (String) mapTmp.get("name");
@@ -838,6 +838,21 @@ public class MapActivity extends AppCompatActivity
 
                     linearLayoutList.addView(textViewNameList);
 
+                    Timestamp timeList = (Timestamp) mapTmp.get("date");
+                    Date timeDateList = timeList.toDate();
+                    Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String timeStringList = formatter.format(timeDateList);
+
+                    TextView textViewTime = new TextView(context);
+                    textViewTime.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+                    textViewTime.setText(timeStringList);
+                    textViewTime.setPadding(40, 5, 40, 20);
+
+                    linearLayoutList.addView(textViewTime);
+
+                    linearLayoutSheet.addView(linearLayoutList);
+
                     linearLayoutSheet.addView(linearLayoutList);
 
                     //Obtenir Descripcio
@@ -853,7 +868,7 @@ public class MapActivity extends AppCompatActivity
                 TextView textViewAvis = new TextView(context);
                 textViewAvis.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT));
-                textViewAvis.setText("No hay rutas disponibles");
+                textViewAvis.setText("No hay paseos disponibles");
                 textViewAvis.setPadding(40, 40, 40, 20);
                 linearLayoutSheet.addView(textViewAvis);
 
@@ -870,7 +885,5 @@ public class MapActivity extends AppCompatActivity
             Toast.makeText(this, "Error al LoadList", Toast.LENGTH_SHORT).show();
         }
     }
-
-
 }
 
