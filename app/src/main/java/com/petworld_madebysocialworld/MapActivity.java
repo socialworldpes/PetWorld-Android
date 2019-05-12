@@ -742,16 +742,16 @@ public class MapActivity extends AppCompatActivity
                         @Override
                         public void onClick(View v) {
 
-                            LatLng location = new LatLng(0,0);
-                            Intent intent = new Intent(MapActivity.this, CreateMeetingActivity.class);
-                            intent.putExtra("location", location);
-                            startActivity(intent);
-                            /*
-                            String id = (String) mapTmp.get("id");
-                            Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
-                            intent.putExtra("id", id);
-                            startActivity(intent);
-                            */
+                        /*
+                        LatLng location = new LatLng(0,0);
+                        Intent intent = new Intent(MapActivity.this, CreateMeetingActivity.class);
+                        intent.putExtra("location", location);
+                        startActivity(intent);
+                        */
+                        String id = (String) mapTmp.get("id");
+                        Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
+                        intent.putExtra("id", id);
+                        startActivity(intent);
                         }
 
                     });
