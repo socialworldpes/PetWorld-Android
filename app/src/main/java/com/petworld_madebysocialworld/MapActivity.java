@@ -923,7 +923,6 @@ public class MapActivity extends AppCompatActivity
             bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
 
             final CollectionReference meetingsRef = db.collection("meetings");
-
             meetingLocations = meetingsRef.whereGreaterThanOrEqualTo("name", textTmp).whereLessThanOrEqualTo("name", newName);
 
             CollectionReference walksRef = db.collection("meetings");
