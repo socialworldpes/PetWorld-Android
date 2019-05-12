@@ -35,6 +35,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.*;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -215,8 +216,8 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                 else {
                     //ojo, hay que guardar todo en firestore
                     Map<String, Object> meeting = new HashMap<>();
-                    meeting.put("creator", User.getInstance().getAccount().getId());
-                    meeting.put("nameCreator", User.getInstance().getAccount().getDisplayName());
+                    meeting.put("creator", FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    meeting.put("nameCreator", FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
                     meeting.put("description", ((EditText)findViewById(R.id.des)).getText().toString());
                     meeting.put("images", Arrays.asList());
                     meeting.put("name", ((EditText)findViewById(R.id.title_create_meeting)).getText().toString());
@@ -273,7 +274,7 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                                 Log.d("URL", i);
                             Log.d("tamaño imagenes", String.valueOf(urlImages.size()));
                             //guardar link ususario a meeting
-                            FirebaseFirestore.getInstance().collection("users").document(User.getInstance().getAccount().getId()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                     if (task.isSuccessful()) {
@@ -281,7 +282,7 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                                         if (document.exists()) {
                                             ArrayList<DocumentReference> meetings = (ArrayList) document.get("meetings");
                                             meetings.add(docRAux);
-                                            FirebaseFirestore.getInstance().collection("users").document(User.getInstance().getAccount().getId()).update("meetings", meetings);
+                                            FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).update("meetings", meetings);
                                         } else {
                                             Log.d("ERROR", "No such document");
                                         }

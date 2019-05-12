@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -49,7 +50,7 @@ public class LeadsRepository {
 
     private void LeerRutasUsuario() {
         db = FirebaseFirestore.getInstance();
-        userID = User.getInstance().getAccount().getId();
+        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Log.d("alPetRef: ", "in");
         Log.d("alPetRef", "" + userID);
         db.collection("users").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
