@@ -269,8 +269,7 @@ public class CreateRouteActivity extends AppCompatActivity {
                 } else {
                     Log.w("task ko", "Error getting documents.", task.getException());
                 }
-                Toast.makeText(getApplicationContext(), "route Añadida",
-                        Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), "Ruta creada", Toast.LENGTH_LONG).show();
                 startMap();
             }
         });
