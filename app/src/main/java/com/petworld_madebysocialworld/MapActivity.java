@@ -533,8 +533,6 @@ public class MapActivity extends AppCompatActivity
     }
 
 
-
-
     public void searchNearPlaces(View view) {
         view.setVisibility(View.INVISIBLE);
         bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
