@@ -52,7 +52,7 @@
             android:layout_width="match_parent"
             android:layout_height="64dp" tools:layout_editor_absoluteX="16dp"
             app:layout_constraintTop_toBottomOf="@+id/locationNameInput" android:id="@+id/map_toolbar"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="8dp" android:visibility="gone">
         <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent" app:srcCompat="@drawable/ic_add_circle_black_24dp"

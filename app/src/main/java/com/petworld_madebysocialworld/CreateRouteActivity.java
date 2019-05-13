@@ -279,7 +279,7 @@ public class CreateRouteActivity extends AppCompatActivity {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 map = googleMap;
-                CameraUpdate cameraupdate = CameraUpdateFactory.newLatLngZoom(path.get(0), (float) 10);
+                CameraUpdate cameraupdate = CameraUpdateFactory.newLatLngZoom(path.get(0), (float) 16);
                 map.moveCamera(cameraupdate);
                 map.addMarker(new MarkerOptions()
                         .position(path.get(0))
