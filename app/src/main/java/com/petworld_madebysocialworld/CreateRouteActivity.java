@@ -298,7 +298,10 @@ public class CreateRouteActivity extends AppCompatActivity {
                         for(Marker myMarker: myMarkers)
                             if (marker.equals(myMarker)) {
                                 Log.d("marker: " , "in if");
+                                //remove mark
                                 myMarkers.remove(myMarker);
+                                myMarker.remove();
+                                //remove point
                                 int i = findPointIndex(marker.getPosition());
                                 path.remove(i);
                                 return true;
