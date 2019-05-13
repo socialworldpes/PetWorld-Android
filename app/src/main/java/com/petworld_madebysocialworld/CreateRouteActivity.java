@@ -269,8 +269,7 @@ public class CreateRouteActivity extends AppCompatActivity {
                 } else {
                     Log.w("task ko", "Error getting documents.", task.getException());
                 }
-                Toast.makeText(getApplicationContext(), "route Añadida",
-                        Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), "Ruta creada", Toast.LENGTH_LONG).show();
                 startMap();
             }
         });
@@ -278,7 +277,7 @@ public class CreateRouteActivity extends AppCompatActivity {
 
     private void setUpMap() {
 
-        Toast.makeText(this, "dENTRO MARP READY", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Mapa listo", Toast.LENGTH_SHORT).show();
 
 
         ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapCreateRoute)).getMapAsync(new OnMapReadyCallback() {
