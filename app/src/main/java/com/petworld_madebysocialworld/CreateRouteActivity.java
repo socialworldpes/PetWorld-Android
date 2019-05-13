@@ -92,12 +92,6 @@ public class CreateRouteActivity extends AppCompatActivity {
         LatLng location = getIntent().getParcelableExtra("location");
         if (location == null) location =  new LatLng(41.3818, 2.1685);
         path.add(location);
-
-        // map line
-        pathPolyline = map.addPolyline(new PolylineOptions()
-                .add(path.get(0))
-                .width(5)
-                .color(Color.RED));
     }
 
     private void initListeners() {
@@ -285,11 +279,17 @@ public class CreateRouteActivity extends AppCompatActivity {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 map = googleMap;
-                CameraUpdate cameraupdate = CameraUpdateFactory.newLatLngZoom(path.get(0), (float) 20);
+                CameraUpdate cameraupdate = CameraUpdateFactory.newLatLngZoom(path.get(0), (float) 10);
                 map.moveCamera(cameraupdate);
                 map.addMarker(new MarkerOptions()
                         .position(path.get(0))
                 );
+
+                // map line
+                pathPolyline = map.addPolyline(new PolylineOptions()
+                        .add(path.get(0))
+                        .width(20)
+                        .color(Color.BLUE));
 
                 map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                     @Override
