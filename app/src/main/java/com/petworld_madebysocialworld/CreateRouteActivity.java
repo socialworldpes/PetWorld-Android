@@ -61,6 +61,9 @@ public class CreateRouteActivity extends AppCompatActivity {
     private Button btnAddRoute;
     private Button btnUploadImage;
 
+    //market googeMaps
+    private List<Marker> myMarkers;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,6 +91,7 @@ public class CreateRouteActivity extends AppCompatActivity {
         images = new ArrayList<>();
         uriImages = new ArrayList<>();
         urlImages = new ArrayList<>();
+        myMarkers =  new ArrayList<>();
 
         // path variable
         LatLng location = getIntent().getParcelableExtra("location");
@@ -278,13 +282,30 @@ public class CreateRouteActivity extends AppCompatActivity {
 
         ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapCreateRoute)).getMapAsync(new OnMapReadyCallback() {
             @Override
-            public void onMapReady(GoogleMap googleMap) {
+            public void onMapReady(final GoogleMap googleMap) {
                 map = googleMap;
                 CameraUpdate cameraupdate = CameraUpdateFactory.newLatLngZoom(path.get(0), (float) 16);
                 map.moveCamera(cameraupdate);
                 map.addMarker(new MarkerOptions()
                         .position(path.get(0))
                 );
+
+                //delete point when click mark
+                googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                    @Override
+                    public boolean onMarkerClick(Marker marker) {
+
+                        for(Marker myMarker: myMarkers)
+                            if (marker.equals(myMarker)) {
+                                Log.d("marker: " , "in if");
+                                myMarkers.remove(myMarker);
+                                int i = findPointIndex(marker.getPosition());
+                                path.remove(i);
+                                return true;
+                            }
+                        return false;
+                    }
+                });
 
                 // map line
                 pathPolyline = map.addPolyline(new PolylineOptions()
@@ -301,6 +322,7 @@ public class CreateRouteActivity extends AppCompatActivity {
                             mapRemovePoint(nearestPoint);
                         }else{
                             mapAppendPoint(newPoint);
+                            addMark(newPoint, googleMap);
                         }
                     }
                 });
@@ -314,11 +336,31 @@ public class CreateRouteActivity extends AppCompatActivity {
                             mapRemovePoint(nearestPoint);
                         }else{
                             mapAppendPoint(newPoint);
+                            addMark(newPoint, googleMap);
                         }
                     }
                 });
             }
         });
+    }
+
+    private int findPointIndex(LatLng position) {
+        int i = -1;
+        for (LatLng point: path) {
+            i++;
+            if (point.equals(position)) break;
+        }
+
+        return i;
+    }
+
+    private void addMark(LatLng newPoint, GoogleMap googleMap) {
+        Marker mark = googleMap.addMarker(new MarkerOptions()
+                    .position(newPoint)
+                    .title("Punto")
+                    .snippet("Borrar punto")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+        myMarkers.add(mark);
     }
 
     private boolean areSamePoint(LatLng p1, LatLng p2){
