@@ -304,6 +304,7 @@ public class CreateRouteActivity extends AppCompatActivity {
                                 //remove point
                                 int i = findPointIndex(marker.getPosition());
                                 path.remove(i);
+                                refreshPolyLine();
                                 return true;
                             }
                         return false;
@@ -362,6 +363,7 @@ public class CreateRouteActivity extends AppCompatActivity {
                     .position(newPoint)
                     .title("Punto")
                     .snippet("Borrar punto")
+                    .draggable(true)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
         myMarkers.add(mark);
     }
@@ -404,6 +406,10 @@ public class CreateRouteActivity extends AppCompatActivity {
         path.add(newPoint);
         //map.clear();
 
+        pathPolyline.setPoints(path);
+    }
+
+    private void refreshPolyLine() {
         pathPolyline.setPoints(path);
     }
 }
