@@ -306,7 +306,15 @@ public class CreateRouteActivity extends AppCompatActivity {
 
                 map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                     @Override
-                    public void onMapClick(LatLng newPoint) { mapAppendPoint(newPoint); }
+                    public void onMapClick(LatLng newPoint) {
+                        LatLng nearestPoint = findNearestPoint(newPoint);
+
+                        if(areSamePoint(nearestPoint, newPoint)){
+                            mapRemovePoint(nearestPoint);
+                        }else{
+                            mapAppendPoint(newPoint);
+                        }
+                    }
                 });
             }
         });
