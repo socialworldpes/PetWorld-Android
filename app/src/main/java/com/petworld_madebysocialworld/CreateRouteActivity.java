@@ -3,6 +3,7 @@ package com.petworld_madebysocialworld;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.location.Location;
 import com.google.android.gms.maps.model.*;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -328,9 +329,26 @@ public class CreateRouteActivity extends AppCompatActivity {
     }
 
     private LatLng findNearestPoint( LatLng p){
+
+        float[] distance =  new float[1];
+        float[] distanceNearestPoint =  new float[1];
+
+        LatLng nearestPoint = null;
+
+        for (LatLng point : path) {
+            if (nearestPoint != null) {
+                Location.distanceBetween(p.latitude, p.longitude, nearestPoint.latitude, nearestPoint.longitude, distanceNearestPoint);
+                Location.distanceBetween(p.latitude, p.longitude, point.latitude, point.longitude, distance);
+
+                if (distanceNearestPoint[0] > distance[0] ) nearestPoint = point;
+            }
+            else nearestPoint = point;
+        }
+
+
         if (path.isEmpty()) return null;
         // TODO: calculate the closest point
-        return null;
+        return nearestPoint;
     }
 
     private boolean mapRemovePoint(LatLng p){
