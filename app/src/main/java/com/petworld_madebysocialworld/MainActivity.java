@@ -264,18 +264,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(nextActivity);
     }
 
-
-
-
-
-
-
-
-
-
-
-    // -----------------   USELESS CODE   -------------- //
-
     private boolean checkAndRequestPermissions() {
         int readpermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
         int writepermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
