@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
+import android.text.Html;
+import android.widget.TextView;
 import com.google.android.gms.maps.model.*;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -28,6 +30,7 @@ import com.google.firebase.storage.UploadTask;
 import com.sangcomz.fishbun.FishBun;
 import com.sangcomz.fishbun.adapter.image.impl.PicassoAdapter;
 import com.sangcomz.fishbun.define.Define;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -290,6 +293,29 @@ public class CreateRouteActivity extends AppCompatActivity {
                         .position(path.get(0))
                 );
 
+                //TODO: improve custom layout
+                //set adapter for custom window info
+                googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+
+                    @Override
+                    public View getInfoWindow(Marker arg0) {
+                        return null;
+                    }
+
+                    @Override
+                    public View getInfoContents(Marker marker) {
+
+                        View v = getLayoutInflater().inflate(R.layout.marker_info, null);
+
+                        TextView title = (TextView) v.findViewById(R.id.title);
+                        TextView info= (TextView) v.findViewById(R.id.info);
+
+                        title.setText("Borrar Punto");
+                        info.setText(Html.fromHtml("<font color='red' size = '6'>"+ "X"+"</font>"));
+
+                        return v;
+                    }
+                });
                 //delete point when click windows info
                 googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                     @Override
