@@ -290,21 +290,34 @@ public class CreateRouteActivity extends AppCompatActivity {
                         .position(path.get(0))
                 );
 
-                //delete point when click mark
+                //delete point when click windows info
+                googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                    @Override
+                    public void onInfoWindowClick(Marker marker) {
+
+                        for (Marker myMarker: myMarkers) {
+                            if(marker.equals(myMarker)) {
+                                //remove mark
+                                myMarkers.remove(marker);
+                                myMarker.remove();
+                                //remove point
+                                int i = findPointIndex(marker.getPosition());
+                                path.remove(i);
+                                refreshPolyLine();
+                                break;
+                            }
+                        }
+                    }
+                });
+
+                //show info when click mark
                 googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                     @Override
                     public boolean onMarkerClick(Marker marker) {
 
                         for(Marker myMarker: myMarkers)
                             if (marker.equals(myMarker)) {
-                                Log.d("marker: " , "in if");
-                                //remove mark
-                                myMarkers.remove(myMarker);
-                                myMarker.remove();
-                                //remove point
-                                int i = findPointIndex(marker.getPosition());
-                                path.remove(i);
-                                refreshPolyLine();
+                                myMarker.showInfoWindow();
                                 return true;
                             }
                         return false;
@@ -361,8 +374,8 @@ public class CreateRouteActivity extends AppCompatActivity {
     private void addMark(LatLng newPoint, GoogleMap googleMap) {
         Marker mark = googleMap.addMarker(new MarkerOptions()
                     .position(newPoint)
-                    .title("Punto")
-                    .snippet("Borrar punto")
+                    .title("Borrar Punto")
+                    .snippet("X")
                     .draggable(true)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
         myMarkers.add(mark);
