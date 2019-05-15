@@ -70,33 +70,32 @@ public class SearchFriendsActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
-                        Map<String, Object> map;
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            map = document.getData();
-                            map.put("id", document.getId());
+                        for (final QueryDocumentSnapshot document : task.getResult()) {
                             String name = (String) document.get("name");
-                            String personEmail =(String) document.get("email");
-                            Uri personPhoto = (Uri) document.get("photo");
-                            Toast.makeText(context, "Name: " + name + " Email" + personEmail, Toast.LENGTH_SHORT).show();
-
+                            LinearLayout linearLayoutList = new LinearLayout(context);
                             TextView textViewDescreList = new TextView(context);
                             textViewDescreList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                             textViewDescreList.setText(name);
                             textViewDescreList.setPadding(40, 20, 40, 20);
-                            linearLayoutSheet.addView(textViewDescreList);
 
-                            TextView textEmail = new TextView(context);
-                            textEmail.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                            textEmail.setText(personEmail);
-                            textEmail.setPadding(40, 20, 40, 20);
-                            linearLayoutSheet.addView(textEmail);
+                            linearLayoutList.addView(textViewDescreList);
 
-                            ImageView image = new ImageView(context);
-                            image.setLayoutParams(new android.view.ViewGroup.LayoutParams(80,60));
-                            image.setMaxHeight(20);
-                            image.setMaxWidth(20);
-                            image.setImageURI(personPhoto);
-                            linearLayoutSheet.addView(image);
+                            final Button friendButton = new Button(context);
+                            friendButton.setText("Add Friend");
+                            friendButton.setOnClickListener( new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    String id = (String) document.getId();
+                                    friendButton.setVisibility(0);
+                                    //Toast.makeText(context, "Id: " + id, Toast.LENGTH_SHORT).show();
+                                    //DocumentReference DR_aux = document.getReference();
+                                    sendNotificationToUser (id);
+                                }
+                            });
+
+                            linearLayoutList.addView(friendButton);
+
+                            linearLayoutSheet.addView(linearLayoutList);
                         }
                     }
                 }
@@ -106,27 +105,40 @@ public class SearchFriendsActivity extends AppCompatActivity {
         }
     }
 
-    private void sendNotificationToUser (String to_idUser, String title, String text) {
+    private void sendNotificationToUser (final String to_idUser) {
 
         // See documentation on defining a message payload.
 
-        final String titleAux = title;
+        FirebaseFirestore.getInstance().collection("users").document(to_idUser).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                ArrayList<DocumentReference> pendingFriendsList = (ArrayList<DocumentReference>)documentSnapshot.get("pendingFriends");
+                if (pendingFriendsList == null)
+                    pendingFriendsList = new ArrayList<>();
+                pendingFriendsList.add(FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+                FirebaseFirestore.getInstance().collection("users").document(to_idUser).update("pendingFriends", pendingFriendsList);
+            }
+        });
+
+        /*final String titleAux = title;
         final String textAux = text;
         FirebaseFirestore.getInstance().collection("users").document(to_idUser).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
            @Override
            public void onSuccess(DocumentSnapshot documentSnapshot) {
                String token = (String)documentSnapshot.get("token");
-               RemoteMessage.Builder messageBuilder = new RemoteMessage.Builder(token);
-               messageBuilder.addData("Title", titleAux)
-                       .addData("text", textAux);
+               RemoteMessage.Builder messageBuilder = new RemoteMessage.Builder(token + "@gcm.googleapis.com");
+               messageBuilder.setMessageId("1")
+                       .addData("Title", titleAux)
+                       .addData("text", textAux)
+                       .setTtl(600);
 
                RemoteMessage message = messageBuilder.build();
-
+               Toast.makeText(context, "Solicitud enviada", Toast.LENGTH_SHORT).show();
                 // Send a message to the device corresponding to the provided
                 // registration token.
-               FirebaseMessaging.getInstance().send(message);
-           }
-       });
+               FirebaseMessaging.getInstance().send(message);*/
+         /*  }
+       });*/
 
     }
 }

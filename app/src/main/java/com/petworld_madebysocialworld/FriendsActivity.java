@@ -53,4 +53,6 @@ public class FriendsActivity extends AppCompatActivity {
         FirebaseFirestore.getInstance().collection("users").document(idUser).update("friends", FirebaseFirestore.getInstance().collection("users").document(idFriend));
         FirebaseFirestore.getInstance().collection("users").document(idFriend).update("friends", FirebaseFirestore.getInstance().collection("users").document(idUser));
     }
+
+    //private ArrayList<>
 }
