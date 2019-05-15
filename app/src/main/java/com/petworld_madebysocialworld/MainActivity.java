@@ -149,7 +149,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         user.put("visibility", "public");
                         user.put("name", fu.getDisplayName());
                         user.put("email", fu.getEmail());
-                        user.put("photo", fu.getPhotoUrl());
+                        //Infinite Lup
+                        //user.put("photo", fu.getPhotoUrl());
                         user.put("walks", Arrays.asList());
 
                         db.collection("users").document(fu.getUid())
