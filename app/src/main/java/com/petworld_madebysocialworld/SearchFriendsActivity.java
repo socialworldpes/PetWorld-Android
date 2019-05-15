@@ -12,15 +12,18 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.*;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.*;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
-
+import com.google.firebase.messaging.FirebaseMessagingService;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -102,5 +105,29 @@ public class SearchFriendsActivity extends AppCompatActivity {
         } else {
             Toast.makeText(context, "No Noms", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void sendNotificationToUser (String to_idUser, String title, String text) {
+
+        // See documentation on defining a message payload.
+
+        final String titleAux = title;
+        final String textAux = text;
+        FirebaseFirestore.getInstance().collection("users").document(to_idUser).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+           @Override
+           public void onSuccess(DocumentSnapshot documentSnapshot) {
+               String token = (String)documentSnapshot.get("token");
+               RemoteMessage.Builder messageBuilder = new RemoteMessage.Builder(token);
+               messageBuilder.addData("Title", titleAux)
+                       .addData("text", textAux);
+
+               RemoteMessage message = messageBuilder.build();
+
+                // Send a message to the device corresponding to the provided
+                // registration token.
+               FirebaseMessaging.getInstance().send(message);
+           }
+       });
+
     }
 }

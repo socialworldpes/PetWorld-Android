@@ -35,6 +35,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.*;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 import java.util.*;
 
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.sign_in_button).setOnClickListener(this);
 
         u.setmAuth(FirebaseAuth.getInstance());
+        tokenRetrieve();
         db = FirebaseFirestore.getInstance();
 
         if (u.getLogout()) signOut();
@@ -102,6 +105,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //openMap(null);
             }
         }
+    }
+
+    private void tokenRetrieve() {
+
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+                        FirebaseFirestore.getInstance().collection("users").document(u.getmAuth().getCurrentUser().getUid()).update("token", token);
+                        // Log and toast
+
+                    }
+                });
+
     }
 
     private void loggedInFromIndent(Intent data) {
