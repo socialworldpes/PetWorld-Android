@@ -11,6 +11,6 @@
     <string name="formato_hora">hh:mm</string>
     <string name="no_net_info">Sin conexión a internet</string>
     <string name="description">Descripción</string>
-    <string name="Name">Nombre</string>
+    <string name="RouteName">Nombre de la ruta</string>
     <string name="LocationName">Nombre del punto de salida</string>
 </resources>

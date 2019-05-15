@@ -12,7 +12,7 @@
             android:id="@+id/nameInput_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/Name"
+            android:hint="@string/RouteName"
             app:layout_constraintTop_toTopOf="parent">
 
         <EditText
