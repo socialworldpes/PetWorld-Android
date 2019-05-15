@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.widget.TextView;
 import com.google.android.gms.maps.model.*;
@@ -71,13 +72,18 @@ public class CreateRouteActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_route);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Crear Ruta");
+        toolbar.setTitleTextColor(Color.WHITE);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        setSupportActionBar(toolbar);
+
         initFireBase();
         initLayout();
         initVariables();
         initListeners();
         setUpMap();
     }
-
 
     private void initLayout() {
         descriptionInput = findViewById(R.id.descriptionInput);
