@@ -29,44 +29,41 @@ import static android.support.constraint.Constraints.TAG;
 @SuppressLint("ValidFragment")
 public class FriendsFragment extends Fragment {
 
-    ListView friendsList;
-    Context context;
-    ArrayList<Map<String, String>> friendsListInfo = new ArrayList<Map<String, String>>();
+    private View view;
+    private ListView friendsList;
+    private Context context;
+    private ArrayList<Map<String, String>> friendsListInfo = new ArrayList<Map<String, String>>();
+    private FriendsListAdapter customAdapter;
+    private int numDone;
 
     public FriendsFragment(Context context) {
         this.context = context;
+        numDone = 0;
         // PARA TESTEAR
         // friendsListInfoTestData();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_friends, container, false);
+        view = inflater.inflate(R.layout.fragment_friends, container, false);
 
-        friendsList = (ListView) view.findViewById(R.id.list);
-
-        FriendsListAdapter customAdapter = new FriendsListAdapter(context, friendsListInfo);
-        friendsList.setAdapter(customAdapter);
+        getFriendsListAndSetAdapter();
 
         return view;
     }
 
-    private void saveFriend(Map<String, String> map) {
-        friendsListInfo.add(map);
-    }
-
-    private void getFriendsList() {
+    private void getFriendsListAndSetAdapter() {
 
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
         db.collection("users").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        ArrayList<DocumentReference> friendsRef = (ArrayList<DocumentReference>) document.get("friends");
+                        final ArrayList<DocumentReference> friendsRef = (ArrayList<DocumentReference>) document.get("friends");
+
                         for (final DocumentReference dr: friendsRef) {
                             db.document(dr.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
@@ -76,10 +73,16 @@ public class FriendsFragment extends Fragment {
                                         if (document.exists()) {
                                             Map<String, Object> data = document.getData();
                                             Map<String, String> map = new HashMap<String, String>();
+                                            Log.d("OMG123", (String) data.get("name") + " " + (String) data.get("imageURL"));
                                             map.put("id", dr.getId());
                                             map.put("name", (String) data.get("name"));
                                             map.put("imageURL", (String) data.get("imageURL"));
-                                            saveFriend(map);
+                                            friendsListInfo.add(map);
+                                            if (numDone == 0) {
+                                                friendsList = (ListView) view.findViewById(R.id.list);
+                                                customAdapter = new FriendsListAdapter(context, R.layout.fragment_friends, friendsListInfo);
+                                                friendsList.setAdapter(customAdapter);
+                                            } else if (numDone == friendsRef.size()) customAdapter.notifyDataSetChanged();
                                         }
                                     }
                                 }
@@ -88,7 +91,6 @@ public class FriendsFragment extends Fragment {
                     }
                 }
             }
-
         });
     }
 

@@ -13,11 +13,12 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class FriendsListAdapter extends BaseAdapter implements ListAdapter {
+public class FriendsListAdapter extends ArrayAdapter<Map<String, String>> implements ListAdapter {
     ArrayList<Map<String, String>> friendsListInfo;
     Context context;
 
-    public FriendsListAdapter(Context context, ArrayList<Map<String, String>> arrayList) {
+    public FriendsListAdapter(Context context, int textViewResourceid, ArrayList<Map<String, String>> arrayList) {
+        super(context, textViewResourceid, arrayList);
         friendsListInfo = arrayList;
         this.context = context;
     }
@@ -46,8 +47,8 @@ public class FriendsListAdapter extends BaseAdapter implements ListAdapter {
     }
 
     @Override
-    public Object getItem(int position) {
-        return position;
+    public Map<String, String> getItem(int position) {
+        return friendsListInfo.get(position);
     }
 
     @Override
@@ -121,4 +122,5 @@ public class FriendsListAdapter extends BaseAdapter implements ListAdapter {
     public boolean isEmpty() {
         return false;
     }
+
 }
