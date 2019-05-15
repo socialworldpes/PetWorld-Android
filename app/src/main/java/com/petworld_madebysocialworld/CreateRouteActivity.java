@@ -30,7 +30,6 @@ import com.google.firebase.storage.UploadTask;
 import com.sangcomz.fishbun.FishBun;
 import com.sangcomz.fishbun.adapter.image.impl.PicassoAdapter;
 import com.sangcomz.fishbun.define.Define;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -291,6 +290,9 @@ public class CreateRouteActivity extends AppCompatActivity {
                 map.moveCamera(cameraupdate);
                 map.addMarker(new MarkerOptions()
                         .position(path.get(0))
+                        //.draggable(true)
+                        .anchor((float) 0.5, (float) 0.5)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue))
                 );
 
                 //TODO: improve custom layout
@@ -354,7 +356,7 @@ public class CreateRouteActivity extends AppCompatActivity {
                 pathPolyline = map.addPolyline(new PolylineOptions()
                         .add(path.get(0))
                         .width(20)
-                        .color(Color.BLUE));
+                        .color(Color.parseColor("#2D9CDB")));
 
                 map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                     @Override
@@ -402,8 +404,10 @@ public class CreateRouteActivity extends AppCompatActivity {
                     .position(newPoint)
                     .title("Borrar Punto")
                     .snippet("X")
-                    .draggable(true)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                    //.draggable(true)
+                    .anchor((float) 0.5, (float) 0.5)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_green))
+        );
         myMarkers.add(mark);
     }
 
