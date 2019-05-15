@@ -3,6 +3,9 @@ package com.petworld_madebysocialworld;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.location.Location;
+import android.text.Html;
+import android.widget.TextView;
 import com.google.android.gms.maps.model.*;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -27,6 +30,7 @@ import com.google.firebase.storage.UploadTask;
 import com.sangcomz.fishbun.FishBun;
 import com.sangcomz.fishbun.adapter.image.impl.PicassoAdapter;
 import com.sangcomz.fishbun.define.Define;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,6 +64,9 @@ public class CreateRouteActivity extends AppCompatActivity {
     private Button btnAddRoute;
     private Button btnUploadImage;
 
+    //market googeMaps
+    private List<Marker> myMarkers;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,6 +94,7 @@ public class CreateRouteActivity extends AppCompatActivity {
         images = new ArrayList<>();
         uriImages = new ArrayList<>();
         urlImages = new ArrayList<>();
+        myMarkers =  new ArrayList<>();
 
         // path variable
         LatLng location = getIntent().getParcelableExtra("location");
@@ -277,13 +285,70 @@ public class CreateRouteActivity extends AppCompatActivity {
 
         ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapCreateRoute)).getMapAsync(new OnMapReadyCallback() {
             @Override
-            public void onMapReady(GoogleMap googleMap) {
+            public void onMapReady(final GoogleMap googleMap) {
                 map = googleMap;
                 CameraUpdate cameraupdate = CameraUpdateFactory.newLatLngZoom(path.get(0), (float) 16);
                 map.moveCamera(cameraupdate);
                 map.addMarker(new MarkerOptions()
                         .position(path.get(0))
                 );
+
+                //TODO: improve custom layout
+                //set adapter for custom window info
+                googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+
+                    @Override
+                    public View getInfoWindow(Marker arg0) {
+                        return null;
+                    }
+
+                    @Override
+                    public View getInfoContents(Marker marker) {
+
+                        View v = getLayoutInflater().inflate(R.layout.marker_info, null);
+
+                        TextView title = (TextView) v.findViewById(R.id.title);
+                        TextView info= (TextView) v.findViewById(R.id.info);
+
+                        title.setText("Borrar Punto");
+                        info.setText(Html.fromHtml("<font color='red' size = '6'>"+ "X"+"</font>"));
+
+                        return v;
+                    }
+                });
+                //delete point when click windows info
+                googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                    @Override
+                    public void onInfoWindowClick(Marker marker) {
+
+                        for (Marker myMarker: myMarkers) {
+                            if(marker.equals(myMarker)) {
+                                //remove mark
+                                myMarkers.remove(marker);
+                                myMarker.remove();
+                                //remove point
+                                int i = findPointIndex(marker.getPosition());
+                                path.remove(i);
+                                refreshPolyLine();
+                                break;
+                            }
+                        }
+                    }
+                });
+
+                //show info when click mark
+                googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                    @Override
+                    public boolean onMarkerClick(Marker marker) {
+
+                        for(Marker myMarker: myMarkers)
+                            if (marker.equals(myMarker)) {
+                                myMarker.showInfoWindow();
+                                return true;
+                            }
+                        return false;
+                    }
+                });
 
                 // map line
                 pathPolyline = map.addPolyline(new PolylineOptions()
@@ -300,6 +365,7 @@ public class CreateRouteActivity extends AppCompatActivity {
                             mapRemovePoint(nearestPoint);
                         }else{
                             mapAppendPoint(newPoint);
+                            addMark(newPoint, googleMap);
                         }
                     }
                 });
@@ -313,11 +379,32 @@ public class CreateRouteActivity extends AppCompatActivity {
                             mapRemovePoint(nearestPoint);
                         }else{
                             mapAppendPoint(newPoint);
+                            addMark(newPoint, googleMap);
                         }
                     }
                 });
             }
         });
+    }
+
+    private int findPointIndex(LatLng position) {
+        int i = -1;
+        for (LatLng point: path) {
+            i++;
+            if (point.equals(position)) break;
+        }
+
+        return i;
+    }
+
+    private void addMark(LatLng newPoint, GoogleMap googleMap) {
+        Marker mark = googleMap.addMarker(new MarkerOptions()
+                    .position(newPoint)
+                    .title("Borrar Punto")
+                    .snippet("X")
+                    .draggable(true)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+        myMarkers.add(mark);
     }
 
     private boolean areSamePoint(LatLng p1, LatLng p2){
@@ -328,9 +415,26 @@ public class CreateRouteActivity extends AppCompatActivity {
     }
 
     private LatLng findNearestPoint( LatLng p){
+
+        float[] distance =  new float[1];
+        float[] distanceNearestPoint =  new float[1];
+
+        LatLng nearestPoint = null;
+
+        for (LatLng point : path) {
+            if (nearestPoint != null) {
+                Location.distanceBetween(p.latitude, p.longitude, nearestPoint.latitude, nearestPoint.longitude, distanceNearestPoint);
+                Location.distanceBetween(p.latitude, p.longitude, point.latitude, point.longitude, distance);
+
+                if (distanceNearestPoint[0] > distance[0] ) nearestPoint = point;
+            }
+            else nearestPoint = point;
+        }
+
+
         if (path.isEmpty()) return null;
         // TODO: calculate the closest point
-        return null;
+        return nearestPoint;
     }
 
     private boolean mapRemovePoint(LatLng p){
@@ -341,6 +445,10 @@ public class CreateRouteActivity extends AppCompatActivity {
         path.add(newPoint);
         //map.clear();
 
+        pathPolyline.setPoints(path);
+    }
+
+    private void refreshPolyLine() {
         pathPolyline.setPoints(path);
     }
 }
