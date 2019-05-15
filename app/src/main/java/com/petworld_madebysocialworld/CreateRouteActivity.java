@@ -72,6 +72,16 @@ public class CreateRouteActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_route);
 
+        setupToolbar();
+
+        initFireBase();
+        initLayout();
+        initVariables();
+        initListeners();
+        setUpMap();
+    }
+
+    private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Crear Ruta");
         toolbar.setTitleTextColor(Color.WHITE);
@@ -79,17 +89,8 @@ public class CreateRouteActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
+            public void onClick(View v) { onBackPressed(); }
         });
-
-
-        initFireBase();
-        initLayout();
-        initVariables();
-        initListeners();
-        setUpMap();
     }
 
     private void initLayout() {

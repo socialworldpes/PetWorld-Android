@@ -240,7 +240,17 @@ public class MapActivity extends AppCompatActivity
             @Override
             public boolean onMarkerClick(Marker marker) {
                 String[] parts = marker.getSnippet().split("-");
-                if(parts[0].equals("Meeting")) showMeeting(parts[1]);
+                switch (parts[0]){
+                    case "Meeting":
+                        showMeeting(parts[1]);
+                        break;
+                    case "Walk":
+                        showWalk(parts[1]);
+                        break;
+                    case "Route":
+                        showRoute(parts[1]);
+                        break;
+                }
                 return true;
             }
         });
@@ -407,7 +417,19 @@ public class MapActivity extends AppCompatActivity
 
     public void showMeeting(String id){
         Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
-        Log.d("id", id);
+        Log.d("MeetingId: ", id);
+        intent.putExtra("id", id);
+        startActivity(intent);
+    }
+    public void showRoute(String id){
+        Intent intent = new Intent(MapActivity.this, ViewRouteActivity.class);
+        Log.d("RouteId: ", id);
+        intent.putExtra("id", id);
+        startActivity(intent);
+    }
+    public void showWalk(String id){
+        Intent intent = new Intent(MapActivity.this, ViewWalkActivity.class);
+        Log.d("WalkId: ", id);
         intent.putExtra("id", id);
         startActivity(intent);
     }
