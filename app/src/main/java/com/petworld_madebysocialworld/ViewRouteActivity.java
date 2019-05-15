@@ -3,8 +3,6 @@ package com.petworld_madebysocialworld;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -17,8 +15,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
@@ -28,8 +24,14 @@ import java.util.List;
 
 public class ViewRouteActivity extends AppCompatActivity {
 
-    //read route
-    String routePath;
+    // route info
+    //TODO: use a model
+    String id;
+    String name;
+    String description;
+    String placeName;
+    //Object placeLocation;
+    //Object path;
 
     //info view
     EditText nameInput;
@@ -41,17 +43,13 @@ public class ViewRouteActivity extends AppCompatActivity {
     private GoogleMap map;
     private List<GeoPoint> path;
 
-    //firebase
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_route);
+        initLayout();
 
-        initFireBase();
-        readRoute();
+        readRouteInfo();
         setupToolbar();
 
 
@@ -70,25 +68,35 @@ public class ViewRouteActivity extends AppCompatActivity {
         });
     }
 
-    private void readRoute() {
-        DocumentReference docRef = db.document(routePath);
+    private void initLayout() {
+        descriptionInput = findViewById(R.id.descriptionInput);
+        nameInput = findViewById(R.id.nameInput);
+        locationNameInput = findViewById(R.id.locationNameInput);
+    }
 
 
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+
+
+    private void readRouteInfo() {
+        id = getIntent().getStringExtra("id");
+
+        FirebaseFirestore.getInstance().collection("routes").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    Log.d("task size: ", "" + task.getResult());
                     DocumentSnapshot result = task.getResult();
 
+                    name = "" + task.getResult().get("name");
+                    description = "" + task.getResult().get("description");
+                    placeName = "" + task.getResult().get("placeName");
+                    name = "" + task.getResult().get("name");
+                    //placeLocation = task.getResult().get("placeLocation");
+                    //path = task.getResult().get("path");
                     imageUrls = (ArrayList<String>)result.get("images");
 
-                    nameInput.setText("" + task.getResult().get("name"));
-                    descriptionInput.setText("" + task.getResult().get("description"));
-                    locationNameInput.setText("" + task.getResult().get("placeLocation"));
-
-
-
+                    nameInput.setText(name);
+                    descriptionInput.setText(description);
+                    locationNameInput.setText(placeName);
 
                     //images
                     ViewPager viewPager = findViewById(R.id.viewPager);
@@ -100,14 +108,6 @@ public class ViewRouteActivity extends AppCompatActivity {
             }
         });
     }
-
-
-
-    private void initFireBase() {
-        mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
-    }
-
 
     private void setUpMap() {
         ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapCreateRoute)).getMapAsync(new OnMapReadyCallback() {
