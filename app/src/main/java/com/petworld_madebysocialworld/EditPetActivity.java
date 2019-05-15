@@ -1,6 +1,5 @@
 package com.petworld_madebysocialworld;
 
-import Models.User;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -60,7 +59,7 @@ public class EditPetActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pet_update_2);
+        setContentView(R.layout.activity_edit_pet);
         initFireBase();
         initItems();
         initListeners();

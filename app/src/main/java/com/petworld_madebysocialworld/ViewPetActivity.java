@@ -1,6 +1,5 @@
 package com.petworld_madebysocialworld;
 
-import Models.User;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -41,7 +40,7 @@ public class ViewPetActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pet_profile_2);
+        setContentView(R.layout.activity_view_pet);
         initFireBase();
         initTextView();
         initIntent();
