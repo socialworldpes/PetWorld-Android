@@ -33,7 +33,7 @@ public class SearchFriendsActivity extends AppCompatActivity {
     private String textTmp;
     private EditText text;
     private Context context;
-
+  
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,7 +52,6 @@ public class SearchFriendsActivity extends AppCompatActivity {
             }
         });
     }
-
     public void searchFriends() {
 
         textTmp = text.getText().toString();

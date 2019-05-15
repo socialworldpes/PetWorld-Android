@@ -19,7 +19,15 @@
             android:roundIcon="@mipmap/ic_launcher_custom_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
-        <activity android:name=".SearchFriendsActivity">
+        <activity
+                android:name=".SearchFriendsActivity"
+                android:label="@string/title_activity_search_friends"
+                android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+                android:name=".FriendsActivity"
+                android:label="@string/title_activity_friends"
+                android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity android:name=".ViewWalkActivity">
         </activity>
