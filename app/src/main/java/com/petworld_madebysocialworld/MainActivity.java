@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.sign_in_button).setOnClickListener(this);
 
         u.setmAuth(FirebaseAuth.getInstance());
-        tokenRetrieve();
         db = FirebaseFirestore.getInstance();
 
         if (u.getLogout()) signOut();
@@ -120,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         // Get new Instance ID token
                         String token = task.getResult().getToken();
-                        FirebaseFirestore.getInstance().collection("users").document(u.getmAuth().getCurrentUser().getUid()).update("token", token);
+                        FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).update("token", token);
                         // Log and toast
 
                     }
@@ -164,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                        tokenRetrieve();
                     } else {
                         Map<String, Object> user = new HashMap<>();
                         user.put("favoriteRoutes", Arrays.asList());
@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         user.put("name", fu.getDisplayName());
                         Toast.makeText(MainActivity.this, "GetMail: " + fu.getEmail(), Toast.LENGTH_SHORT).show();
                         user.put("email", fu.getEmail());
-                        //user.put("photo", fu.getPhotoUrl());
+                        user.put("imageURL", fu.getPhotoUrl().toString());
                         user.put("walks", Arrays.asList());
 
                         db.collection("users").document(fu.getUid())
@@ -185,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         Log.d(TAG, "DocumentSnapshot successfully written!");
+                                        tokenRetrieve();
                                     }
                                 })
                                 .addOnFailureListener(new OnFailureListener() {
