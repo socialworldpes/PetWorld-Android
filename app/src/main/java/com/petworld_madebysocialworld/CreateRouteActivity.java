@@ -67,19 +67,22 @@ public class CreateRouteActivity extends AppCompatActivity {
     //market googeMaps
     private List<Marker> myMarkers;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_route);
 
         setupToolbar();
-
         initFireBase();
         initLayout();
         initVariables();
         initListeners();
         setUpMap();
     }
+
+
 
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
