@@ -143,7 +143,7 @@ public class ViewPetActivity extends AppCompatActivity {
     }
 
     private void initLayout() {
-        userID = User.getInstance().getAccount().getId();
+        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Log.d("petProfilePetRef", "" + petPath);
         DocumentReference docRef = db.document(petPath);
         Log.d("userID", userID);

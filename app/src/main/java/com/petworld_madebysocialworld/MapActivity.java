@@ -21,9 +21,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 
 
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -94,6 +97,7 @@ public class MapActivity extends AppCompatActivity
     private String[] mLikelyPlaceAddresses;
     private String[] mLikelyPlaceAttributions;
     private LatLng[] mLikelyPlaceLatLngs;
+    private EditText text;
 
     //user
     private User u;
@@ -109,6 +113,8 @@ public class MapActivity extends AppCompatActivity
     private Context context;
     private Integer position;
     private LinearLayout linearLayoutSheet;
+    private Query meetingLocations, walkLocations, routeLocations;
+    private LatLngBounds bounds;
 
 
     // Data beeing used
@@ -116,7 +122,6 @@ public class MapActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        u = User.getInstance();
         super.onCreate(savedInstanceState);
         // Retrieve the content view that renders the map.
         setContentView(R.layout.activity_map);
@@ -179,6 +184,17 @@ public class MapActivity extends AppCompatActivity
         linearLayoutSheet = (LinearLayout) findViewById(R.id.LayoutMeetings);
         loadListLayout(position);
         listenerList();
+        text = (EditText)findViewById(R.id.Search);
+        text.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    searchFriends();
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
     @Override
@@ -511,29 +527,34 @@ public class MapActivity extends AppCompatActivity
         DrawerUtil.getDrawer(this,toolBar);
     }
 
-
+    public void searchFriends(View view) {
+        Intent intent = new Intent(MapActivity.this, SearchFriendsActivity.class);
+        startActivity(intent);
+    }
 
 
     public void searchNearPlaces(View view) {
-
-
         view.setVisibility(View.INVISIBLE);
-        final LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+        bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // Query Meetings
         final CollectionReference meetingsRef = db.collection("meetings");
-        Query meetingLocations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+        meetingLocations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
 
         // Query Walks
         final CollectionReference walksRef = db.collection("walks");
-        final Query walkLocations = walksRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+        walkLocations = walksRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
 
         // Query Routes
         final CollectionReference routesRef = db.collection("routes");
-        final Query routeLocations = routesRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+        routeLocations = routesRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
 
+        loadMaps();
+    }
+
+    public void loadMaps() {
         mMap.clear();
 
         meetingLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -566,7 +587,7 @@ public class MapActivity extends AppCompatActivity
                         if (task.isSuccessful()) {
                             walks.clear();
                             Map<String, Object> map;
-                            for (QueryDocumentSnapshot document: task.getResult()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
                                 GeoPoint point = (GeoPoint) document.get("placeLocation");
                                 Timestamp timestamp = (Timestamp) document.get("start");
                                 Date date = timestamp.toDate();
@@ -582,34 +603,37 @@ public class MapActivity extends AppCompatActivity
                             if (task.getResult().isEmpty()) Log.d("Walk", "NO hay paseos cerca");
                         }
 
-                        routeLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    routes.clear();
-                                    Map<String, Object> map;
-                                    for (QueryDocumentSnapshot document: task.getResult()) {
-                                        GeoPoint point = (GeoPoint) document.get("placeLocation");
+                        if (routeLocations != null) {
 
-                                        if (checkConditions(point, bounds, null) && !hasWalk(document.getId())) {
-                                            map = document.getData();
-                                            map.put("id", document.getId());
+                            routeLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        routes.clear();
+                                        Map<String, Object> map;
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            GeoPoint point = (GeoPoint) document.get("placeLocation");
+
+                                            if (checkConditions(point, bounds, null) && !hasWalk(document.getId())) {
+                                                map = document.getData();
+                                                map.put("id", document.getId());
                                             /*
                                             if (document.getId() == null)
                                                 Toast.makeText(MapActivity.this, "El get id falla", Toast.LENGTH_SHORT).show();
                                             else Toast.makeText(MapActivity.this, "GetID: " + document.getId(), Toast.LENGTH_SHORT).show();
                                             */
-                                            routes.add(map);
-                                            createMarker(point, null, "Route-".concat(document.getId()));
-                                            Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                                                routes.add(map);
+                                                createMarker(point, null, "Route-".concat(document.getId()));
+                                                Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                                            }
+
                                         }
 
+                                        if (task.getResult().isEmpty()) Log.d("Route", "NO hay rutas cerca");
                                     }
-
-                                    if (task.getResult().isEmpty()) Log.d("Route", "NO hay rutas cerca");
                                 }
-                            }
-                        });
+                            });
+                        }
                     }
                 });
             }
@@ -642,7 +666,6 @@ public class MapActivity extends AppCompatActivity
 
     @Override
     public void onCameraMoveStarted(int reason) {
-        Log.d("HOLA", "HOLA");
         View b = findViewById(R.id.nearPlaces);
         b.setVisibility(View.VISIBLE);
     }
@@ -742,16 +765,16 @@ public class MapActivity extends AppCompatActivity
                         @Override
                         public void onClick(View v) {
 
-                            LatLng location = new LatLng(0,0);
-                            Intent intent = new Intent(MapActivity.this, CreateMeetingActivity.class);
-                            intent.putExtra("location", location);
-                            startActivity(intent);
-                            /*
-                            String id = (String) mapTmp.get("id");
-                            Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
-                            intent.putExtra("id", id);
-                            startActivity(intent);
-                            */
+                        /*
+                        LatLng location = new LatLng(0,0);
+                        Intent intent = new Intent(MapActivity.this, CreateMeetingActivity.class);
+                        intent.putExtra("location", location);
+                        startActivity(intent);
+                        */
+                        String id = (String) mapTmp.get("id");
+                        Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
+                        intent.putExtra("id", id);
+                        startActivity(intent);
                         }
 
                     });
@@ -802,9 +825,9 @@ public class MapActivity extends AppCompatActivity
                 linearLayoutSheet.addView(textViewSolucio);
             }
         } else if (position == 1) {
-            if (routes.size() != 0) {
+            if (walks.size() != 0) {
 
-                for(final Map<String, Object> mapTmp : routes) {
+                for(final Map<String, Object> mapTmp : walks) {
 
                     LinearLayout linearLayoutList = new LinearLayout(context);
                     String nameList = (String) mapTmp.get("name");
@@ -838,6 +861,21 @@ public class MapActivity extends AppCompatActivity
 
                     linearLayoutList.addView(textViewNameList);
 
+                    Timestamp timeList = (Timestamp) mapTmp.get("date");
+                    Date timeDateList = timeList.toDate();
+                    Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String timeStringList = formatter.format(timeDateList);
+
+                    TextView textViewTime = new TextView(context);
+                    textViewTime.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+                    textViewTime.setText(timeStringList);
+                    textViewTime.setPadding(40, 5, 40, 20);
+
+                    linearLayoutList.addView(textViewTime);
+
+                    linearLayoutSheet.addView(linearLayoutList);
+
                     linearLayoutSheet.addView(linearLayoutList);
 
                     //Obtenir Descripcio
@@ -853,7 +891,7 @@ public class MapActivity extends AppCompatActivity
                 TextView textViewAvis = new TextView(context);
                 textViewAvis.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT));
-                textViewAvis.setText("No hay rutas disponibles");
+                textViewAvis.setText("No hay paseos disponibles");
                 textViewAvis.setPadding(40, 40, 40, 20);
                 linearLayoutSheet.addView(textViewAvis);
 
@@ -871,6 +909,49 @@ public class MapActivity extends AppCompatActivity
         }
     }
 
+    public void searchFriends() {
 
+        String textTmp = text.getText().toString();
+        if (textTmp != null) {
+            int size = textTmp.length();
+            char c = textTmp.charAt(size - 1);//returns h
+            String next = String.valueOf((char) (c + 1));
+            String newName;
+            newName = textTmp.substring(0, size - 1) + next;
+
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            linearLayoutSheet.removeAllViews();
+            bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+
+            final CollectionReference meetingsRef = db.collection("meetings");
+            meetingLocations = meetingsRef.whereGreaterThanOrEqualTo("name", textTmp).whereLessThanOrEqualTo("name", newName);
+
+            CollectionReference walksRef = db.collection("meetings");
+            walkLocations = walksRef.whereLessThanOrEqualTo("name", textTmp).whereLessThanOrEqualTo("name", newName);
+
+            loadMaps();
+
+            /*
+            //Query meetingLocations = meetingsRef.whereLessThanOrEqualTo("name", textTmp + "ZZZZZZZZZZZZZZZZZZZZZZZZ");
+            meetingLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        Map<String, Object> map;
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String name = (String) document.get("name");
+                            TextView textViewDescreList = new TextView(context);
+                            textViewDescreList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                            textViewDescreList.setText("Text: " + name);
+                            textViewDescreList.setPadding(40, 20, 40, 20);
+
+                            linearLayoutSheet.addView(textViewDescreList);
+                        }
+                    }
+                }
+            });
+            */
+        }
+    }
 }
 

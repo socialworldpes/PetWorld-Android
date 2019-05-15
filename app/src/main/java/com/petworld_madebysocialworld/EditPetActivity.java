@@ -119,7 +119,7 @@ public class EditPetActivity extends AppCompatActivity {
     }
 
     private void initLayout() {
-        String userID = User.getInstance().getAccount().getId();
+        String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DocumentReference docRef = db.document(petPath);
         Log.d("userID", userID);
 
@@ -148,7 +148,7 @@ public class EditPetActivity extends AppCompatActivity {
     }
     private void updatePet() {
 
-        String userID = User.getInstance().getAccount().getId();
+        String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Log.d("userID", userID);
         HashMap<String, Object> mascota =  new HashMap<String, Object>();
         if (checkNulls()) {
