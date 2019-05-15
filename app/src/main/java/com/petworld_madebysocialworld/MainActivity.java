@@ -178,6 +178,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         user.put("email", fu.getEmail());
                         user.put("imageURL", fu.getPhotoUrl().toString());
                         user.put("walks", Arrays.asList());
+                        user.put("pendingFriends", Arrays.asList());
 
                         db.collection("users").document(fu.getUid())
                                 .set(user)

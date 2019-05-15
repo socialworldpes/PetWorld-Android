@@ -80,14 +80,16 @@ public class SearchFriendsActivity extends AppCompatActivity {
 
                             linearLayoutList.addView(textViewDescreList);
 
-                            Button friendButton = new Button(context);
+                            final Button friendButton = new Button(context);
                             friendButton.setText("Add Friend");
                             friendButton.setOnClickListener( new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     String id = (String) document.getId();
+                                    friendButton.setVisibility(0);
                                     //Toast.makeText(context, "Id: " + id, Toast.LENGTH_SHORT).show();
-                                    sendNotificationToUser (id, "Solicitud Amistad", "Descripcio notificacion");
+                                    //DocumentReference DR_aux = document.getReference();
+                                    sendNotificationToUser (id);
                                 }
                             });
 
@@ -103,27 +105,40 @@ public class SearchFriendsActivity extends AppCompatActivity {
         }
     }
 
-    private void sendNotificationToUser (String to_idUser, String title, String text) {
+    private void sendNotificationToUser (final String to_idUser) {
 
         // See documentation on defining a message payload.
 
-        final String titleAux = title;
+        FirebaseFirestore.getInstance().collection("users").document(to_idUser).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                ArrayList<DocumentReference> pendingFriendsList = (ArrayList<DocumentReference>)documentSnapshot.get("pendingFriends");
+                if (pendingFriendsList == null)
+                    pendingFriendsList = new ArrayList<>();
+                pendingFriendsList.add(FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+                FirebaseFirestore.getInstance().collection("users").document(to_idUser).update("pendingFriends", pendingFriendsList);
+            }
+        });
+
+        /*final String titleAux = title;
         final String textAux = text;
         FirebaseFirestore.getInstance().collection("users").document(to_idUser).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
            @Override
            public void onSuccess(DocumentSnapshot documentSnapshot) {
                String token = (String)documentSnapshot.get("token");
                RemoteMessage.Builder messageBuilder = new RemoteMessage.Builder(token + "@gcm.googleapis.com");
-               messageBuilder.addData("Title", titleAux)
-                       .addData("text", textAux);
+               messageBuilder.setMessageId("1")
+                       .addData("Title", titleAux)
+                       .addData("text", textAux)
+                       .setTtl(600);
 
                RemoteMessage message = messageBuilder.build();
                Toast.makeText(context, "Solicitud enviada", Toast.LENGTH_SHORT).show();
                 // Send a message to the device corresponding to the provided
                 // registration token.
-               FirebaseMessaging.getInstance().send(message);
-           }
-       });
+               FirebaseMessaging.getInstance().send(message);*/
+         /*  }
+       });*/
 
     }
 }
