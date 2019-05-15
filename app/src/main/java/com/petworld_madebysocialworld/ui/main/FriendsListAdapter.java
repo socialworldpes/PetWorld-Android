@@ -6,17 +6,14 @@ import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.TextView;
+import android.widget.*;
 import com.petworld_madebysocialworld.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Map;
 
-public class FriendsListAdapter implements ListAdapter {
+public class FriendsListAdapter extends BaseAdapter implements ListAdapter {
     ArrayList<Map<String, String>> friendsListInfo;
     Context context;
 
@@ -82,12 +79,32 @@ public class FriendsListAdapter implements ListAdapter {
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (removeFriend(friendData.get("id"))) notifyDataSetChanged();
                     Snackbar.make(v, friendData.get("name") + " " + position, Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 }
             });
         }
         return convertView;
+    }
+
+    public boolean addFriend(Map<String, String> friend) {
+        // ADD EN FIREBASE
+        // ADD AND REFRESH VIEW
+        return friendsListInfo.add(friend);
+    }
+
+    public boolean removeFriend(String newfriendId) {
+        for (int i = 0; i < friendsListInfo.size(); ++i) {
+            // TEST - NO SE SI friendsListInfo.remove(i) != null se cumple
+            if (friendsListInfo.get(i).get("id").equals(newfriendId) && friendsListInfo.remove(i) != null) {
+                // DELETE FROM FIREBASE
+                // REFRESH VIEW
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override

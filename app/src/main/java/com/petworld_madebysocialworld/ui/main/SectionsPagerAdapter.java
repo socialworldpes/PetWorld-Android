@@ -24,17 +24,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         super(fm);
         mContext = context;
 
-        iniFriendsFragment();
-        iniRequestsFragment();
-    }
-
-    private void iniFriendsFragment() {
-        // OBTENGO ARRAY ArrayList<Map<String, String>> friendsListInfo
         friendsFragment = new FriendsFragment(mContext);
-    }
-
-    private void iniRequestsFragment() {
-        // OBTENGO ARRAY ArrayList<Map<String, String>> friendsListInfo
         requestsFragment = new RequestsFragment(mContext);
     }
 
