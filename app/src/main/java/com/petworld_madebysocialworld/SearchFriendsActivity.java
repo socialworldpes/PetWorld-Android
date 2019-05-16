@@ -57,15 +57,15 @@ public class SearchFriendsActivity extends AppCompatActivity {
 
         textTmp = text.getText().toString();
         if (textTmp != null) {
+            linearLayoutSheet.removeAllViews();
             int size = textTmp.length();
+
             char c = textTmp.charAt(size - 1);//returns h
-            String next = String.valueOf((char) (c + 1));
-            String newName;
-            newName = textTmp.substring(0, size - 1) + next;
+            String lastChr = String.valueOf((char) (c + 1));
+            String newName = textTmp.substring(0, size - 1) + lastChr;
 
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             final CollectionReference meetingsRef = db.collection("users");
-            linearLayoutSheet.removeAllViews();
             Query meetingLocations = meetingsRef.whereGreaterThanOrEqualTo("name", textTmp).whereLessThanOrEqualTo("name", newName);
             meetingLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
@@ -83,14 +83,15 @@ public class SearchFriendsActivity extends AppCompatActivity {
 
                             final Button friendButton = new Button(context);
                             friendButton.setText("Add Friend");
-                            friendButton.setOnClickListener( new View.OnClickListener() {
+
+                            friendButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
+                                    //when play is clicked show stop button and hide play button
                                     String id = (String) document.getId();
-                                    friendButton.setVisibility(0);
-                                    //Toast.makeText(context, "Id: " + id, Toast.LENGTH_SHORT).show();
-                                    //DocumentReference DR_aux = document.getReference();
+                                    Toast.makeText(context, "Solicitud enviada a " + document.get("name"), Toast.LENGTH_SHORT).show();
                                     sendNotificationToUser (id);
+                                    friendButton.setVisibility(View.GONE);
                                 }
                             });
 
