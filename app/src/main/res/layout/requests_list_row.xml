@@ -11,12 +11,13 @@
             app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="8dp"/>
     <TextView
             android:text="Name ofFriend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="25sp"
             android:id="@+id/name" android:textSize="20sp"
             android:layout_marginStart="16dp"
             app:layout_constraintStart_toEndOf="@+id/imageView" app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="16dp"/>
+            android:layout_marginTop="16dp" app:layout_constraintEnd_toStartOf="@+id/acceptBttn"
+            android:layout_marginEnd="16dp"/>
     <Button
             android:text="✓"
             android:layout_width="40dp"

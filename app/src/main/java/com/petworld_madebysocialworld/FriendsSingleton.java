@@ -8,9 +8,10 @@ public class FriendsSingleton {
 
     private static FriendsSingleton friendsSingleton;
 
-    private ArrayList<Friend> friendsListInfo = new ArrayList<Friend>();
+    private ArrayList<Friend> friendsListInfo;
 
     private FriendsSingleton() {
+        friendsListInfo = new ArrayList<Friend>();
     }
 
     public static FriendsSingleton getInstance() {

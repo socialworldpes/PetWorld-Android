@@ -1,26 +1,25 @@
 package com.petworld_madebysocialworld.ui.main;
 
+import Models.Friend;
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.TextView;
+import android.widget.*;
 import com.petworld_madebysocialworld.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Map;
 
-class RequestsListAdapter implements ListAdapter {
-    ArrayList<Map<String, String>> requestsListInfo;
+class RequestsListAdapter extends ArrayAdapter<Friend> implements ListAdapter {
+    ArrayList<Friend> requestsListInfo;
     Context context;
 
-    public RequestsListAdapter(Context context, ArrayList<Map<String, String>> arrayList) {
+    public RequestsListAdapter(Context context, int textViewResourceid, ArrayList<Friend> arrayList) {
+        super(context, textViewResourceid);
         requestsListInfo = arrayList;
         this.context = context;
     }
@@ -49,8 +48,8 @@ class RequestsListAdapter implements ListAdapter {
     }
 
     @Override
-    public Object getItem(int position) {
-        return position;
+    public Friend getItem(int position) {
+        return requestsListInfo.get(position);
     }
 
     @Override
@@ -65,7 +64,7 @@ class RequestsListAdapter implements ListAdapter {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        final Map<String, String> friendData = requestsListInfo.get(position);
+        final Friend friendData = requestsListInfo.get(position);
         if(convertView == null) {
             LayoutInflater layoutInflater = LayoutInflater.from(context);
             convertView = layoutInflater.inflate(R.layout.requests_list_row, null);
@@ -78,22 +77,26 @@ class RequestsListAdapter implements ListAdapter {
             ImageView image = convertView.findViewById(R.id.imageView);
             Button acceptBttn = convertView.findViewById(R.id.acceptBttn);
             Button refuseBttn = convertView.findViewById(R.id.refuseBttn);
-            name.setText(friendData.get("name"));
-            Picasso.get().load(friendData.get("imageURL")).into(image);
+            name.setText(friendData.getName());
+            Picasso.get().load(friendData.getImageURL()).into(image);
             acceptBttn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Snackbar.make(v, "Accept: " + friendData.get("name") + " " + position, Snackbar.LENGTH_LONG)
+                    Snackbar.make(v, "Accept: " + friendData.getName() + " " + position, Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 }
             });
             refuseBttn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Snackbar.make(v, "Refuse: " + friendData.get("name") + " " + position, Snackbar.LENGTH_LONG)
+                    Snackbar.make(v, "Refuse: " + friendData.getName() + " " + position, Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 }
             });
+            if (friendData.getId().equals("NoPendingRequests")) {
+                acceptBttn.setVisibility(View.INVISIBLE);
+                refuseBttn.setVisibility(View.INVISIBLE);
+            }
         }
         return convertView;
     }
