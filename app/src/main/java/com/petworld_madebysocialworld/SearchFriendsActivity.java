@@ -25,6 +25,7 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class SearchFriendsActivity extends AppCompatActivity {
@@ -108,7 +109,9 @@ public class SearchFriendsActivity extends AppCompatActivity {
     private void sendNotificationToUser (final String to_idUser) {
 
         // See documentation on defining a message payload.
-                FirebaseFirestore.getInstance().collection("users").document(to_idUser).collection("pendingFriends").add(FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+                Map<String, Object> pF = new HashMap<>();
+                pF.put("reference", FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+                FirebaseFirestore.getInstance().collection("users").document(to_idUser).collection("pendingFriends").add(pF);
     }
 
 }

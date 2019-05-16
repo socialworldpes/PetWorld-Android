@@ -12,8 +12,8 @@ class PushNotification {
     public void addNotification(Activity activity, String title, String text, int icon, Context context) {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(activity, "1");
         mBuilder.setSmallIcon(icon);
-        mBuilder.setContentTitle("Notification Alert, Click Me!");
-        mBuilder.setContentText("Hi, This is Android Notification Detail!");
+        mBuilder.setContentTitle(title);
+        mBuilder.setContentText(text);
 
         Intent resultIntent = new Intent(activity, FriendsActivity.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(activity);

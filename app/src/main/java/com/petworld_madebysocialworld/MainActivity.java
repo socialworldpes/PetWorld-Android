@@ -317,7 +317,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 for (DocumentChange dc : snapshots.getDocumentChanges()) {
                     if (dc.getType() == DocumentChange.Type.ADDED) {
                         PushNotification pushAux = new PushNotification();
-                        pushAux.addNotification(activity, "hola", "esto es una prueba", R.drawable.ic_group, context);
+                        pushAux.addNotification(activity, "PetWorld", "Tienes una nueva solicitud de amistad", R.drawable.ic_group, context);
                     }
                 }
 
