@@ -38,7 +38,6 @@ public class FriendsFragment extends Fragment {
 
     public FriendsFragment(Context context) {
         this.context = context;
-        numDone = 0;
         // PARA TESTEAR
         // friendsListInfoTestData();
     }
@@ -63,7 +62,11 @@ public class FriendsFragment extends Fragment {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         final ArrayList<DocumentReference> friendsRef = (ArrayList<DocumentReference>) document.get("friends");
-
+                        if (friendsRef.size() == 0) {
+                            addNoFriends();
+                            setViewAndAdapter();
+                        }
+                        else numDone = 0;
                         for (final DocumentReference dr: friendsRef) {
                             db.document(dr.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
@@ -78,11 +81,8 @@ public class FriendsFragment extends Fragment {
                                             map.put("name", (String) data.get("name"));
                                             map.put("imageURL", (String) data.get("imageURL"));
                                             friendsListInfo.add(map);
-                                            if (numDone == 0) {
-                                                friendsList = (ListView) view.findViewById(R.id.list);
-                                                customAdapter = new FriendsListAdapter(context, R.layout.fragment_friends, friendsListInfo);
-                                                friendsList.setAdapter(customAdapter);
-                                            } else if (numDone == friendsRef.size()) customAdapter.notifyDataSetChanged();
+                                            if (numDone == 0) setViewAndAdapter();
+                                            else if (numDone == friendsRef.size()) customAdapter.notifyDataSetChanged();
                                         }
                                     }
                                 }
@@ -94,6 +94,19 @@ public class FriendsFragment extends Fragment {
         });
     }
 
+    private void addNoFriends() {
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("id", "NoFriends");
+        map.put("name", "No tienes amigos");
+        map.put("imageURL", "https://cdn.pixabay.com/photo/2016/11/01/03/28/magnifier-1787362_960_720.png");
+        friendsListInfo.add(map);
+    }
+
+    private void setViewAndAdapter() {
+        friendsList = (ListView) view.findViewById(R.id.list);
+        customAdapter = new FriendsListAdapter(context, R.layout.fragment_friends, friendsListInfo);
+        friendsList.setAdapter(customAdapter);
+    }
     public void friendsListInfoTestData() {
 
         friendsListInfo.add(new HashMap<String, String>() {{

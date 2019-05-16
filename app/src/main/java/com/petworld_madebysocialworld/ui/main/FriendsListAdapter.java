@@ -85,6 +85,7 @@ public class FriendsListAdapter extends ArrayAdapter<Map<String, String>> implem
                             .setAction("Action", null).show();
                 }
             });
+            if (friendData.get("id").equals("NoFriends")) button.setVisibility(View.INVISIBLE);
         }
         return convertView;
     }
