@@ -125,10 +125,10 @@ public class ViewRouteActivity extends AppCompatActivity {
                 for (GeoPoint point : path) {
                     int resource;
                     if (firstPoint) {
-                        resource = R.drawable.marker_green;
+                        resource = R.drawable.marker_blue;
                         firstPoint = false;
                     }
-                    else resource = R.drawable.marker_blue;
+                    else resource = R.drawable.marker_green;
                     map.addMarker(new MarkerOptions()
                             .position(new LatLng(point.getLatitude(), point.getLongitude()))
                             //.draggable(true)
