@@ -10,9 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import com.google.android.gms.maps.*;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.*;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -42,6 +40,8 @@ public class ViewRouteActivity extends AppCompatActivity {
     //map
     private GoogleMap map;
     private List<GeoPoint> path;
+    private GeoPoint placeLocation;
+    Polyline pathPolyline;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,8 +90,8 @@ public class ViewRouteActivity extends AppCompatActivity {
                     description = "" + task.getResult().get("description");
                     placeName = "" + task.getResult().get("placeName");
                     name = "" + task.getResult().get("name");
-                    //placeLocation = task.getResult().get("placeLocation");
-                    //path = task.getResult().get("path");
+                    path = (List<GeoPoint>) task.getResult().get("path");
+                    placeLocation = path.get(0);
                     imageUrls = (ArrayList<String>)result.get("images");
 
                     nameInput.setText(name);
@@ -102,6 +102,9 @@ public class ViewRouteActivity extends AppCompatActivity {
                     ViewPager viewPager = findViewById(R.id.viewPager);
                     ViewPagerAdapter adapter = new ViewPagerAdapter(getApplicationContext(), imageUrls);
                     viewPager.setAdapter(adapter);
+
+                    //route on map
+                    setUpMap();
                 } else {
                     Log.w("task ko", "Error getting documents.", task.getException());
                 }
@@ -110,14 +113,14 @@ public class ViewRouteActivity extends AppCompatActivity {
     }
 
     private void setUpMap() {
-        ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapCreateRoute)).getMapAsync(new OnMapReadyCallback() {
+        ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapViewRoute)).getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(final GoogleMap googleMap) {
                 map = googleMap;
                 LatLng startPoint = new LatLng(path.get(0).getLatitude(), path.get(0).getLongitude());
                 CameraUpdate cameraupdate = CameraUpdateFactory.newLatLngZoom(startPoint, (float) 16);
                 map.moveCamera(cameraupdate);
-
+                //put points on map
                 for (GeoPoint point : path) {
                     map.addMarker(new MarkerOptions()
                             .position(new LatLng(point.getLatitude(), point.getLongitude()))
@@ -126,9 +129,26 @@ public class ViewRouteActivity extends AppCompatActivity {
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue))
                     );
                 }
+                // map line
+                List<LatLng> pathLl = toLatLng(path);
+                pathPolyline = map.addPolyline(new PolylineOptions()
+                        .add(pathLl.get(0))
+                        .width(20)
+                        .color(Color.parseColor("#2D9CDB")));
+                refreshPolyLine(pathLl);
 
 
             }
         });
+    }
+
+    private List<LatLng> toLatLng(List<GeoPoint> path) {
+        List<LatLng> result =  new ArrayList<>();
+        for (GeoPoint point: path)
+            result.add(new LatLng(point.getLatitude(), point.getLongitude()));
+        return result;
+    }
+    private void refreshPolyLine(List<LatLng> path) {
+        pathPolyline.setPoints(path);
     }
 }
