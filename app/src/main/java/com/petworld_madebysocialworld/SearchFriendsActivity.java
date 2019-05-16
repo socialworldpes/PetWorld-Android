@@ -25,6 +25,7 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class SearchFriendsActivity extends AppCompatActivity {
@@ -108,37 +109,9 @@ public class SearchFriendsActivity extends AppCompatActivity {
     private void sendNotificationToUser (final String to_idUser) {
 
         // See documentation on defining a message payload.
-
-        FirebaseFirestore.getInstance().collection("users").document(to_idUser).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                ArrayList<DocumentReference> pendingFriendsList = (ArrayList<DocumentReference>)documentSnapshot.get("pendingFriends");
-                if (pendingFriendsList == null)
-                    pendingFriendsList = new ArrayList<>();
-                pendingFriendsList.add(FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()));
-                FirebaseFirestore.getInstance().collection("users").document(to_idUser).update("pendingFriends", pendingFriendsList);
-            }
-        });
-
-        /*final String titleAux = title;
-        final String textAux = text;
-        FirebaseFirestore.getInstance().collection("users").document(to_idUser).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-           @Override
-           public void onSuccess(DocumentSnapshot documentSnapshot) {
-               String token = (String)documentSnapshot.get("token");
-               RemoteMessage.Builder messageBuilder = new RemoteMessage.Builder(token + "@gcm.googleapis.com");
-               messageBuilder.setMessageId("1")
-                       .addData("Title", titleAux)
-                       .addData("text", textAux)
-                       .setTtl(600);
-
-               RemoteMessage message = messageBuilder.build();
-               Toast.makeText(context, "Solicitud enviada", Toast.LENGTH_SHORT).show();
-                // Send a message to the device corresponding to the provided
-                // registration token.
-               FirebaseMessaging.getInstance().send(message);*/
-         /*  }
-       });*/
-
+                Map<String, Object> pF = new HashMap<>();
+                pF.put("reference", FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+                FirebaseFirestore.getInstance().collection("users").document(to_idUser).collection("pendingFriends").add(pF);
     }
+
 }
