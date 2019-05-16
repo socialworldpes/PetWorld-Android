@@ -2,12 +2,15 @@ package com.petworld_madebysocialworld;
 
 import Models.User;
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -35,6 +38,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.*;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
@@ -48,11 +52,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FirebaseUser fu = FirebaseAuth.getInstance().getCurrentUser() ;
     private FirebaseFirestore db;
     private final static int REQUEST_ID_MULTIPLE_PERMISSIONS = 2;
-
+    private Activity act;
+    private Context cont;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         checkAndRequestPermissions();
+        act = this;
+        cont = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         findViewById(R.id.sign_in_button).setOnClickListener(this);
@@ -178,7 +185,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         user.put("email", fu.getEmail());
                         user.put("imageURL", fu.getPhotoUrl().toString());
                         user.put("walks", Arrays.asList());
-                        user.put("pendingFriends", Arrays.asList());
 
                         db.collection("users").document(fu.getUid())
                                 .set(user)
@@ -218,6 +224,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                             openMap(user);
+                            listenToChanges();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -293,7 +300,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(nextActivity);
     }
 
+    private void listenToChanges() {
 
+        //pending friends
+        final Context context = cont;
+        final Activity activity = act;
+        db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("pendingFriends").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot snapshots,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "listen:error", e);
+                    return;
+                }
+
+                for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                    if (dc.getType() == DocumentChange.Type.ADDED) {
+                        PushNotification pushAux = new PushNotification();
+                        pushAux.addNotification(activity, "hola", "esto es una prueba", R.drawable.ic_group, context);
+                    }
+                }
+
+            }
+        });
+
+
+    }
 
 
 
