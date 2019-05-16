@@ -13,18 +13,15 @@ import android.widget.ListView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.petworld_madebysocialworld.Lead;
+import Models.Friend;
+import com.petworld_madebysocialworld.FriendsSingleton;
 import com.petworld_madebysocialworld.R;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
-
-import static android.support.constraint.Constraints.TAG;
 
 @SuppressLint("ValidFragment")
 public class FriendsFragment extends Fragment {
@@ -32,14 +29,15 @@ public class FriendsFragment extends Fragment {
     private View view;
     private ListView friendsList;
     private Context context;
-    private ArrayList<Map<String, String>> friendsListInfo = new ArrayList<Map<String, String>>();
+    private FriendsSingleton friendsSingleton;
+    private ArrayList<Friend> friendsListInfo;
     private FriendsListAdapter customAdapter;
     private int numDone;
 
     public FriendsFragment(Context context) {
         this.context = context;
-        // PARA TESTEAR
-        // friendsListInfoTestData();
+        friendsSingleton = FriendsSingleton.getInstance();
+        friendsListInfo = friendsSingleton.getFriendsListInfo();
     }
 
     @Override
@@ -75,12 +73,8 @@ public class FriendsFragment extends Fragment {
                                         DocumentSnapshot document = task.getResult();
                                         if (document.exists()) {
                                             Map<String, Object> data = document.getData();
-                                            Map<String, String> map = new HashMap<String, String>();
                                             Log.d("OMG123", (String) data.get("name") + " " + (String) data.get("imageURL"));
-                                            map.put("id", dr.getId());
-                                            map.put("name", (String) data.get("name"));
-                                            map.put("imageURL", (String) data.get("imageURL"));
-                                            friendsListInfo.add(map);
+                                            friendsListInfo.add(new Friend(dr.getId(), (String) data.get("name"), (String) data.get("imageURL")));
                                             if (numDone == 0) setViewAndAdapter();
                                             else if (numDone == friendsRef.size()) customAdapter.notifyDataSetChanged();
                                         }
@@ -95,80 +89,17 @@ public class FriendsFragment extends Fragment {
     }
 
     private void addNoFriends() {
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("id", "NoFriends");
-        map.put("name", "No tienes amigos");
-        map.put("imageURL", "https://cdn.pixabay.com/photo/2016/11/01/03/28/magnifier-1787362_960_720.png");
-        friendsListInfo.add(map);
+        friendsListInfo.add(new Friend("NoFriends", "No tienes amigos",
+                "https://cdn.pixabay.com/photo/2016/11/01/03/28/magnifier-1787362_960_720.png"));
     }
 
     private void setViewAndAdapter() {
         friendsList = (ListView) view.findViewById(R.id.list);
-        customAdapter = new FriendsListAdapter(context, R.layout.fragment_friends, friendsListInfo);
+        customAdapter = new FriendsListAdapter(context, R.layout.fragment_friends);
         friendsList.setAdapter(customAdapter);
     }
-    public void friendsListInfoTestData() {
 
-        friendsListInfo.add(new HashMap<String, String>() {{
-            put("name", "JAVA");
-            put("imageURL", "https://www.tutorialspoint.com/java/images/java-mini-logo.jpg");
-        }});
-        friendsListInfo.add(new HashMap<String, String>() {{
-            put("name", "Python");
-            put("imageURL", "https://www.tutorialspoint.com/python/images/python-mini.jpg");
-        }});
-        friendsListInfo.add(new HashMap<String, String>() {{
-            put("name", "Javascript");
-            put("imageURL", "https://www.tutorialspoint.com/javascript/images/javascript-mini-logo.jpg");
-        }});
-        friendsListInfo.add(new HashMap<String, String>() {{
-            put("name", "C++");
-            put("imageURL", "https://www.tutorialspoint.com/cplusplus/images/cpp-mini-logo.jpg");
-        }});
-        friendsListInfo.add(new HashMap<String, String>() {{
-            put("name", "Android");
-            put("imageURL", "https://www.tutorialspoint.com/android/images/android-mini-logo.jpg");
-        }});
-        friendsListInfo.add(new HashMap<String, String>() {{
-            put("name", "JAVA");
-            put("imageURL", "https://www.tutorialspoint.com/java/images/java-mini-logo.jpg");
-        }});
-        friendsListInfo.add(new HashMap<String, String>() {{
-            put("name", "Python");
-            put("imageURL", "https://www.tutorialspoint.com/python/images/python-mini.jpg");
-        }});
-        friendsListInfo.add(new HashMap<String, String>() {{
-            put("name", "Javascript");
-            put("imageURL", "https://www.tutorialspoint.com/javascript/images/javascript-mini-logo.jpg");
-        }});
-        friendsListInfo.add(new HashMap<String, String>() {{
-            put("name", "C++");
-            put("imageURL", "https://www.tutorialspoint.com/cplusplus/images/cpp-mini-logo.jpg");
-        }});
-        friendsListInfo.add(new HashMap<String, String>() {{
-            put("name", "Android");
-            put("imageURL", "https://www.tutorialspoint.com/android/images/android-mini-logo.jpg");
-        }});
-        friendsListInfo.add(new HashMap<String, String>() {{
-            put("name", "JAVA");
-            put("imageURL", "https://www.tutorialspoint.com/java/images/java-mini-logo.jpg");
-        }});
-        friendsListInfo.add(new HashMap<String, String>() {{
-            put("name", "Python");
-            put("imageURL", "https://www.tutorialspoint.com/python/images/python-mini.jpg");
-        }});
-        friendsListInfo.add(new HashMap<String, String>() {{
-            put("name", "Javascript");
-            put("imageURL", "https://www.tutorialspoint.com/javascript/images/javascript-mini-logo.jpg");
-        }});
-        friendsListInfo.add(new HashMap<String, String>() {{
-            put("name", "C++");
-            put("imageURL", "https://www.tutorialspoint.com/cplusplus/images/cpp-mini-logo.jpg");
-        }});
-        friendsListInfo.add(new HashMap<String, String>() {{
-            put("name", "Android");
-            put("imageURL", "https://www.tutorialspoint.com/android/images/android-mini-logo.jpg");
-        }});
-    }
+    // TODO - LISTENER IF FRIEND_DELETES_ME
+
 }
 

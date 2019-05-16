@@ -7,19 +7,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+import Models.Friend;
+import com.petworld_madebysocialworld.FriendsSingleton;
 import com.petworld_madebysocialworld.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Map;
 
-public class FriendsListAdapter extends ArrayAdapter<Map<String, String>> implements ListAdapter {
-    ArrayList<Map<String, String>> friendsListInfo;
-    Context context;
+public class FriendsListAdapter extends ArrayAdapter<Friend> implements ListAdapter {
+    private FriendsSingleton friendsSingleton;
+    private ArrayList<Friend> friendsListInfo;
+    private Context context;
 
-    public FriendsListAdapter(Context context, int textViewResourceid, ArrayList<Map<String, String>> arrayList) {
-        super(context, textViewResourceid, arrayList);
-        friendsListInfo = arrayList;
+    public FriendsListAdapter(Context context, int textViewResourceid) {
+        super(context, textViewResourceid);
+        friendsSingleton = FriendsSingleton.getInstance();
+        friendsListInfo = friendsSingleton.getFriendsListInfo();
         this.context = context;
     }
 
@@ -47,7 +50,7 @@ public class FriendsListAdapter extends ArrayAdapter<Map<String, String>> implem
     }
 
     @Override
-    public Map<String, String> getItem(int position) {
+    public Friend getItem(int position) {
         return friendsListInfo.get(position);
     }
 
@@ -63,7 +66,7 @@ public class FriendsListAdapter extends ArrayAdapter<Map<String, String>> implem
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        final Map<String, String> friendData = friendsListInfo.get(position);
+        final Friend friendData = friendsListInfo.get(position);
         if(convertView == null) {
             LayoutInflater layoutInflater = LayoutInflater.from(context);
             convertView = layoutInflater.inflate(R.layout.friends_list_row, null);
@@ -75,33 +78,34 @@ public class FriendsListAdapter extends ArrayAdapter<Map<String, String>> implem
             final TextView name = convertView.findViewById(R.id.name);
             ImageView image = convertView.findViewById(R.id.imageView);
             Button button = convertView.findViewById(R.id.button);
-            name.setText(friendData.get("name"));
-            Picasso.get().load(friendData.get("imageURL")).into(image);
+            name.setText(friendData.getName());
+            Picasso.get().load(friendData.getImageURL()).into(image);
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (removeFriend(friendData.get("id"))) notifyDataSetChanged();
-                    Snackbar.make(v, friendData.get("name") + " " + position, Snackbar.LENGTH_LONG)
+                    if (removeFriend(friendData.getId())) notifyDataSetChanged();
+                    Snackbar.make(v, friendData.getName() + " " + position, Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 }
             });
-            if (friendData.get("id").equals("NoFriends")) button.setVisibility(View.INVISIBLE);
+            if (friendData.getId().equals("NoFriends")) button.setVisibility(View.INVISIBLE);
         }
         return convertView;
     }
 
-    public boolean addFriend(Map<String, String> friend) {
+    public boolean addFriend(Friend friend) {
         // ADD EN FIREBASE
-        // ADD AND REFRESH VIEW
-        return friendsListInfo.add(friend);
+        boolean added = friendsListInfo.add(friend);
+        notifyDataSetChanged();
+        return added;
     }
 
     public boolean removeFriend(String newfriendId) {
         for (int i = 0; i < friendsListInfo.size(); ++i) {
             // TEST - NO SE SI friendsListInfo.remove(i) != null se cumple
-            if (friendsListInfo.get(i).get("id").equals(newfriendId) && friendsListInfo.remove(i) != null) {
+            if (friendsListInfo.get(i).getId().equals(newfriendId) && friendsListInfo.remove(i) != null) {
                 // DELETE FROM FIREBASE
-                // REFRESH VIEW
+                notifyDataSetChanged();
                 return true;
             }
         }
