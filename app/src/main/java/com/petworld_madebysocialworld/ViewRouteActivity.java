@@ -121,12 +121,19 @@ public class ViewRouteActivity extends AppCompatActivity {
                 CameraUpdate cameraupdate = CameraUpdateFactory.newLatLngZoom(startPoint, (float) 16);
                 map.moveCamera(cameraupdate);
                 //put points on map
+                boolean firstPoint = true;
                 for (GeoPoint point : path) {
+                    int resource;
+                    if (firstPoint) {
+                        resource = R.drawable.marker_green;
+                        firstPoint = false;
+                    }
+                    else resource = R.drawable.marker_blue;
                     map.addMarker(new MarkerOptions()
                             .position(new LatLng(point.getLatitude(), point.getLongitude()))
                             //.draggable(true)
                             .anchor((float) 0.5, (float) 0.5)
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue))
+                            .icon(BitmapDescriptorFactory.fromResource(resource))
                     );
                 }
                 // map line
