@@ -5,7 +5,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/grad"
-                tools:context="com.petworld_madebysocialworld.PetProfileActivity">
+                tools:context="com.petworld_madebysocialworld.ViewPetActivity">
 
 
 
@@ -14,33 +14,21 @@
             layout="@layout/toolbar" app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="8dp"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp" android:layout_width="match_parent"
-            android:layout_height="56dp"/>
-
-    <RelativeLayout
-                    android:id="@+id/rlImageProfile"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-
-                    android:layout_below="@+id/toolbar">
-        <ImageView
-                android:layout_width="232dp"
-                android:layout_height="225dp" app:srcCompat="@drawable/anabohueles"
-                android:id="@+id/imageView2" android:layout_marginTop="8dp"
-                android:layout_marginStart="84dp"  android:layout_marginEnd="95dp"
-                android:layout_alignParentEnd="true" android:layout_alignParentStart="true"
-                />
+            android:layout_height="56dp"
+            android:layout_marginBottom="5dp"/>
 
 
-
-    </RelativeLayout>
-
-
+    <android.support.v4.view.ViewPager
+            android:layout_width="match_parent"
+            android:layout_height="280dp" android:id="@+id/viewPager"
+            android:layout_below="@id/toolbar"
+            />
     <ScrollView
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:fillViewport="true"
-            android:layout_below="@id/rlImageProfile">
+            android:layout_below="@id/viewPager">
 
         <LinearLayout
                 android:layout_width="match_parent"

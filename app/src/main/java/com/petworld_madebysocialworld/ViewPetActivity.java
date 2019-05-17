@@ -1,13 +1,9 @@
 package com.petworld_madebysocialworld;
 
-import Models.User;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,22 +11,17 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
-import com.google.firestore.v1.WriteResult;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 
-public class PetProfileActivity extends AppCompatActivity {
+public class ViewPetActivity extends AppCompatActivity {
 
 
     private FirebaseAuth mAuth;
@@ -44,11 +35,12 @@ public class PetProfileActivity extends AppCompatActivity {
     private Button btnEditar;
     private Button btnBorrar;
     private String userID;
+    private ArrayList<String> imageUrls;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pet_profile_2);
+        setContentView(R.layout.activity_view_pet);
         initFireBase();
         initTextView();
         initIntent();
@@ -121,7 +113,7 @@ public class PetProfileActivity extends AppCompatActivity {
     }
 
     private void editActivity() {
-        Intent intent = new Intent(getApplicationContext(), PetUpdateActivity.class);
+        Intent intent = new Intent(getApplicationContext(), EditPetActivity.class);
         intent.putExtra("docPetRef", petPath);
         startActivityForResult(intent, 0);
     }
@@ -150,7 +142,7 @@ public class PetProfileActivity extends AppCompatActivity {
     }
 
     private void initLayout() {
-        userID = User.getInstance().getAccount().getId();
+        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Log.d("petProfilePetRef", "" + petPath);
         DocumentReference docRef = db.document(petPath);
         Log.d("userID", userID);
@@ -163,12 +155,18 @@ public class PetProfileActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     Log.d("task size: ", "" + task.getResult());
                     DocumentSnapshot result = task.getResult();
+                    imageUrls = (ArrayList<String>)result.get("photo");
 
                     name.setText("" + task.getResult().get("name"));
                     gender.setText("" + task.getResult().get("gender"));
                     specie.setText("" + task.getResult().get("specie"));
                     race.setText("" + task.getResult().get("race"));
                     comment.setText("" + task.getResult().get("comment"));
+
+                    //images
+                    ViewPager viewPager = findViewById(R.id.viewPager);
+                    ViewPagerAdapter adapter = new ViewPagerAdapter(getApplicationContext(), imageUrls);
+                    viewPager.setAdapter(adapter);
                 } else {
                     Log.w("task ko", "Error getting documents.", task.getException());
                 }

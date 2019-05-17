@@ -2,34 +2,29 @@ package com.petworld_madebysocialworld;
 
 import Models.User;
 import android.app.DatePickerDialog;
-import android.app.Dialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.*;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import org.w3c.dom.Document;
 
 import java.util.*;
-
-import static java.security.AccessController.getContext;
 
 public class CreateWalkActivity extends AppCompatActivity {
 
     TextView date;
+    TextView hourmin;
     private FirebaseFirestore db;
     private String userID;
     private String path;
@@ -43,7 +38,7 @@ public class CreateWalkActivity extends AppCompatActivity {
 
         //initNavigationDrawer();
         db = FirebaseFirestore.getInstance();
-        userID = User.getInstance().getAccount().getId();
+        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         Button but = findViewById(R.id.elegirRuta);
         but.setOnClickListener(new View.OnClickListener() {
@@ -53,7 +48,7 @@ public class CreateWalkActivity extends AppCompatActivity {
             }
         });
 
-        Button selectDate = findViewById(R.id.elegirHora);
+        Button selectDate = findViewById(R.id.elegirFecha);
         date = findViewById(R.id.textDate);
 
         selectDate.setOnClickListener(new View.OnClickListener() {
@@ -75,6 +70,30 @@ public class CreateWalkActivity extends AppCompatActivity {
                 datePickerDialog.show();
             }
         });
+
+        Button selectHour = findViewById(R.id.elegirHora);
+        hourmin = findViewById(R.id.textHour);
+
+        selectHour.setOnClickListener(new View.OnClickListener() {
+            Calendar calendar = Calendar.getInstance();
+            int hour = calendar.get(Calendar.HOUR);
+            int min = calendar.get(Calendar.MINUTE);
+
+            @Override
+            public void onClick(View view) {
+                TimePickerDialog timePickerDialog = new TimePickerDialog(CreateWalkActivity.this,
+                        new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker timePicker, int hour, int min) {
+                                hourmin.setText(hour + ":" + min);
+                            }
+                        }, hour, min, true);
+
+                //timePickerDialog.getTimePicker().setMinDate(System.currentTimeMillis());
+                timePickerDialog.show();
+            }
+        });
+
 
         Button createPaseo = findViewById(R.id.createWalk);
         createPaseo.setOnClickListener(new View.OnClickListener() {

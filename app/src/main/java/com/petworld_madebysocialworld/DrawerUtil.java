@@ -14,6 +14,8 @@ import android.widget.ImageView;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.*;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -40,20 +42,13 @@ public class DrawerUtil {
 
         i = 0;
         final HashMap<Integer, DocumentReference> mapPetRef =  new HashMap<>();
-        GoogleSignInAccount account = User.getInstance().getAccount();
 
-        String personName = "Name";
-        String personEmail = "Email";
-        Uri personPhoto = Uri.parse("http://www.example.com");
-
-        if (account == null) Log.d("PRUEBA==", "hola, no hay nadie en la account");
-        else{
-            //info account
-            personName = account.getDisplayName();
-            personEmail = account.getEmail();
-            personPhoto = account.getPhotoUrl();
-            Log.d("Prueba", personPhoto.getPath());
-        }
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        //info account
+        String personName = user.getDisplayName();
+        String personEmail = user.getEmail();
+        Uri personPhoto = user.getPhotoUrl();
+        String userID = user.getUid();
 
 
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
@@ -92,7 +87,6 @@ public class DrawerUtil {
                 .withIdentifier(2).withName("Mascotas").withIcon(R.drawable.ic_pets).withSelectable(false);
         //pets menu lateral
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String userID = User.getInstance().getAccount().getId();
         DocumentReference docRef = db.collection("users").document(userID);
         Log.d("test", docRef.toString());
         Log.d("userID", userID);
@@ -190,10 +184,10 @@ public class DrawerUtil {
                         //lista de mascotas
                         boolean dentroIf = false;
                         for (Map.Entry<Integer, DocumentReference> entry : mapPetRef.entrySet()) {
-                            if (drawerItem.getIdentifier() == entry.getKey() && !(activity instanceof PetProfileActivity)) {
+                            if (drawerItem.getIdentifier() == entry.getKey() && !(activity instanceof ViewPetActivity)) {
 
                                 if (!dentroIf) {
-                                    Intent  intent = new Intent(activity, PetProfileActivity.class);
+                                    Intent  intent = new Intent(activity, ViewPetActivity.class);
                                     String petPath = entry.getValue().getPath();
                                     Log.d("drawerPetRef", petPath);
                                     intent.putExtra("docPetRef", petPath);
@@ -211,8 +205,8 @@ public class DrawerUtil {
                             view.getContext().startActivity(intent);
                         }
 
-                        if (drawerItem.getIdentifier() == 3 && !(activity instanceof PetAddActivity)){
-                            Intent intent = new Intent(activity, PetAddActivity.class);
+                        if (drawerItem.getIdentifier() == 3 && !(activity instanceof CreatePetActivity)){
+                            Intent intent = new Intent(activity, CreatePetActivity.class);
                             view.getContext().startActivity(intent);
                         }
                         return true;
