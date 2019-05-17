@@ -50,8 +50,12 @@ public class FriendsActivity extends AppCompatActivity {
     //WHEN IT ACCEPTS THE PETITION, THIS FUNCTION DOES THE JOB OF CONNECTING
     private void connect2Friends (String idUser, String idFriend){
         //TODO TESTING IF IT REALLY ADDS FRIENDS OR JUST OVERWRITES
-        FirebaseFirestore.getInstance().collection("users").document(idUser).update("friends", FirebaseFirestore.getInstance().collection("users").document(idFriend));
-        FirebaseFirestore.getInstance().collection("users").document(idFriend).update("friends", FirebaseFirestore.getInstance().collection("users").document(idUser));
+        Map<String, Object> pF = new HashMap<>();
+        Map<String, Object> pU = new HashMap<>();
+        pF.put("reference", FirebaseFirestore.getInstance().collection("users").document(idFriend));
+        pU.put("reference", FirebaseFirestore.getInstance().collection("users").document(idUser));
+        FirebaseFirestore.getInstance().collection("users").document(idUser).collection("friends").add(pF);
+        FirebaseFirestore.getInstance().collection("users").document(idFriend).collection("friends").add(pU);
     }
 
     //private ArrayList<>

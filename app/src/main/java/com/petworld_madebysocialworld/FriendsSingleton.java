@@ -3,6 +3,7 @@ package com.petworld_madebysocialworld;
 import Models.Friend;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class FriendsSingleton {
 
@@ -32,4 +33,10 @@ public class FriendsSingleton {
         return friendsListId;
     }
 
+    public void addFriend(String id, Map<String, Object> data) {
+
+    }
+
+    public void deleteFriend(String id, Map<String, Object> data) {
+    }
 }
