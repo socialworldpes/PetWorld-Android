@@ -24,4 +24,12 @@ public class FriendsSingleton {
         return friendsListInfo;
     }
 
+    public ArrayList<String> getFriendsListId() {
+        ArrayList<String> friendsListId = new ArrayList<String>();
+        for (Friend friend : friendsListInfo) {
+            friendsListId.add(friend.getId());
+        }
+        return friendsListId;
+    }
+
 }

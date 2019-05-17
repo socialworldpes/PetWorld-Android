@@ -1,5 +1,6 @@
 package com.petworld_madebysocialworld;
 
+import Models.Friend;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -24,12 +25,15 @@ import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.google.firebase.messaging.FirebaseMessagingService;
+import com.petworld_madebysocialworld.FriendsSingleton;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class SearchFriendsActivity extends AppCompatActivity {
 
+    private FriendsSingleton friendsSingleton;
+    private ArrayList<String> friendsListId;
     private LinearLayout linearLayoutSheet;
     private String textTmp;
     private EditText text;
@@ -42,6 +46,11 @@ public class SearchFriendsActivity extends AppCompatActivity {
         linearLayoutSheet = (LinearLayout) findViewById(R.id.LayoutMeetings);
         text = (EditText)findViewById(R.id.Search);
         context = this;
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        friendsSingleton = FriendsSingleton.getInstance();
+        friendsListId = friendsSingleton.getFriendsListId();
+        friendsListId.add(user.getUid());
+        Toast.makeText(context, "La meva id es " + user.getUid(), Toast.LENGTH_SHORT).show();
         text.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -72,32 +81,36 @@ public class SearchFriendsActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
                         for (final QueryDocumentSnapshot document : task.getResult()) {
-                            String name = (String) document.get("name");
-                            LinearLayout linearLayoutList = new LinearLayout(context);
-                            TextView textViewDescreList = new TextView(context);
-                            textViewDescreList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                            textViewDescreList.setText(name);
-                            textViewDescreList.setPadding(40, 20, 40, 20);
+                            if (!friendsListId.contains( document.getId())) {
+                                String name = (String) document.get("name");
+                                LinearLayout linearLayoutList = new LinearLayout(context);
+                                TextView textViewDescreList = new TextView(context);
+                                textViewDescreList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                                textViewDescreList.setText(name);
+                                textViewDescreList.setPadding(40, 20, 40, 20);
 
-                            linearLayoutList.addView(textViewDescreList);
+                                linearLayoutList.addView(textViewDescreList);
 
-                            final Button friendButton = new Button(context);
-                            friendButton.setText("Add Friend");
+                                final Button friendButton = new Button(context);
+                                friendButton.setText("Add Friend");
 
-                            friendButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    //when play is clicked show stop button and hide play button
-                                    String id = (String) document.getId();
-                                    Toast.makeText(context, "Solicitud enviada a " + document.get("name"), Toast.LENGTH_SHORT).show();
-                                    sendNotificationToUser (id);
-                                    friendButton.setVisibility(View.GONE);
-                                }
-                            });
+                                friendButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        //when play is clicked show stop button and hide play button
+                                        String id = (String) document.getId();
+                                        Toast.makeText(context, "Solicitud enviada a " + document.get("name"), Toast.LENGTH_SHORT).show();
+                                        sendNotificationToUser(id);
+                                        friendButton.setVisibility(View.GONE);
+                                    }
+                                });
 
-                            linearLayoutList.addView(friendButton);
+                                linearLayoutList.addView(friendButton);
 
-                            linearLayoutSheet.addView(linearLayoutList);
+                                linearLayoutSheet.addView(linearLayoutList);
+                            } else {
+                                //
+                            }
                         }
                     }
                 }
