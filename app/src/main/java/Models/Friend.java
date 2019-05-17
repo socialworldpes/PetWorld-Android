@@ -1,6 +1,6 @@
 package Models;
 
-public class Friend {
+public class Friend implements Comparable<Friend> {
 
     private String id;
     private String name;
@@ -24,4 +24,8 @@ public class Friend {
         return imageURL;
     }
 
+    @Override
+    public int compareTo(Friend friend) {
+        return this.id.compareTo(friend.getId());
+    }
 }

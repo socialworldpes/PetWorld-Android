@@ -83,7 +83,7 @@ public class RequestsFragment extends Fragment {
 
     private void setViewAndAdapter() {
         requestsList = (ListView) view.findViewById(R.id.list);
-        customAdapter = new RequestsListAdapter(context, R.layout.fragment_friends, requestsListInfo);
+        customAdapter = new RequestsListAdapter(context, R.layout.fragment_friends);
         requestsList.setAdapter(customAdapter);
         friendsSingleton.setRequestsListAdapter(customAdapter);
     }

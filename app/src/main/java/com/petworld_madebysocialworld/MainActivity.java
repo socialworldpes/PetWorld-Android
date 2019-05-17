@@ -324,7 +324,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+        db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Friends").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot snapshots,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "listen:error", e);
+                    return;
+                }
 
+                for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                    if (dc.getType() == DocumentChange.Type.ADDED) {
+                        FriendsSingleton.getInstance().addFriend(dc.getDocument().getId(), dc.getDocument().getData());
+                    }
+                    if (dc.getType() == DocumentChange.Type.REMOVED) {
+                        FriendsSingleton.getInstance().deleteFriend(dc.getDocument().getId(), dc.getDocument().getData());
+                    }
+                }
+
+            }
+        });
     }
 
 

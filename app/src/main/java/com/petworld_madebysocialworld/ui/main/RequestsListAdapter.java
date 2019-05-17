@@ -8,18 +8,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+import com.google.firebase.auth.FirebaseAuth;
+import com.petworld_madebysocialworld.FriendsSingleton;
 import com.petworld_madebysocialworld.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
 public class RequestsListAdapter extends ArrayAdapter<Friend> implements ListAdapter {
-    ArrayList<Friend> requestsListInfo;
-    Context context;
+    private FriendsSingleton friendsSingleton;
+    private ArrayList<Friend> requestsListInfo;
+    private Context context;
 
-    public RequestsListAdapter(Context context, int textViewResourceid, ArrayList<Friend> arrayList) {
+    public RequestsListAdapter(Context context, int textViewResourceid) {
         super(context, textViewResourceid);
-        requestsListInfo = arrayList;
+        friendsSingleton = FriendsSingleton.getInstance();
+        requestsListInfo = friendsSingleton.getRequestsListInfo();
         this.context = context;
     }
 
@@ -81,6 +85,8 @@ public class RequestsListAdapter extends ArrayAdapter<Friend> implements ListAda
             acceptBttn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    friendsSingleton.connect2Friends(FirebaseAuth.getInstance().getCurrentUser().getUid(), friendData.getId());
+                    friendsSingleton.addFriend(friendData);
                     Snackbar.make(v, "Accept: " + friendData.getName() + " " + position, Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 }
