@@ -70,7 +70,31 @@
             android:id="@+id/mapViewRoute"
             tools:layout_editor_absoluteX="16dp"
             app:layout_constraintTop_toBottomOf="@+id/locationNameInput_layout"
-            android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"/>
+            android:layout_marginBottom="8dp" app:layout_constraintBottom_toTopOf="@+id/relativeLayout2"/>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                  android:orientation="horizontal"
+                  android:id="@+id/relativeLayout2"
+                  android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"
+                  tools:layout_editor_absoluteX="24dp">
+        <Button
+                android:text="Borrar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="25"
+                android:id="@+id/deleteButton"
+                android:background="#FF0800" android:textColor="#fff"
+        />
+        <Button
+                android:text="Editar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="75"
+
+                android:id="@+id/editButton"
+                android:background="#75D3FD" android:textColor="#fff"
+        />
+    </LinearLayout>
 
 
 </android.support.constraint.ConstraintLayout>
