@@ -21,7 +21,6 @@ public class User {
     private DocumentReference docRef;
     private DocumentSnapshot docSnap;
 
-
     public void setmAuth(FirebaseAuth instance) {
         mAuth = instance;
     }
