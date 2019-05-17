@@ -11,12 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import Models.Friend;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.petworld_madebysocialworld.FriendsSingleton;
 import com.petworld_madebysocialworld.R;
 
@@ -44,7 +46,8 @@ public class FriendsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_friends, container, false);
 
-        getFriendsListAndSetAdapter();
+        if (friendsSingleton.friendsListFirst()) getFriendsListAndSetAdapter();
+        else setViewAndAdapter();
 
         return view;
     }
@@ -53,44 +56,28 @@ public class FriendsFragment extends Fragment {
 
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        db.collection("users").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+
+        db.collection("users").document(userID).collection("friends").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        final ArrayList<DocumentReference> friendsRef = (ArrayList<DocumentReference>) document.get("friends");
-                        if (friendsRef.size() == 0) {
-                            addNoFriends();
-                            setViewAndAdapter();
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                final ArrayList<DocumentSnapshot> friendsRef = (ArrayList<DocumentSnapshot>) queryDocumentSnapshots.getDocuments();
+                if (friendsRef.size() == 0) {
+                    friendsSingleton.addNoFriends();
+                    setViewAndAdapter();
+                } else numDone = 0;
+                for (DocumentSnapshot document : friendsRef) {
+                    Log.d("OMG123-Friends", String.valueOf(document.getData()));
+                    db.document(String.valueOf(document.getDocumentReference("reference").getPath())).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            friendsListInfo.add(new Friend(documentSnapshot.getId(), (String) documentSnapshot.get("name"), (String) documentSnapshot.get("imageURL")));
+                            if (numDone == 0) setViewAndAdapter();
+                            else if (numDone == friendsRef.size()) customAdapter.notifyDataSetChanged();
                         }
-                        else numDone = 0;
-                        for (final DocumentReference dr: friendsRef) {
-                            db.document(dr.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        DocumentSnapshot document = task.getResult();
-                                        if (document.exists()) {
-                                            Map<String, Object> data = document.getData();
-                                            Log.d("OMG123", (String) data.get("name") + " " + (String) data.get("imageURL"));
-                                            friendsListInfo.add(new Friend(dr.getId(), (String) data.get("name"), (String) data.get("imageURL")));
-                                            if (numDone == 0) setViewAndAdapter();
-                                            else if (numDone == friendsRef.size()) customAdapter.notifyDataSetChanged();
-                                        }
-                                    }
-                                }
-                            });
-                        }
-                    }
+                    });
                 }
             }
         });
-    }
-
-    private void addNoFriends() {
-        friendsListInfo.add(new Friend("NoFriends", "No tienes amigos",
-                "https://cdn.pixabay.com/photo/2016/11/01/03/28/magnifier-1787362_960_720.png"));
     }
 
     private void setViewAndAdapter() {

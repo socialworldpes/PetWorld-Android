@@ -17,16 +17,34 @@ public class FriendsSingleton {
     private ArrayList<Friend> requestsListInfo;
     private FriendsListAdapter friendsCustomAdapter;
     private RequestsListAdapter requestsCustomAdapter;
+    private boolean friendsListFirst, requestsListFirst;
 
     private FriendsSingleton() {
         friendsListInfo = new ArrayList<Friend>();
         requestsListInfo = new ArrayList<Friend>();
+        friendsListFirst = requestsListFirst = true;
     }
 
     public static FriendsSingleton getInstance() {
         if (friendsSingleton == null) friendsSingleton = new FriendsSingleton();
 
         return friendsSingleton;
+    }
+
+    public boolean friendsListFirst() {
+        if (friendsListFirst) {
+            friendsListFirst = false;
+            return true;
+        }
+        return friendsListFirst;
+    }
+
+    public boolean requestsListFirst() {
+        if (requestsListFirst) {
+            requestsListFirst = false;
+            return true;
+        }
+        return requestsListFirst;
     }
 
     public ArrayList<Friend> getFriendsListInfo() {
@@ -66,6 +84,9 @@ public class FriendsSingleton {
         // Remove friend from requestsList
         // Eventhough this will not make sense for the friend that initially sends the request
         requestsListInfo.remove(friend);
+
+        if (requestsListInfo.size() == 0) addNoRequests();
+
         requestsCustomAdapter.notifyDataSetChanged();
 
         return added;
@@ -79,6 +100,9 @@ public class FriendsSingleton {
     public boolean deleteFriend(Friend friend) {
         // Remove friend from friendsList
         boolean deleted = friendsListInfo.remove(friend);
+
+        if (friendsListInfo.size() == 0) addNoFriends();
+
         friendsCustomAdapter.notifyDataSetChanged();
 
         // The other friend will also delete the friend by receiving an onSnapshot
@@ -96,4 +120,16 @@ public class FriendsSingleton {
         FirebaseFirestore.getInstance().collection("users").document(idUser).collection("friends").add(pF);
         FirebaseFirestore.getInstance().collection("users").document(idFriend).collection("friends").add(pU);
     }
+
+    public void addNoFriends() {
+        friendsListInfo.add(new Friend("NoFriends", "No tienes amigos",
+                "https://cdn.pixabay.com/photo/2016/11/01/03/28/magnifier-1787362_960_720.png"));
+    }
+
+    public void addNoRequests() {
+        requestsListInfo.add(new Friend("NoPendingRequests", "No tienes solicitudes pendientes",
+                "https://static.thenounproject.com/png/540056-200.png"));
+    }
+
+
 }

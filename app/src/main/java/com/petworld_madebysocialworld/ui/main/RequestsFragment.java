@@ -43,7 +43,8 @@ public class RequestsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_friends, container, false);
 
-        getRequestsListAndSetAdapter();
+        if (friendsSingleton.requestsListFirst()) getRequestsListAndSetAdapter();
+        else setViewAndAdapter();
 
         return view;
     }
@@ -58,11 +59,11 @@ public class RequestsFragment extends Fragment {
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 final ArrayList<DocumentSnapshot> friendsRef = (ArrayList<DocumentSnapshot>) queryDocumentSnapshots.getDocuments();
                 if (friendsRef.size() == 0) {
-                    addNoRequests();
+                    friendsSingleton.addNoRequests();
                     setViewAndAdapter();
                 } else numDone = 0;
                 for (DocumentSnapshot document : friendsRef) {
-                    Log.d("OMG123-Req", String.valueOf(document.getData()));
+                    Log.d("OMG123-Requests", String.valueOf(document.getData()));
                     db.document(String.valueOf(document.getDocumentReference("reference").getPath())).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -74,11 +75,6 @@ public class RequestsFragment extends Fragment {
                 }
             }
         });
-    }
-
-    private void addNoRequests() {
-        requestsListInfo.add(new Friend("NoPendingRequests", "No tienes solicitudes pendientes",
-                "https://static.thenounproject.com/png/540056-200.png"));
     }
 
     private void setViewAndAdapter() {
