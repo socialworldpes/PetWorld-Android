@@ -69,6 +69,13 @@ public class ViewRouteActivity extends AppCompatActivity {
                 diaBox.show();
             }
         });
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent (getApplicationContext(), EditRouteActivity.class);
+                startActivityForResult(intent, 0);
+            }
+        });
     }
 
     public void deleteRoute() {
