@@ -64,8 +64,11 @@ public class CreateRouteActivity extends AppCompatActivity {
     private Button btnAddRoute;
     private Button btnUploadImage;
 
-    //market googeMaps
+    //marker googleMaps
     private List<Marker> myMarkers;
+    private int indexLastRemoved;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,13 +76,14 @@ public class CreateRouteActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_route);
 
         setupToolbar();
-
         initFireBase();
         initLayout();
         initVariables();
         initListeners();
         setUpMap();
     }
+
+
 
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -304,10 +308,12 @@ public class CreateRouteActivity extends AppCompatActivity {
                 map.moveCamera(cameraupdate);
                 map.addMarker(new MarkerOptions()
                         .position(path.get(0))
-                        //.draggable(true)
+                        .draggable(true)
                         .anchor((float) 0.5, (float) 0.5)
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue))
                 );
+                //add placeLocation mark
+                addMark(path.get(0), map);
 
                 //TODO: improve custom layout
                 //set adapter for custom window info
@@ -343,8 +349,7 @@ public class CreateRouteActivity extends AppCompatActivity {
                                 myMarkers.remove(marker);
                                 myMarker.remove();
                                 //remove point
-                                int i = findPointIndex(marker.getPosition());
-                                path.remove(i);
+                                removePoint(marker.getPosition());
                                 refreshPolyLine();
                                 break;
                             }
@@ -363,6 +368,40 @@ public class CreateRouteActivity extends AppCompatActivity {
                                 return true;
                             }
                         return false;
+                    }
+                });
+                //drag marker
+                googleMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+                    @Override
+                    public void onMarkerDragStart(Marker marker) {
+                        for (Marker myMarker: myMarkers) {
+                            Log.d("For myMarkers", " ");
+                            if(marker.equals(myMarker)) {
+                                Log.d("For myMarkers", "equals ");
+                                //remove point
+                                //¿¿**NO ENCUENTRA UN PUNTO IGUAL EN EL PATH***??
+                                removePoint(myMarker.getPosition());
+                                //remove mark
+                                myMarkers.remove(myMarker);
+
+                                break;
+                            }
+                        }
+
+                    }
+
+                    @Override
+                    public void onMarkerDrag(Marker marker) {
+
+                    }
+
+                    @Override
+                    public void onMarkerDragEnd(Marker marker) {
+                        Log.d("indexLastRemoved: ", "" + indexLastRemoved);
+                        myMarkers.add(indexLastRemoved, marker);
+                        path.add(indexLastRemoved, marker.getPosition());
+                        refreshPolyLine();
+
                     }
                 });
 
@@ -403,14 +442,28 @@ public class CreateRouteActivity extends AppCompatActivity {
         });
     }
 
+    private void removePoint(LatLng point) {
+        int i = findPointIndex(point);
+        indexLastRemoved = i;
+        path.remove(i);
+    }
+
     private int findPointIndex(LatLng position) {
         int i = -1;
         for (LatLng point: path) {
+            Log.d("indexLastRemoved: FOR", "" + i);
+
             i++;
-            if (point.equals(position)) break;
+            //no encuentra un punto igual cuando arrastramos
+            if (point.equals(position) || (point.latitude == position.latitude && point.longitude == position .longitude)) {
+                Log.d("indexLastRemoved: BREAK", "" + i);
+                break;
+            }
         }
 
+        Log.d("indexLastRemoved: end", "" + i);
         return i;
+
     }
 
     private void addMark(LatLng newPoint, GoogleMap googleMap) {
@@ -418,7 +471,7 @@ public class CreateRouteActivity extends AppCompatActivity {
                     .position(newPoint)
                     .title("Borrar Punto")
                     .snippet("X")
-                    //.draggable(true)
+                    .draggable(true)
                     .anchor((float) 0.5, (float) 0.5)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_green))
         );
