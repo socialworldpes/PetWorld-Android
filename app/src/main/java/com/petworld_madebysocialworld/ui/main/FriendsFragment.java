@@ -97,6 +97,7 @@ public class FriendsFragment extends Fragment {
         friendsList = (ListView) view.findViewById(R.id.list);
         customAdapter = new FriendsListAdapter(context, R.layout.fragment_friends);
         friendsList.setAdapter(customAdapter);
+        friendsSingleton.setFriendsListAdapter(customAdapter);
     }
 
     // TODO - LISTENER IF FRIEND_DELETES_ME

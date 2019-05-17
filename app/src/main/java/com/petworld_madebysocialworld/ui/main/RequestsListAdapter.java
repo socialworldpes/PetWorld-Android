@@ -12,9 +12,8 @@ import com.petworld_madebysocialworld.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Map;
 
-class RequestsListAdapter extends ArrayAdapter<Friend> implements ListAdapter {
+public class RequestsListAdapter extends ArrayAdapter<Friend> implements ListAdapter {
     ArrayList<Friend> requestsListInfo;
     Context context;
 

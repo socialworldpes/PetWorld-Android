@@ -16,6 +16,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
+import com.petworld_madebysocialworld.FriendsSingleton;
 import com.petworld_madebysocialworld.R;
 
 import java.util.ArrayList;
@@ -26,13 +27,16 @@ public class RequestsFragment extends Fragment {
 
     private View view;
     private ListView requestsList;
-    private ArrayList<Friend> requestsListInfo = new ArrayList<Friend>();
+    private FriendsSingleton friendsSingleton;
+    private ArrayList<Friend> requestsListInfo;
     private RequestsListAdapter customAdapter;
     private Context context;
     private int numDone;
 
     public RequestsFragment(Context context) {
         this.context = context;
+        friendsSingleton = FriendsSingleton.getInstance();
+        requestsListInfo = friendsSingleton.getRequestsListInfo();
     }
 
     @Override
@@ -81,28 +85,7 @@ public class RequestsFragment extends Fragment {
         requestsList = (ListView) view.findViewById(R.id.list);
         customAdapter = new RequestsListAdapter(context, R.layout.fragment_friends, requestsListInfo);
         requestsList.setAdapter(customAdapter);
+        friendsSingleton.setRequestsListAdapter(customAdapter);
     }
 
-//    public void requestsListInfoTestData() {
-//        requestsListInfo.add(new HashMap<String, String>() {{
-//            put("name", "JAVA");
-//            put("imageURL", "https://www.tutorialspoint.com/java/images/java-mini-logo.jpg");
-//        }});
-//        requestsListInfo.add(new HashMap<String, String>() {{
-//            put("name", "Python");
-//            put("imageURL", "https://www.tutorialspoint.com/python/images/python-mini.jpg");
-//        }});
-//        requestsListInfo.add(new HashMap<String, String>() {{
-//            put("name", "Javascript");
-//            put("imageURL", "https://www.tutorialspoint.com/javascript/images/javascript-mini-logo.jpg");
-//        }});
-//        requestsListInfo.add(new HashMap<String, String>() {{
-//            put("name", "C++");
-//            put("imageURL", "https://www.tutorialspoint.com/cplusplus/images/cpp-mini-logo.jpg");
-//        }});
-//        requestsListInfo.add(new HashMap<String, String>() {{
-//            put("name", "Android");
-//            put("imageURL", "https://www.tutorialspoint.com/android/images/android-mini-logo.jpg");
-//        }});
-//    }
 }
