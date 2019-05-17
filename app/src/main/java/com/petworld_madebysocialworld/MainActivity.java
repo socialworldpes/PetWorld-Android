@@ -137,7 +137,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                        Log.d(TAG, "DocumentSnapshot data: " + document.
+
+                                getData());
                     } else {
                         Map<String, Object> user = new HashMap<>();
                         user.put("favoriteRoutes", Arrays.asList());
