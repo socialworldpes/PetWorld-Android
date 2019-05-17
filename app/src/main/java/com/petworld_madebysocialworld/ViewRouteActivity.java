@@ -1,21 +1,25 @@
 package com.petworld_madebysocialworld;
 
+import Models.User;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +40,8 @@ public class ViewRouteActivity extends AppCompatActivity {
     EditText descriptionInput;
     EditText locationNameInput;
     private ArrayList<String> imageUrls;
+    Button deleteButton;
+    Button editButton;
 
     //map
     private GoogleMap map;
@@ -48,12 +54,59 @@ public class ViewRouteActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_route);
         initLayout();
-
+        initEvents();
         readRouteInfo();
         setupToolbar();
 
 
     }
+
+    private void initEvents() {
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog diaBox = AskOption();
+                diaBox.show();
+            }
+        });
+    }
+
+    public void deleteRoute() {
+        id = getIntent().getStringExtra("id");
+        Log.d("deleteRoute:", "in id: " + id);
+
+        FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    Log.d("deleteRoute:", "task successful");
+
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d("deleteRoute:", "documents exists");
+
+                        ArrayList<DocumentReference> alMeetingRef = (ArrayList<DocumentReference>) document.get("routes");
+                        for (DocumentReference dr : alMeetingRef) {
+                            Log.d("deleteRoute:", "id: " + dr.getPath());
+
+                            if (dr.getPath().equals("routes/" + id)) {
+                                Log.d("deleteRoute:", "equal");
+
+                                //borra en routes/
+                                dr.delete();
+                                //borra referencia en users/routes
+                                document.getReference().update("routes", FieldValue.arrayRemove(dr));
+
+                            }
+                        }
+                    }
+                }
+
+            }
+
+        });
+    }
+
 
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -72,6 +125,8 @@ public class ViewRouteActivity extends AppCompatActivity {
         descriptionInput = findViewById(R.id.descriptionInput);
         nameInput = findViewById(R.id.nameInput);
         locationNameInput = findViewById(R.id.locationNameInput);
+        deleteButton = findViewById(R.id.deleteButton);
+        editButton = findViewById(R.id.editButton);
     }
 
 
@@ -157,5 +212,43 @@ public class ViewRouteActivity extends AppCompatActivity {
     }
     private void refreshPolyLine(List<LatLng> path) {
         pathPolyline.setPoints(path);
+    }
+    private void startMap() {
+        Intent intent = new Intent (getApplicationContext(), MapActivity.class);
+        startActivityForResult(intent, 0);
+    }
+
+    private AlertDialog AskOption()
+    {
+        AlertDialog myQuittingDialogBox =new AlertDialog.Builder(this)
+                //set message, title, and icon
+                .setTitle("Borrar")
+                .setMessage("¿Borrar ruta?")
+                .setIcon(R.drawable.ic_delete)
+
+                .setPositiveButton("Borrar", new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        //your deleting code
+
+                        deleteRoute();
+                        startMap();
+                        dialog.dismiss();
+                    }
+
+                })
+
+
+
+                .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+
+                    }
+                })
+                .create();
+        return myQuittingDialogBox;
+
     }
 }
