@@ -38,10 +38,12 @@ public class SearchFriendsActivity extends AppCompatActivity {
     private String textTmp;
     private EditText text;
     private Context context;
+    private boolean wait;
   
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        wait = true;
         setContentView(R.layout.activity_search_friends);
         linearLayoutSheet = (LinearLayout) findViewById(R.id.LayoutMeetings);
         text = (EditText)findViewById(R.id.Search);
@@ -50,12 +52,14 @@ public class SearchFriendsActivity extends AppCompatActivity {
         friendsSingleton = FriendsSingleton.getInstance();
         friendsListId = friendsSingleton.getFriendsListId();
         friendsListId.add(user.getUid());
-        Toast.makeText(context, "La meva id es " + user.getUid(), Toast.LENGTH_SHORT).show();
         text.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    searchFriends();
+                    if (true){
+                        wait = false;
+                        searchFriends();
+                    }
                     return true;
                 }
                 return false;
@@ -65,7 +69,7 @@ public class SearchFriendsActivity extends AppCompatActivity {
     public void searchFriends() {
 
         textTmp = text.getText().toString();
-        if (textTmp != null) {
+        if (!textTmp.matches("")) {
             linearLayoutSheet.removeAllViews();
             int size = textTmp.length();
 
@@ -116,8 +120,9 @@ public class SearchFriendsActivity extends AppCompatActivity {
                 }
             });
         } else {
-            Toast.makeText(context, "No Noms", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, "No Noms", Toast.LENGTH_SHORT).show();
         }
+        wait = true;
     }
 
     private void sendNotificationToUser (final String to_idUser) {
