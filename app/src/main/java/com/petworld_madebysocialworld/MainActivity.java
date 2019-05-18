@@ -1,5 +1,6 @@
 package com.petworld_madebysocialworld;
 
+import Models.Friend;
 import Models.User;
 import android.Manifest;
 import android.app.Activity;
@@ -326,7 +327,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
         final FriendsSingleton friendsSingleton = FriendsSingleton.getInstance();
-        Log.d("COUNT", "Auí llega??");
 
         db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("friends").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -339,7 +339,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 final List<DocumentChange> documentChanges = snapshots.getDocumentChanges();
                 friendsChangesCount = 0;
-                Log.d("COUNT-INI", "FRIEND-CHANGES-COUNT: " + friendsChangesCount + " --- SIZE: " + documentChanges.size());
+
+                if (documentChanges.size() == 0 && friendsSingleton.getFriendsListInfo().size() == 0) {
+                    friendsSingleton.setNoFriends(true);
+                }
 
                 for (final DocumentChange dc : documentChanges) {
                     db.document(dc.getDocument().getDocumentReference("reference").getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -353,6 +356,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     } else if (dc.getType() == DocumentChange.Type.REMOVED) {
                                         friendsSingleton.deleteFriendSnapshot(document.getId(), document.getData());
                                     }
+
                                     ++friendsChangesCount;
                                     if (friendsSingleton.friendsFragmentIni() && friendsChangesCount == documentChanges.size()) friendsSingleton.updateFriendsSnapshots();
                                 } else {

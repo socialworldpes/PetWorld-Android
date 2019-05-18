@@ -15,7 +15,7 @@ public class FriendsSingleton {
 
     private static FriendsSingleton friendsSingleton;
 
-    private boolean requestsListFirst, friendsFragmentIni;
+    private boolean requestsListFirst, friendsFragmentIni, noFriends;
 
     private FriendsFragment friendsFragment;
     private RequestsFragment requestsFragment;
@@ -30,6 +30,7 @@ public class FriendsSingleton {
         addFriendsSnapshots = new ArrayList<Friend>();
         removeFriendsSnapshots = new ArrayList<Friend>();
         friendsFragmentIni = false;
+        noFriends = true;
     }
 
     public static FriendsSingleton getInstance() {
@@ -49,6 +50,10 @@ public class FriendsSingleton {
 
     public boolean friendsFragmentIni() {
         return friendsFragmentIni;
+    }
+
+    public void setNoFriends(boolean noFriends) {
+        this.noFriends = noFriends;
     }
 
     public boolean requestsListFirst() {
@@ -81,7 +86,7 @@ public class FriendsSingleton {
     }
 
     // This method does NOT update the listView
-    public boolean loadFriendToList(Friend friend) {
+    private boolean loadFriendToList(Friend friend) {
 
         boolean added;
 
@@ -89,14 +94,17 @@ public class FriendsSingleton {
         else {
             // Add friend to friendsList
             added = friendsListInfo.add(friend);
-            // If there was only "1 friend" check if its real or delete the noFriend
-            if (added && friendsListInfo.size() == 2) removeNoFriends();
         }
 
         return added;
     }
 
     public boolean addFriend(Friend friend) {
+
+        if (noFriends) {
+            friendsListInfo.remove(Friend.NoFriends);
+            noFriends = false;
+        }
 
         boolean loaded = loadFriendToList(friend);
 
@@ -124,9 +132,6 @@ public class FriendsSingleton {
     public boolean deleteFriend(Friend friend, boolean me) {
         // Remove friend from friendsList
         boolean deleted = friendsListInfo.remove(friend);
-
-        Log.d("COUNT-DEL", "deletes?? = " + deleted);
-        Log.d("COUNT-DEL-Contains", String.valueOf(friendsListInfo));
 
         if (deleted) {
             // TODO - Not implemented yet
@@ -159,6 +164,8 @@ public class FriendsSingleton {
 
         addFriendsSnapshots.clear();
         removeFriendsSnapshots.clear();
+
+        if (noFriends || friendsListInfo.size() == 0) addNoFriends();
     }
 
     // This method does NOT update the listView
@@ -172,23 +179,20 @@ public class FriendsSingleton {
     }
 
     public void addNoFriends() {
-        friendsListInfo.add(new Friend("NoFriends", "No tienes amigos",
-                "https://cdn.pixabay.com/photo/2016/11/01/03/28/magnifier-1787362_960_720.png"));
+        friendsListInfo.add(Friend.NoFriends);
+        friendsFragment.setViewAndAdapter();
     }
 
     public void removeNoFriends() {
-        friendsListInfo.remove(new Friend("NoFriends", "No tienes amigos",
-                "https://cdn.pixabay.com/photo/2016/11/01/03/28/magnifier-1787362_960_720.png"));
+        friendsListInfo.remove(Friend.NoFriends);
     }
 
     public void addNoRequests() {
-        requestsListInfo.add(new Friend("NoPendingRequests", "No tienes solicitudes pendientes",
-                "https://static.thenounproject.com/png/540056-200.png"));
+        requestsListInfo.add(Friend.NoPendingRequests);
     }
 
     public void removeNoRequests() {
-        requestsListInfo.remove(new Friend("NoPendingRequests", "No tienes solicitudes pendientes",
-                "https://static.thenounproject.com/png/540056-200.png"));
+        requestsListInfo.remove(Friend.NoPendingRequests);
     }
 
     // WHEN IT ACCEPTS THE PETITION, THIS FUNCTION DOES THE JOB OF CONNECTING
