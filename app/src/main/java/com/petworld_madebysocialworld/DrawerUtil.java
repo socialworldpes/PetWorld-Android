@@ -48,7 +48,7 @@ public class DrawerUtil {
         String personName = user.getDisplayName();
         String personEmail = user.getEmail();
         Uri personPhoto = user.getPhotoUrl();
-        String userID = user.getUid();
+        final String userID = user.getUid();
 
 
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
@@ -145,8 +145,6 @@ public class DrawerUtil {
                 .withName("Grupos").withIcon(R.drawable.ic_group);
         SecondaryDrawerItem drawerItemRoutes = new SecondaryDrawerItem().withIdentifier(5)
                 .withName("Tus rutas").withIcon(R.drawable.ic_rutas);
-        SecondaryDrawerItem drawerItemSettings = new SecondaryDrawerItem().withIdentifier(6)
-                .withName("Ajustes").withIcon(R.drawable.ic_settings);
         SecondaryDrawerItem drawerItemLogOut = new SecondaryDrawerItem().withIdentifier(7)
                 .withName("Cerrar sesión").withIcon(R.drawable.ic_logout);
 
@@ -167,7 +165,6 @@ public class DrawerUtil {
                         drawerItemAddPet,
                         drawerItemGroups,
                         drawerItemRoutes,
-                        drawerItemSettings,
                         drawerItemLogOut
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
@@ -175,6 +172,7 @@ public class DrawerUtil {
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         if (drawerItem.getIdentifier() == 1 && !(activity instanceof UserActivity)) {
                             Intent intent = new Intent(activity, UserActivity.class);
+                            intent.putExtra("id", userID);
                             view.getContext().startActivity(intent);
                         }
                         if (drawerItem.getIdentifier() == 5 && !(activity instanceof MapActivity)) {
