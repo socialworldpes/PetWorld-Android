@@ -4,25 +4,29 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/grad"
                 tools:context="com.petworld_madebysocialworld.ViewPetActivity">
 
 
+    <android.support.design.widget.AppBarLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:theme="@style/AppTheme.AppBarOverlay"
+            android:id="@+id/toolbarLayout">
 
-    <include
-            android:id="@+id/toolbar"
-            layout="@layout/toolbar" app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="8dp"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
-            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp" android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginBottom="5dp"/>
+        <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
+    </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager
             android:layout_width="match_parent"
-            android:layout_height="280dp" android:id="@+id/viewPager"
-            android:layout_below="@id/toolbar"
-            />
+            android:layout_height="176dp" android:id="@+id/viewPager"
+            android:layout_below="@id/toolbarLayout"
+    />
     <ScrollView
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="fill_parent"
@@ -39,197 +43,117 @@
                 android:layout_marginTop="20dp"
                 android:orientation="vertical">
 
-            <LinearLayout
+            <android.support.design.widget.TextInputLayout
+                    android:id="@+id/namePetInput_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:hint="@string/petName"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:textColorHint="#8D3B1F"
+                    app:hintTextAppearance="@style/TextAppearance.AppCompat.Small">
 
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Nombre"
-                        android:textColor="@color/headings"
-                        android:textSize="16sp" />
-
-                <TextView
-                        android:id="@+id/textViewName2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-light"
-                        android:text="name"
-                        android:textColor="#000000"
-                        android:textSize="20sp"
-                        android:textStyle="bold"/>
-
-                <View
+                <EditText
+                        android:id="@+id/namePetInput"
                         android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="15dp"
-                        android:background="@color/grey" />
+                        android:layout_height="wrap_content"
+                        android:inputType="text" android:focusable="false" android:enabled="false"/>
 
-            </LinearLayout>
+            </android.support.design.widget.TextInputLayout>
 
-            <LinearLayout
+            <android.support.design.widget.TextInputLayout
+                    android:id="@+id/genderPetInput_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:orientation="vertical">
+                    android:hint="@string/petGender"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:textColorHint="#8D3B1F"
+                    app:hintTextAppearance="@style/TextAppearance.AppCompat.Small">
 
-                <TextView
-
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Género"
-                        android:textColor="@color/headings"
-                        android:textSize="16sp" />
-
-                <TextView
-                        android:id="@+id/textViewGender2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-light"
-                        android:text="Gender"
-                        android:textColor="#000000"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                <View
+                <EditText
+                        android:id="@+id/genderPetInput"
                         android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="15dp"
-                        android:background="@color/grey" />
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:focusable="false" android:enabled="false"/>
 
-            </LinearLayout>
+            </android.support.design.widget.TextInputLayout>
 
-            <LinearLayout
+            <android.support.design.widget.TextInputLayout
+                    android:id="@+id/speciePetInput_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:orientation="vertical">
+                    android:hint="@string/petSpecie"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:textColorHint="#8D3B1F"
+                    app:hintTextAppearance="@style/TextAppearance.AppCompat.Small">
 
-                <TextView
-
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Especie"
-                        android:textColor="@color/headings"
-                        android:textSize="16sp"/>
-
-                <TextView
-                        android:id="@+id/textViewSpecie2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-light"
-                        android:text="Specie"
-                        android:textColor="#000000"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                <View
+                <EditText
+                        android:id="@+id/speciePetInput"
                         android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="15dp"
-                        android:background="@color/grey" />
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:focusable="false" android:enabled="false"/>
 
-            </LinearLayout>
+            </android.support.design.widget.TextInputLayout>
 
-            <LinearLayout
+            <android.support.design.widget.TextInputLayout
+                    android:id="@+id/racePetInput_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:orientation="vertical">
+                    android:hint="@string/petRace"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:textColorHint="#8D3B1F"
+                    app:hintTextAppearance="@style/TextAppearance.AppCompat.Small">
 
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Raza"
-                        android:textColor="@color/headings"
-                        android:textSize="16sp" />
-
-                <TextView
-                        android:id="@+id/textViewRace2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-light"
-                        android:text="Race"
-                        android:textColor="#000000"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                <View
+                <EditText
+                        android:id="@+id/racePetInput"
                         android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="15dp"
-                        android:background="@color/grey" />
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:focusable="false" android:enabled="false"/>
 
-            </LinearLayout>
+            </android.support.design.widget.TextInputLayout>
 
-            <LinearLayout
+            <android.support.design.widget.TextInputLayout
+                    android:id="@+id/commentPetInput_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:orientation="vertical">
+                    android:hint="@string/petComment"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:textColorHint="#8D3B1F"
+                    app:hintTextAppearance="@style/TextAppearance.AppCompat.Small">
 
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Comentario"
-                        android:textColor="@color/headings"
-                        android:textSize="16sp" />
-
-                <TextView
-                        android:id="@+id/textViewComment2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-light"
-                        android:text="Comment"
-                        android:textColor="#000000"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                <View
+                <EditText
+                        android:id="@+id/commentPetInput"
                         android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="15dp"
-                        android:background="@color/grey" />
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:focusable="false" android:enabled="false"/>
 
-            </LinearLayout>
-            <LinearLayout android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:layout_marginTop="15dp"
-                          android:orientation="horizontal" android:gravity="center">
+            </android.support.design.widget.TextInputLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                          android:orientation="horizontal"
+                          android:id="@+id/relativeLayout2"
+                          android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"
+                          tools:layout_editor_absoluteX="24dp"
+            >
                 <Button
-                        android:text="Editar" android:id="@+id/buttonEdit"
-                        android:layout_marginTop="15dp"
-                        android:layout_marginBottom="30dp"
-                        android:textColor="#FFFFFF"
-                        android:textSize="19sp"
-
-                        android:layout_width="110dp"
-                        android:layout_height="30dp"
-                        android:background="@drawable/buttonshape"
-                        android:shadowColor="#A8A8A8"
-                        android:shadowDx="0"
-                        android:shadowDy="0"
-                        android:shadowRadius="5"
-                        android:layout_marginRight="20dp"/>
+                        android:text="Borrar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="25"
+                        android:id="@+id/deleteButton"
+                        android:textColor="#fff"
+                        android:background="#FDFA001D"/>
                 <Button
-                        android:text="Borrar" android:id="@+id/buttonBorrar"
-                        android:layout_marginTop="15dp"
-                        android:layout_marginBottom="30dp"
-                        android:textColor="#FFFFFF"
-                        android:textSize="19sp"
+                        android:text="Editar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="75"
 
-                        android:layout_width="110dp"
-                        android:layout_height="30dp"
-                        android:background="@drawable/buttonshape2"
-                        android:shadowColor="#A8A8A8"
-                        android:shadowDx="0"
-                        android:shadowDy="0"
-                        android:shadowRadius="5"/>
-
-
-
+                        android:id="@+id/editButton"
+                        android:background="#75D3FD" android:textColor="#fff"
+                />
             </LinearLayout>
         </LinearLayout>
 
