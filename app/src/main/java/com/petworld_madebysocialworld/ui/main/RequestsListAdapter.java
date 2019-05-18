@@ -20,8 +20,8 @@ public class RequestsListAdapter extends ArrayAdapter<Friend> implements ListAda
     private ArrayList<Friend> requestsListInfo;
     private Context context;
 
-    public RequestsListAdapter(Context context, int textViewResourceid) {
-        super(context, textViewResourceid);
+    public RequestsListAdapter(Context context, int textViewResourceid, ArrayList<Friend> requestsList) {
+        super(context, textViewResourceid, requestsList);
         friendsSingleton = FriendsSingleton.getInstance();
         requestsListInfo = friendsSingleton.getRequestsListInfo();
         this.context = context;

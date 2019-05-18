@@ -28,7 +28,6 @@ public class RequestsFragment extends Fragment {
     private View view;
     private ListView requestsList;
     private FriendsSingleton friendsSingleton;
-    private ArrayList<Friend> requestsListInfo;
     private RequestsListAdapter customAdapter;
     private Context context;
     private int numDone;
@@ -36,12 +35,12 @@ public class RequestsFragment extends Fragment {
     public RequestsFragment(Context context) {
         this.context = context;
         friendsSingleton = FriendsSingleton.getInstance();
-        requestsListInfo = friendsSingleton.getRequestsListInfo();
+        friendsSingleton.setRequestsFragment(this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_friends, container, false);
+        view = inflater.inflate(R.layout.fragment_friends_requests, container, false);
 
         if (friendsSingleton.requestsListFirst()) getRequestsListAndSetAdapter();
         else setViewAndAdapter();
@@ -58,18 +57,17 @@ public class RequestsFragment extends Fragment {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 final ArrayList<DocumentSnapshot> friendsRef = (ArrayList<DocumentSnapshot>) queryDocumentSnapshots.getDocuments();
-                if (friendsRef.size() == 0) {
-                    friendsSingleton.addNoRequests();
-                    setViewAndAdapter();
-                } else numDone = 0;
+                numDone = 0;
                 for (DocumentSnapshot document : friendsRef) {
                     Log.d("OMG123-Requests", String.valueOf(document.getData()));
                     db.document(String.valueOf(document.getDocumentReference("reference").getPath())).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            requestsListInfo.add(new Friend(documentSnapshot.getId(), (String) documentSnapshot.get("name"), (String) documentSnapshot.get("imageURL")));
-                            if (numDone == 0) setViewAndAdapter();
-                            else if (numDone == friendsRef.size()) customAdapter.notifyDataSetChanged();
+                            friendsSingleton.loadRequestToList(new Friend(documentSnapshot.getId(), (String) documentSnapshot.get("name"), (String) documentSnapshot.get("imageURL")));
+                            if (numDone == 0) {
+                                setViewAndAdapter();
+                                ++numDone;
+                            } else if (numDone == friendsRef.size()) setViewAndAdapter();
                         }
                     });
                 }
@@ -77,11 +75,10 @@ public class RequestsFragment extends Fragment {
         });
     }
 
-    private void setViewAndAdapter() {
+    public void setViewAndAdapter() {
         requestsList = (ListView) view.findViewById(R.id.list);
-        customAdapter = new RequestsListAdapter(context, R.layout.fragment_friends);
+        customAdapter = new RequestsListAdapter(context, R.layout.fragment_friends_requests, friendsSingleton.getRequestsListInfo());
         requestsList.setAdapter(customAdapter);
-        friendsSingleton.setRequestsListAdapter(customAdapter);
     }
 
 }

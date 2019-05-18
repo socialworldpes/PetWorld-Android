@@ -19,8 +19,8 @@ public class FriendsListAdapter extends ArrayAdapter<Friend> implements ListAdap
     private ArrayList<Friend> friendsListInfo;
     private Context context;
 
-    public FriendsListAdapter(Context context, int textViewResourceid) {
-        super(context, textViewResourceid);
+    public FriendsListAdapter(Context context, int textViewResourceid, ArrayList<Friend> friendsList) {
+        super(context, textViewResourceid, friendsList);
         friendsSingleton = FriendsSingleton.getInstance();
         friendsListInfo = friendsSingleton.getFriendsListInfo();
         this.context = context;
@@ -83,21 +83,14 @@ public class FriendsListAdapter extends ArrayAdapter<Friend> implements ListAdap
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (friendsSingleton.deleteFriend(friendData)) notifyDataSetChanged();
                     Snackbar.make(v, friendData.getName() + " " + position, Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
+                    friendsSingleton.deleteFriend(friendData);
                 }
             });
             if (friendData.getId().equals("NoFriends")) button.setVisibility(View.INVISIBLE);
         }
         return convertView;
-    }
-
-    public boolean addFriend(Friend friend) {
-        // ADD EN FIREBASE
-        boolean added = friendsListInfo.add(friend);
-        notifyDataSetChanged();
-        return added;
     }
 
     @Override

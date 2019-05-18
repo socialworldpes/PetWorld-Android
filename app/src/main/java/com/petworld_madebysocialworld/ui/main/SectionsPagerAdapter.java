@@ -1,5 +1,6 @@
 package com.petworld_madebysocialworld.ui.main;
 
+import Models.Friend;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -7,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.petworld_madebysocialworld.FriendsSingleton;
 import com.petworld_madebysocialworld.R;
 
 /**
@@ -19,11 +21,13 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     private static final int[] TAB_TITLES = new int[]{R.string.Friends, R.string.Requests};
     private final Context mContext;
     private Fragment friendsFragment, requestsFragment;
+    private FriendsSingleton friendsSingleton;
 
     public SectionsPagerAdapter(Context context, FragmentManager fm) {
         super(fm);
         mContext = context;
 
+        friendsSingleton = FriendsSingleton.getInstance();
         friendsFragment = new FriendsFragment(mContext);
         requestsFragment = new RequestsFragment(mContext);
     }

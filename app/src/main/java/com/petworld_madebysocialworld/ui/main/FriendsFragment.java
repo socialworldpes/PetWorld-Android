@@ -32,26 +32,31 @@ public class FriendsFragment extends Fragment {
     private ListView friendsList;
     private Context context;
     private FriendsSingleton friendsSingleton;
-    private ArrayList<Friend> friendsListInfo;
     private FriendsListAdapter customAdapter;
     private int numDone;
 
     public FriendsFragment(Context context) {
         this.context = context;
         friendsSingleton = FriendsSingleton.getInstance();
-        friendsListInfo = friendsSingleton.getFriendsListInfo();
+        friendsSingleton.setFriendsFragment(this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_friends, container, false);
 
+        // Updates snapshots
+        friendsSingleton.updateFriendsSnapshots();
+
+        /* SE HACE CON EL DOCUMENT SNAPSHOT!!
         if (friendsSingleton.friendsListFirst()) getFriendsListAndSetAdapter();
         else setViewAndAdapter();
+        */
 
         return view;
     }
 
+    /*
     private void getFriendsListAndSetAdapter() {
 
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -61,30 +66,28 @@ public class FriendsFragment extends Fragment {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 final ArrayList<DocumentSnapshot> friendsRef = (ArrayList<DocumentSnapshot>) queryDocumentSnapshots.getDocuments();
-                if (friendsRef.size() == 0) {
-                    friendsSingleton.addNoFriends();
-                    setViewAndAdapter();
-                } else numDone = 0;
+                numDone = 0;
                 for (DocumentSnapshot document : friendsRef) {
                     Log.d("OMG123-Friends", String.valueOf(document.getData()));
                     db.document(String.valueOf(document.getDocumentReference("reference").getPath())).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            friendsListInfo.add(new Friend(documentSnapshot.getId(), (String) documentSnapshot.get("name"), (String) documentSnapshot.get("imageURL")));
-                            if (numDone == 0) setViewAndAdapter();
-                            else if (numDone == friendsRef.size()) customAdapter.notifyDataSetChanged();
+                            friendsSingleton.loadFriendToList(new Friend(documentSnapshot.getId(), (String) documentSnapshot.get("name"), (String) documentSnapshot.get("imageURL")));
+                            if (numDone == 0) {
+                                setViewAndAdapter();
+                                ++numDone;
+                            } else if (numDone == friendsRef.size()) setViewAndAdapter();
                         }
                     });
                 }
             }
         });
-    }
+    }*/
 
-    private void setViewAndAdapter() {
+    public void setViewAndAdapter() {
         friendsList = (ListView) view.findViewById(R.id.list);
-        customAdapter = new FriendsListAdapter(context, R.layout.fragment_friends);
+        customAdapter = new FriendsListAdapter(context, R.layout.fragment_friends, friendsSingleton.getFriendsListInfo());
         friendsList.setAdapter(customAdapter);
-        friendsSingleton.setFriendsListAdapter(customAdapter);
     }
 
     // TODO - LISTENER IF FRIEND_DELETES_ME
