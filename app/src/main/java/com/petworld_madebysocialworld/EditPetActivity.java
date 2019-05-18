@@ -144,6 +144,7 @@ public class EditPetActivity extends AppCompatActivity {
                     comment.setText("" + task.getResult().get("comment"));
                     urlImages = (ArrayList<String>) task.getResult().get("photo");
                     refreshImageView();
+                    uriImages = uriParse(urlImages);
 
 
 
@@ -153,6 +154,14 @@ public class EditPetActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private ArrayList<Uri> uriParse(ArrayList<String> urlImages) {
+
+        ArrayList<Uri> result =  new ArrayList<>();
+        for (String s: urlImages)
+            result.add(Uri.parse(s));
+        return result;
     }
 
     private void initIntent() {
