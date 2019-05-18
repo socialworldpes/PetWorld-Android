@@ -72,10 +72,15 @@ public class ViewRouteActivity extends AppCompatActivity {
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent (getApplicationContext(), EditRouteActivity.class);
-                startActivityForResult(intent, 0);
+                editRoute();
             }
         });
+    }
+
+    private void editRoute() {
+        Intent intent = new Intent (getApplicationContext(), EditRouteActivity.class);
+        intent.putExtra("id", id);
+        startActivityForResult(intent, 0);
     }
 
     public void deleteRoute() {
