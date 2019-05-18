@@ -15,7 +15,7 @@ public class FriendsSingleton {
 
     private static FriendsSingleton friendsSingleton;
 
-    private boolean friendsListFirst, requestsListFirst;
+    private boolean requestsListFirst, friendsFragmentIni;
 
     private FriendsFragment friendsFragment;
     private RequestsFragment requestsFragment;
@@ -24,11 +24,12 @@ public class FriendsSingleton {
     private ArrayList<Friend> addFriendsSnapshots, removeFriendsSnapshots;
 
     private FriendsSingleton() {
+        requestsListFirst = true;
         friendsListInfo = new ArrayList<Friend>();
         requestsListInfo = new ArrayList<Friend>();
         addFriendsSnapshots = new ArrayList<Friend>();
         removeFriendsSnapshots = new ArrayList<Friend>();
-        friendsListFirst = requestsListFirst = true;
+        friendsFragmentIni = false;
     }
 
     public static FriendsSingleton getInstance() {
@@ -37,12 +38,17 @@ public class FriendsSingleton {
         return friendsSingleton;
     }
 
-    public boolean friendsListFirst() {
-        if (friendsListFirst) {
-            friendsListFirst = false;
-            return true;
-        }
-        return friendsListFirst;
+    public void setFriendsFragment(FriendsFragment fragment) {
+        friendsFragment = fragment;
+        friendsFragmentIni = true;
+    }
+
+    public void setRequestsFragment(RequestsFragment fragment) {
+        requestsFragment = fragment;
+    }
+
+    public boolean friendsFragmentIni() {
+        return friendsFragmentIni;
     }
 
     public boolean requestsListFirst() {
@@ -67,14 +73,6 @@ public class FriendsSingleton {
             friendsListId.add(friend.getId());
         }
         return friendsListId;
-    }
-
-    public void setFriendsFragment(FriendsFragment fragment) {
-        friendsFragment = fragment;
-    }
-
-    public void setRequestsFragment(RequestsFragment fragment) {
-        requestsFragment = fragment;
     }
 
     public void addFriendSnapshot(String id, Map<String, Object> data) {
@@ -123,13 +121,16 @@ public class FriendsSingleton {
         removeFriendsSnapshots.add(friend);
     }
 
-    public boolean deleteFriend(Friend friend) {
+    public boolean deleteFriend(Friend friend, boolean me) {
         // Remove friend from friendsList
         boolean deleted = friendsListInfo.remove(friend);
 
+        Log.d("COUNT-DEL", "deletes?? = " + deleted);
+        Log.d("COUNT-DEL-Contains", String.valueOf(friendsListInfo));
+
         if (deleted) {
             // TODO - Not implemented yet
-            deleteFriendFromFirebase(FirebaseAuth.getInstance().getCurrentUser().getUid(), friend.getId());
+            if (me) deleteFriendFromFirebase(FirebaseAuth.getInstance().getCurrentUser().getUid(), friend.getId());
 
             if (friendsListInfo.size() == 0) addNoFriends();
 
@@ -149,14 +150,15 @@ public class FriendsSingleton {
 
     public void updateFriendsSnapshots() {
         for (Friend friend : addFriendsSnapshots) {
-            addFriend(friend);
-            Log.d("ERROR_CREATE", friend.getId());
+            if (!friendsListInfo.contains(friend)) addFriend(friend);
         }
 
         for (Friend friend : removeFriendsSnapshots) {
-            deleteFriend(friend);
-            Log.d("ERROR_DELETE", friend.getId());
+            deleteFriend(friend, false);
         }
+
+        addFriendsSnapshots.clear();
+        removeFriendsSnapshots.clear();
     }
 
     // This method does NOT update the listView

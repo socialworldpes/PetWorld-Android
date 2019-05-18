@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private final static int REQUEST_ID_MULTIPLE_PERMISSIONS = 2;
     private Activity act;
     private Context cont;
+    private int friendsChangesCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -325,6 +326,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
         final FriendsSingleton friendsSingleton = FriendsSingleton.getInstance();
+        Log.d("COUNT", "Auí llega??");
 
         db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("friends").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -335,7 +337,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     return;
                 }
 
-                for (final DocumentChange dc : snapshots.getDocumentChanges()) {
+                final List<DocumentChange> documentChanges = snapshots.getDocumentChanges();
+                friendsChangesCount = 0;
+                Log.d("COUNT-INI", "FRIEND-CHANGES-COUNT: " + friendsChangesCount + " --- SIZE: " + documentChanges.size());
+
+                for (final DocumentChange dc : documentChanges) {
                     db.document(dc.getDocument().getDocumentReference("reference").getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -344,11 +350,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 if (document.exists()) {
                                     if (dc.getType() == DocumentChange.Type.ADDED) {
                                         friendsSingleton.addFriendSnapshot(document.getId(), document.getData());
-                                        Log.d("ERROR", "tocapelotas + " + document.get("name"));
                                     } else if (dc.getType() == DocumentChange.Type.REMOVED) {
                                         friendsSingleton.deleteFriendSnapshot(document.getId(), document.getData());
-                                        Log.d("ERROR", "DELETED tocapelotas + " + document.get("name"));
                                     }
+                                    ++friendsChangesCount;
+                                    if (friendsSingleton.friendsFragmentIni() && friendsChangesCount == documentChanges.size()) friendsSingleton.updateFriendsSnapshots();
                                 } else {
                                     Log.d(TAG, "No such document");
                                 }

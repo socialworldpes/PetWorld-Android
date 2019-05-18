@@ -28,4 +28,10 @@ public class Friend implements Comparable<Friend> {
     public int compareTo(Friend friend) {
         return this.id.compareTo(friend.getId());
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Friend)) return false;
+        else return ((Friend) o).getId().equals(this.id);
+    }
 }
