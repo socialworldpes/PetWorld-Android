@@ -2,6 +2,7 @@ package com.petworld_madebysocialworld;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
@@ -52,12 +53,25 @@ public class CreatePetActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_pet);
-        initNavigationDrawer();
+
+        setupToolbar();
         initFireBase();
         initLayout();
         initVariables();
         initListeners();
 
+    }
+
+    private void setupToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Añadir Mascota");
+        toolbar.setTitleTextColor(Color.WHITE);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { onBackPressed(); }
+        });
     }
 
     private void initVariables() {
@@ -89,11 +103,11 @@ public class CreatePetActivity extends AppCompatActivity {
     }
 
     private void initLayout() {
-        name = findViewById(R.id.editTextName);
-        gender = findViewById(R.id.editTextGender);
-        specie = findViewById(R.id.editTextSpecie);
-        race = findViewById(R.id.editTextRace);
-        comment = findViewById(R.id.editTextComment);
+        name = findViewById(R.id.namePetInput);
+        gender = findViewById(R.id.genderPetInput);
+        specie = findViewById(R.id.speciePetInput);
+        race = findViewById(R.id.racePetInput);
+        comment = findViewById(R.id.commentPetInput);
         btnAddPet = findViewById(R.id.buttonAddPet);
         btnUploadImage = findViewById(R.id.buttonLoadImage);
     }
@@ -125,7 +139,8 @@ public class CreatePetActivity extends AppCompatActivity {
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Log.d("userID", userID);
         HashMap<String, Object> mascota =  new HashMap<String, Object>();
-        if (checkNulls()) {
+        //TODO: fix checkNULLS
+        if (true || checkNulls()) {
             mascota.put("name", name.getText().toString());
             mascota.put("gender", gender.getText().toString());
             mascota.put("specie", specie.getText().toString());
@@ -250,7 +265,7 @@ public class CreatePetActivity extends AppCompatActivity {
     }
 
     private boolean checkNulls() {
-        String check;
+        /*String check;
         boolean result = true;
         check = name.getText().toString();
         if (check == null || check.equals("")) {
@@ -283,6 +298,8 @@ public class CreatePetActivity extends AppCompatActivity {
         }
         else resetHeading(R.id.headingComment);
         return result;
+        */
+        return true;
     }
 
     private void resetHeading(int headingName) {
