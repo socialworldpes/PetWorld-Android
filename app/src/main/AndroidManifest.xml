@@ -36,6 +36,8 @@
         </activity>
         <activity android:name=".EditPetActivity">
         </activity>
+        <activity android:name=".EditRouteActivity">
+        </activity>
         <activity android:name=".CreatePetActivity">
         </activity>
         <activity android:name=".ViewPetActivity">
