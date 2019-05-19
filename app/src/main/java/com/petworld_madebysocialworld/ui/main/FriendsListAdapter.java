@@ -83,7 +83,7 @@ public class FriendsListAdapter extends ArrayAdapter<Friend> implements ListAdap
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Snackbar.make(v, friendData.getName() + " " + position, Snackbar.LENGTH_LONG)
+                    Snackbar.make(v, "Has eliminado a" + friendData.getName() + " de tus amigos", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                     friendsSingleton.deleteFriend(friendData, true);
                 }

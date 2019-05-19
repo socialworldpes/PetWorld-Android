@@ -85,17 +85,17 @@ public class RequestsListAdapter extends ArrayAdapter<Friend> implements ListAda
             acceptBttn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    friendsSingleton.connect2Friends(FirebaseAuth.getInstance().getCurrentUser().getUid(), friendData.getId());
-                    friendsSingleton.addFriend(friendData);
-                    Snackbar.make(v, "Accept: " + friendData.getName() + " " + position, Snackbar.LENGTH_LONG)
+                    Snackbar.make(v, "Se ha añadido " + friendData.getName() + " a tus amigos", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
+                    friendsSingleton.acceptRequest(friendData);
                 }
             });
             refuseBttn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Snackbar.make(v, "Refuse: " + friendData.getName() + " " + position, Snackbar.LENGTH_LONG)
+                    Snackbar.make(v, "Has rechazado a " + friendData.getName() + " como amigo", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
+                    friendsSingleton.refuseRequest(friendData);
                 }
             });
             if (friendData.getId().equals("NoPendingRequests")) {

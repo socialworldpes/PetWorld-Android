@@ -27,52 +27,29 @@ public class RequestsFragment extends Fragment {
 
     private View view;
     private ListView requestsList;
+    private Context context;
     private FriendsSingleton friendsSingleton;
     private RequestsListAdapter customAdapter;
-    private Context context;
-    private int numDone;
 
     public RequestsFragment(Context context) {
         this.context = context;
         friendsSingleton = FriendsSingleton.getInstance();
-        friendsSingleton.setRequestsFragment(this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_friends_requests, container, false);
 
-        if (friendsSingleton.requestsListFirst()) getRequestsListAndSetAdapter();
-        else setViewAndAdapter();
+        // Updates snapshots
+        if (!friendsSingleton.requestsFragmentIni()) {
+            friendsSingleton.setRequestsFragment(this);
+            friendsSingleton.updateRequestsSnapshots();
+        } else {
+            friendsSingleton.setRequestsFragment(this);
+            setViewAndAdapter();
+        }
 
         return view;
-    }
-
-    private void getRequestsListAndSetAdapter() {
-
-        final FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        db.collection("users").document(userID).collection("pendingFriends").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                final ArrayList<DocumentSnapshot> friendsRef = (ArrayList<DocumentSnapshot>) queryDocumentSnapshots.getDocuments();
-                numDone = 0;
-                for (DocumentSnapshot document : friendsRef) {
-                    Log.d("OMG123-Requests", String.valueOf(document.getData()));
-                    db.document(String.valueOf(document.getDocumentReference("reference").getPath())).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            friendsSingleton.loadRequestToList(new Friend(documentSnapshot.getId(), (String) documentSnapshot.get("name"), (String) documentSnapshot.get("imageURL")));
-                            if (numDone == 0) {
-                                setViewAndAdapter();
-                                ++numDone;
-                            } else if (numDone == friendsRef.size()) setViewAndAdapter();
-                        }
-                    });
-                }
-            }
-        });
     }
 
     public void setViewAndAdapter() {
