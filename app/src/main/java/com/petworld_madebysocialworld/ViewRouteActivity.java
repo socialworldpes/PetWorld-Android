@@ -24,7 +24,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ViewRouteActivity extends AppCompatActivity {
 
@@ -43,7 +45,7 @@ public class ViewRouteActivity extends AppCompatActivity {
     EditText locationNameInput;
     RatingBar ratingBar;
     private int numVotes;
-    private int puntuation;
+    HashMap<String, Long> puntuation;
     private int puntationFinal;
     private ArrayList<String> imageUrls;
     Button deleteButton;
@@ -167,13 +169,11 @@ public class ViewRouteActivity extends AppCompatActivity {
                     name = "" + task.getResult().get("name");
                     path = (List<GeoPoint>) task.getResult().get("path");
                     placeLocation = path.get(0);
-                    imageUrls = (ArrayList<String>)result.get("images");
-                    puntuation = ((Long)task.getResult().get("puntuation")).intValue();
-                    numVotes = ((Long)task.getResult().get("numVotes")).intValue();
+                    imageUrls = (ArrayList<String>)task.getResult().get("images");
+                    puntuation = (HashMap<String, Long>) task.getResult().get("puntuation");
 
                     //calculate puntuacion
-                    if (numVotes != 0) puntationFinal = puntuation/numVotes;
-                    else puntationFinal = 0;
+                    puntationFinal = calculatePoints();
 
                     //set puntuacion
                     ratingBar.setRating(puntationFinal);
@@ -196,6 +196,23 @@ public class ViewRouteActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private int calculatePoints() {
+        int resultado = 0;
+
+
+        for(Map.Entry<String, Long> entry : puntuation.entrySet()) {
+            String key = entry.getKey();
+            Long value = entry.getValue();
+
+            resultado += value;
+
+            // do what you have to do here
+            // In your case, another loop.
+        }
+
+        return resultado/puntuation.size();
     }
 
     private void setUpMap() {

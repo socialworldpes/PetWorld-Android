@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RatingBar;
 import android.widget.Toast;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
@@ -51,6 +52,10 @@ public class EditRouteActivity extends AppCompatActivity {
     EditText descriptionInput;
     EditText locationNameInput;
     Button saveButton;
+    RatingBar ratingBar;
+    private int numVotes;
+    private int puntuation;
+    private int puntationFinal;
     Button loadImageButton;
 
     //images
@@ -160,6 +165,7 @@ public class EditRouteActivity extends AppCompatActivity {
         saveButton = findViewById(R.id.saveButton);
         loadImageButton = findViewById(R.id.uploadImagesButton);
         imagesCanContinue = false;
+        ratingBar = findViewById(R.id.ratingBar);
     }
 
     private void readRouteInfo() {
@@ -180,6 +186,16 @@ public class EditRouteActivity extends AppCompatActivity {
                     imageUrls = (ArrayList<String>)result.get("images");
                     //fill uri images
                     loadUriImages();
+
+                    puntuation = ((Long)task.getResult().get("puntuation")).intValue();
+                    numVotes = ((Long)task.getResult().get("numVotes")).intValue();
+
+                    //calculate puntuacion
+                    if (numVotes != 0) puntationFinal = puntuation/numVotes;
+                    else puntationFinal = 0;
+
+                    //set puntuacion
+                    ratingBar.setRating(puntationFinal);
 
                     nameInput.setText(name);
                     descriptionInput.setText(description);

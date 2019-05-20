@@ -188,8 +188,11 @@ public class CreateRouteActivity extends AppCompatActivity {
         route.put("name", nameInput.getText().toString());
         route.put("placeName", locationNameInput.getText().toString());
         route.put("images", Arrays.asList());
-        route.put("puntuation", 0);
-        route.put("numVotes", 0);
+
+        //valoracion save userId
+        HashMap<String, Long> puntuation =  new HashMap<>();
+        puntuation.put(userID, new Long(0));
+        route.put("puntuation", puntuation);
 
         List<GeoPoint> geoPointList = parsePath(path);
         route.put("path", geoPointList);
