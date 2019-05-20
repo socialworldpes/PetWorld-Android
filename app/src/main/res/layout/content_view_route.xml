@@ -77,14 +77,12 @@
                   android:id="@+id/relativeLayout2"
                   android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"
                   tools:layout_editor_absoluteX="24dp">
+
         <Button
                 android:text="Borrar"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="25"
-                android:id="@+id/deleteButton"
-                android:background="#FF0800" android:textColor="#fff"
-        />
+                android:layout_height="wrap_content" android:id="@+id/deleteButton" android:layout_weight="25"
+                android:backgroundTint="#F44336" android:textColor="#fff"/>
         <Button
                 android:text="Editar"
                 android:layout_width="wrap_content"
@@ -92,7 +90,7 @@
                 android:layout_weight="75"
 
                 android:id="@+id/editButton"
-                android:background="#75D3FD" android:textColor="#fff"
+                android:backgroundTint="#03A9F4" android:textColor="#fff"
         />
     </LinearLayout>
 
