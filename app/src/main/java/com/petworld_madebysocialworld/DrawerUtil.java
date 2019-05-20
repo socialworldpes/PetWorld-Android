@@ -127,9 +127,7 @@ public class DrawerUtil {
                         drawerItemManagePets.withSubItems(
                                 new SecondaryDrawerItem().withName("" + aux.get("name")).withLevel(2).withIdentifier(2001 + i)
                         );
-
                         i++;
-
                     }
                     */
                 }
@@ -142,7 +140,7 @@ public class DrawerUtil {
         SecondaryDrawerItem drawerItemAddPet = new SecondaryDrawerItem().withIdentifier(3)
                 .withName("Añadir mascota").withIcon(R.drawable.ic_add);
         SecondaryDrawerItem drawerItemGroups = new SecondaryDrawerItem().withIdentifier(4)
-                .withName("Grupos").withIcon(R.drawable.ic_group);
+                .withName("Amigos").withIcon(R.drawable.ic_group);
         SecondaryDrawerItem drawerItemRoutes = new SecondaryDrawerItem().withIdentifier(5)
                 .withName("Tus rutas").withIcon(R.drawable.ic_rutas);
         SecondaryDrawerItem drawerItemLogOut = new SecondaryDrawerItem().withIdentifier(7)
@@ -207,6 +205,10 @@ public class DrawerUtil {
                             Intent intent = new Intent(activity, CreatePetActivity.class);
                             view.getContext().startActivity(intent);
                         }
+                        if (drawerItem.getIdentifier() == 4 && !(activity instanceof FriendsActivity)){
+                            Intent intent = new Intent(activity, FriendsActivity.class);
+                            view.getContext().startActivity(intent);
+                        }
                         return true;
                     }
                 })
@@ -215,4 +217,3 @@ public class DrawerUtil {
 
 
 }
-

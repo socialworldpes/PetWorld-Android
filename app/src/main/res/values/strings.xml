@@ -19,4 +19,8 @@
     <string name="petSpecie">Especie</string>
     <string name="petRace">Raza</string>
     <string name="petComment">Comentario</string>
+    <string name="title_activity_friends">FriendsActivity</string>
+    <string name="title_activity_search_friends">SearchFriendsActivity</string>
+    <string name="Friends">Amigos</string>
+    <string name="Requests">Solicitudes</string>
 </resources>

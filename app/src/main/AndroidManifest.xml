@@ -22,6 +22,15 @@
         <activity
                 android:name=".ViewRouteActivity"
                 android:label="@string/title_activity_view_route"
+        </activity>
+        <activity
+                android:name=".SearchFriendsActivity"
+                android:label="@string/title_activity_search_friends"
+                android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+                android:name=".FriendsActivity"
+                android:label="@string/title_activity_friends"
                 android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity android:name=".ViewWalkActivity">
@@ -64,7 +73,7 @@
                 android:theme="@style/AppTheme.Translucent">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>

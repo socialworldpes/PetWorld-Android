@@ -98,12 +98,12 @@ public class CreateRouteActivity extends AppCompatActivity {
     }
 
     private void initLayout() {
-        descriptionInput = findViewById(R.id.descriptionInput);
+        /*descriptionInput = findViewById(R.id.descriptionInput);
         nameInput = findViewById(R.id.nameInput);
         locationNameInput = findViewById(R.id.locationNameInput);
 
         btnAddRoute = findViewById(R.id.createButton);
-        btnUploadImage = findViewById(R.id.uploadImagesButton);
+        btnUploadImage = findViewById(R.id.uploadImagesButton);*/
     }
 
     private void initVariables() {
@@ -439,7 +439,7 @@ public class CreateRouteActivity extends AppCompatActivity {
                     }
                 });
             }
-        });
+        });*/
     }
 
     private void removePoint(LatLng point) {

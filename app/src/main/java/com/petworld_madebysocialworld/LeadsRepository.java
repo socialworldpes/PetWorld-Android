@@ -51,51 +51,36 @@ public class LeadsRepository {
     private void LeerRutasUsuario() {
         db = FirebaseFirestore.getInstance();
         userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        Log.d("alPetRef: ", "in");
-        Log.d("alPetRef", "" + userID);
+
+
         db.collection("users").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    Log.d("alPetRef: ", "task is successful");
                     DocumentSnapshot document = task.getResult();
-                    Log.d("alPetRef: ", "" + document.toString());
                     if (document.exists()) {
-                        Log.d("alPetRef: ", "document exists");
                         ArrayList<DocumentReference> alRouteRef = (ArrayList<DocumentReference>) document.get("routes");
                         for (DocumentReference dr: alRouteRef) {
-                            Log.d(TAG, "onComplete: " + dr.get());
-                            Log.d(TAG, "onComplete: " + dr.getPath());
                             db.document(dr.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                     if (task.isSuccessful()) {
-                                        Log.d("alRouteRef: ", "task is successful");
                                         DocumentSnapshot document = task.getResult();
-                                        Log.d("alRouteRef: ", "" + document.toString());
                                         if (document.exists()) {
-                                            Log.d("alRouteRef: ", "document exists");
                                             Map<String, Object> data = document.getData();
-                                            Log.d(TAG, "onComplete: " + data);
                                             String description = (String) data.get("description");
-                                            Log.d(TAG, "onComplete: " + description);
                                             String name = (String) data.get("name");
-                                            Log.d(TAG, "onComplete: " + name);
                                             String place = data.get("placeLocation").toString();
-                                            Log.d(TAG, "onComplete: " + place);
                                             saveLead(new Lead(name, place, description, R.drawable.anabohueles));
                                         }
                                     }
                                 }
                             });
-                            Log.d("alPetRef: ", "out1");
                         }
                     }
                 }
             }
 
         });
-        Log.d("alPetRef: ", "out2");
-
     }
 }

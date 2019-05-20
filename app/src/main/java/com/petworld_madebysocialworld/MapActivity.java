@@ -583,7 +583,10 @@ public class MapActivity extends AppCompatActivity
         DrawerUtil.getDrawer(this,toolBar);
     }
 
-
+    public void searchFriends(View view) {
+        Intent intent = new Intent(MapActivity.this, SearchFriendsActivity.class);
+        startActivity(intent);
+    }
 
 
     public void searchNearPlaces(View view) {
