@@ -439,7 +439,7 @@ public class CreateRouteActivity extends AppCompatActivity {
                     }
                 });
             }
-        });*/
+        });
     }
 
     private void removePoint(LatLng point) {

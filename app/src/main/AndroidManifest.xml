@@ -21,7 +21,7 @@
             android:theme="@style/AppTheme">
         <activity
                 android:name=".ViewRouteActivity"
-                android:label="@string/title_activity_view_route"
+                android:label="@string/title_activity_view_route">
         </activity>
         <activity
                 android:name=".SearchFriendsActivity"
