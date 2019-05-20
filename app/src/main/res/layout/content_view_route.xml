@@ -34,7 +34,7 @@
 
 
         <RatingBar
-                android:id="@+id/simpleRatingBar"
+                android:id="@+id/ratingBar"
                 android:numStars="5"
                 android:layout_width="79dp"
                 android:layout_height="wrap_content"

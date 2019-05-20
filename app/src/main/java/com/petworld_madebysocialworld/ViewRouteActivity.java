@@ -4,6 +4,7 @@ import Models.User;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.Rating;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RatingBar;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -39,6 +41,10 @@ public class ViewRouteActivity extends AppCompatActivity {
     EditText nameInput;
     EditText descriptionInput;
     EditText locationNameInput;
+    RatingBar ratingBar;
+    private int numVotes;
+    private int puntuation;
+    private int puntationFinal;
     private ArrayList<String> imageUrls;
     Button deleteButton;
     Button editButton;
@@ -139,6 +145,7 @@ public class ViewRouteActivity extends AppCompatActivity {
         locationNameInput = findViewById(R.id.locationNameInput);
         deleteButton = findViewById(R.id.deleteButton);
         editButton = findViewById(R.id.editButton);
+        ratingBar = findViewById(R.id.ratingBar);
     }
 
 
@@ -146,6 +153,7 @@ public class ViewRouteActivity extends AppCompatActivity {
 
     private void readRouteInfo() {
         id = getIntent().getStringExtra("id");
+        Log.d("readRoute:","id route: " + id);
 
         FirebaseFirestore.getInstance().collection("routes").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -160,6 +168,17 @@ public class ViewRouteActivity extends AppCompatActivity {
                     path = (List<GeoPoint>) task.getResult().get("path");
                     placeLocation = path.get(0);
                     imageUrls = (ArrayList<String>)result.get("images");
+                    puntuation = ((Long)task.getResult().get("puntuation")).intValue();
+                    numVotes = ((Long)task.getResult().get("numVotes")).intValue();
+
+                    //calculate puntuacion
+                    if (numVotes != 0) puntationFinal = puntuation/numVotes;
+                    else puntationFinal = 0;
+
+                    //set puntuacion
+                    ratingBar.setRating(puntationFinal);
+
+
 
                     nameInput.setText(name);
                     descriptionInput.setText(description);
