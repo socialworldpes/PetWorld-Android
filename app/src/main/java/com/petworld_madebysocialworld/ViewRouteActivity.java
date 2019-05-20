@@ -207,9 +207,6 @@ public class ViewRouteActivity extends AppCompatActivity {
             Long value = entry.getValue();
 
             resultado += value;
-
-            // do what you have to do here
-            // In your case, another loop.
         }
 
         return resultado/puntuation.size();
