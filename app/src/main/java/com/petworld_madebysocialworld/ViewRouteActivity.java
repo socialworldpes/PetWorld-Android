@@ -4,6 +4,7 @@ import Models.User;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.Rating;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RatingBar;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -22,7 +24,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ViewRouteActivity extends AppCompatActivity {
 
@@ -39,6 +43,10 @@ public class ViewRouteActivity extends AppCompatActivity {
     EditText nameInput;
     EditText descriptionInput;
     EditText locationNameInput;
+    RatingBar ratingBar;
+    private int numVotes;
+    HashMap<String, Long> puntuation;
+    private int puntationFinal;
     private ArrayList<String> imageUrls;
     Button deleteButton;
     Button editButton;
@@ -139,6 +147,7 @@ public class ViewRouteActivity extends AppCompatActivity {
         locationNameInput = findViewById(R.id.locationNameInput);
         deleteButton = findViewById(R.id.deleteButton);
         editButton = findViewById(R.id.editButton);
+        ratingBar = findViewById(R.id.ratingBar);
     }
 
 
@@ -146,6 +155,7 @@ public class ViewRouteActivity extends AppCompatActivity {
 
     private void readRouteInfo() {
         id = getIntent().getStringExtra("id");
+        Log.d("readRoute:","id route: " + id);
 
         FirebaseFirestore.getInstance().collection("routes").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -159,7 +169,21 @@ public class ViewRouteActivity extends AppCompatActivity {
                     name = "" + task.getResult().get("name");
                     path = (List<GeoPoint>) task.getResult().get("path");
                     placeLocation = path.get(0);
-                    imageUrls = (ArrayList<String>)result.get("images");
+                    imageUrls = (ArrayList<String>)task.getResult().get("images");
+
+                    //check para las versiones de rutas antiguas
+                    if (task.getResult().get("puntuation") == null) ratingBar.setRating(0);
+                    else {
+                        puntuation = (HashMap<String, Long>) task.getResult().get("puntuation");
+
+                        //calculate puntuacion
+                        puntationFinal = calculatePoints();
+
+                        //set puntuacion
+                        ratingBar.setRating(puntationFinal);
+                    }
+
+
 
                     nameInput.setText(name);
                     descriptionInput.setText(description);
@@ -177,6 +201,20 @@ public class ViewRouteActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private int calculatePoints() {
+        int resultado = 0;
+
+
+        for(Map.Entry<String, Long> entry : puntuation.entrySet()) {
+            String key = entry.getKey();
+            Long value = entry.getValue();
+
+            resultado += value;
+        }
+
+        return resultado/puntuation.size();
     }
 
     private void setUpMap() {

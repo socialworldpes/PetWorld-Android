@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RatingBar;
 import android.widget.Toast;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
@@ -32,6 +33,7 @@ import com.sangcomz.fishbun.define.Define;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EditRouteActivity extends AppCompatActivity {
 
@@ -51,6 +53,9 @@ public class EditRouteActivity extends AppCompatActivity {
     EditText descriptionInput;
     EditText locationNameInput;
     Button saveButton;
+    RatingBar ratingBar;
+    HashMap<String, Long> puntuation;
+    private Long puntationUser;
     Button loadImageButton;
 
     //images
@@ -100,6 +105,12 @@ public class EditRouteActivity extends AppCompatActivity {
             public void onClick(View v) {
                 loadImage();
                 refreshImageView();
+            }
+        });
+        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                puntuation.put(FirebaseAuth.getInstance().getCurrentUser().getUid(), (long) rating);
             }
         });
     }
@@ -160,6 +171,7 @@ public class EditRouteActivity extends AppCompatActivity {
         saveButton = findViewById(R.id.saveButton);
         loadImageButton = findViewById(R.id.uploadImagesButton);
         imagesCanContinue = false;
+        ratingBar = findViewById(R.id.ratingBar);
     }
 
     private void readRouteInfo() {
@@ -180,6 +192,21 @@ public class EditRouteActivity extends AppCompatActivity {
                     imageUrls = (ArrayList<String>)result.get("images");
                     //fill uri images
                     loadUriImages();
+
+                    if (task.getResult().get("puntuation") == null) {
+                        HashMap<String, Long> puntuationAux =  new HashMap<>();
+                        puntuationAux.put(FirebaseAuth.getInstance().getCurrentUser().getUid(), (long) 0);
+                        puntuation = puntuationAux;
+                    }
+                    else {
+                        puntuation = (HashMap<String, Long>) task.getResult().get("puntuation");
+                    }
+
+                    //calculate puntuacion
+                    puntationUser = calculatePointsUser();
+
+                    //set puntuacion
+                    ratingBar.setRating(puntationUser);
 
                     nameInput.setText(name);
                     descriptionInput.setText(description);
@@ -203,6 +230,21 @@ public class EditRouteActivity extends AppCompatActivity {
         });
     }
 
+    private Long calculatePointsUser() {
+        Long resultado =  new Long(0);
+
+        for(Map.Entry<String, Long> entry : puntuation.entrySet()) {
+            String key = entry.getKey();
+            Long value = entry.getValue();
+
+            if (key.equals(FirebaseAuth.getInstance().getCurrentUser().getUid()))
+                resultado = value;
+
+        }
+
+        return resultado;
+    }
+
     private void loadUriImages() {
         uriImages =  new ArrayList<>();
         for (String s: imageUrls)
@@ -220,6 +262,7 @@ public class EditRouteActivity extends AppCompatActivity {
         route.put("images", imageUrls);
         route.put("path", path);
         route.put("placeLocation", path.get(0));
+        route.put("puntuation", puntuation);
 
     }
 
