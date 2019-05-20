@@ -1,10 +1,11 @@
 package com.petworld_madebysocialworld;
 
-import Models.User;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -51,13 +52,26 @@ public class CreatePetActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pet_add_2);
-        initNavigationDrawer();
+        setContentView(R.layout.activity_create_pet);
+
+        setupToolbar();
         initFireBase();
         initLayout();
         initVariables();
         initListeners();
 
+    }
+
+    private void setupToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Añadir Mascota");
+        toolbar.setTitleTextColor(Color.WHITE);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { onBackPressed(); }
+        });
     }
 
     private void initVariables() {
@@ -89,14 +103,15 @@ public class CreatePetActivity extends AppCompatActivity {
     }
 
     private void initLayout() {
-        name = findViewById(R.id.editTextName);
-        gender = findViewById(R.id.editTextGender);
-        specie = findViewById(R.id.editTextSpecie);
-        race = findViewById(R.id.editTextRace);
-        comment = findViewById(R.id.editTextComment);
+        name = findViewById(R.id.namePetInput);
+        gender = findViewById(R.id.genderPetInput);
+        specie = findViewById(R.id.speciePetInput);
+        race = findViewById(R.id.racePetInput);
+        comment = findViewById(R.id.commentPetInput);
         btnAddPet = findViewById(R.id.buttonAddPet);
         btnUploadImage = findViewById(R.id.buttonLoadImage);
     }
+
 
 
     private void initNavigationDrawer() {
@@ -106,6 +121,15 @@ public class CreatePetActivity extends AppCompatActivity {
        // DrawerUtil.getDrawer(this,toolBar);
     }
 
+    private void refreshImageView() {
+
+        for (Uri uri: uriImages)
+            urlImages.add(uri.toString());
+
+        ViewPager viewPager= findViewById(R.id.viewPager);
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getApplicationContext(), urlImages);
+        viewPager.setAdapter(adapter);
+    }
 
     private void loadImage(){
         FishBun.with(this).setImageAdapter(new PicassoAdapter()).setMaxCount(3).startAlbum();
@@ -115,7 +139,8 @@ public class CreatePetActivity extends AppCompatActivity {
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Log.d("userID", userID);
         HashMap<String, Object> mascota =  new HashMap<String, Object>();
-        if (checkNulls()) {
+        //TODO: fix checkNULLS
+        if (true || checkNulls()) {
             mascota.put("name", name.getText().toString());
             mascota.put("gender", gender.getText().toString());
             mascota.put("specie", specie.getText().toString());
@@ -232,6 +257,7 @@ public class CreatePetActivity extends AppCompatActivity {
                     uriImages = imageData.getParcelableArrayListExtra(Define.INTENT_PATH);
                     if (uriImages.size() > 0){
                         imagesCanContinue = true;
+                        refreshImageView();
                     }
                     break;
                 }
@@ -239,7 +265,7 @@ public class CreatePetActivity extends AppCompatActivity {
     }
 
     private boolean checkNulls() {
-        String check;
+        /*String check;
         boolean result = true;
         check = name.getText().toString();
         if (check == null || check.equals("")) {
@@ -272,6 +298,8 @@ public class CreatePetActivity extends AppCompatActivity {
         }
         else resetHeading(R.id.headingComment);
         return result;
+        */
+        return true;
     }
 
     private void resetHeading(int headingName) {

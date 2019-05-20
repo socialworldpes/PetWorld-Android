@@ -20,6 +20,10 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity
+                android:name=".ViewRouteActivity"
+                android:label="@string/title_activity_view_route"
+        </activity>
+        <activity
                 android:name=".SearchFriendsActivity"
                 android:label="@string/title_activity_search_friends"
                 android:theme="@style/AppTheme.NoActionBar">
@@ -40,6 +44,8 @@
         <activity android:name=".CreateMeetingActivity">
         </activity>
         <activity android:name=".EditPetActivity">
+        </activity>
+        <activity android:name=".EditRouteActivity">
         </activity>
         <activity android:name=".CreatePetActivity">
         </activity>
