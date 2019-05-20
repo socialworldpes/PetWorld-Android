@@ -170,13 +170,18 @@ public class ViewRouteActivity extends AppCompatActivity {
                     path = (List<GeoPoint>) task.getResult().get("path");
                     placeLocation = path.get(0);
                     imageUrls = (ArrayList<String>)task.getResult().get("images");
-                    puntuation = (HashMap<String, Long>) task.getResult().get("puntuation");
 
-                    //calculate puntuacion
-                    puntationFinal = calculatePoints();
+                    //check para las versiones de rutas antiguas
+                    if (task.getResult().get("puntuation") == null) ratingBar.setRating(0);
+                    else {
+                        puntuation = (HashMap<String, Long>) task.getResult().get("puntuation");
 
-                    //set puntuacion
-                    ratingBar.setRating(puntationFinal);
+                        //calculate puntuacion
+                        puntationFinal = calculatePoints();
+
+                        //set puntuacion
+                        ratingBar.setRating(puntationFinal);
+                    }
 
 
 

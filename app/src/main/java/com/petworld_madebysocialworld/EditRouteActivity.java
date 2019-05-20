@@ -193,7 +193,14 @@ public class EditRouteActivity extends AppCompatActivity {
                     //fill uri images
                     loadUriImages();
 
-                    puntuation = (HashMap<String, Long>) task.getResult().get("puntuation");
+                    if (task.getResult().get("puntuation") == null) {
+                        HashMap<String, Long> puntuationAux =  new HashMap<>();
+                        puntuationAux.put(FirebaseAuth.getInstance().getCurrentUser().getUid(), (long) 0);
+                        puntuation = puntuationAux;
+                    }
+                    else {
+                        puntuation = (HashMap<String, Long>) task.getResult().get("puntuation");
+                    }
 
                     //calculate puntuacion
                     puntationUser = calculatePointsUser();
