@@ -26,10 +26,7 @@ import android.view.View;
 
 
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -554,6 +551,7 @@ public class MapActivity extends AppCompatActivity
             if (mLocationPermissionGranted) {
                 mMap.setMyLocationEnabled(true);
                 mMap.getUiSettings().setMyLocationButtonEnabled(true);
+                setMyLocationButtonPosition();
             } else {
                 mMap.setMyLocationEnabled(false);
                 mMap.getUiSettings().setMyLocationButtonEnabled(false);
@@ -564,6 +562,15 @@ public class MapActivity extends AppCompatActivity
         } catch (SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
         }
+    }
+
+    public void setMyLocationButtonPosition() {
+        View locationButton = ((View) findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+        // position on right top
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+        rlp.setMargins(0, 200, 180, 0);
     }
 
     public void goToLogIn (View view){
@@ -685,6 +692,9 @@ public class MapActivity extends AppCompatActivity
 
                                         }
 
+                                        // Therefore it loads the listLayout as soon as the Meetings and Walks are loaded
+                                        loadListLayout(position);
+
                                         if (task.getResult().isEmpty()) Log.d("Route", "NO hay rutas cerca");
                                     }
                                 }
@@ -694,9 +704,6 @@ public class MapActivity extends AppCompatActivity
                 });
             }
         });
-
-        loadListLayout(position);
-
     }
 
     public boolean checkConditions(GeoPoint point, LatLngBounds bounds, Date date) {
@@ -803,7 +810,7 @@ public class MapActivity extends AppCompatActivity
         if (position == 0) {
             if (meetings.size() != 0){
 
-                for(final Map<String, Object> mapTmp : meetings) {
+                for (final Map<String, Object> mapTmp : meetings) {
 
                     LinearLayout linearLayoutList = new LinearLayout(context);
 
