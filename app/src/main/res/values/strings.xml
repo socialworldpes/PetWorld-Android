@@ -14,4 +14,9 @@
     <string name="title_activity_search_friends">SearchFriendsActivity</string>
     <string name="Friends">Amigos</string>
     <string name="Requests">Solicitudes</string>
+    <string name="title_activity_view_meting">ViewMetingActivity</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="InfoMeetings">Información</string>
+    <string name="ParticipantsMeetings">Participantes</string>
 </resources>
