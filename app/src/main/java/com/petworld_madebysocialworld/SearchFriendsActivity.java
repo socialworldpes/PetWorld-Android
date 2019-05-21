@@ -130,7 +130,7 @@ public class SearchFriendsActivity extends AppCompatActivity {
         // See documentation on defining a message payload.
                 Map<String, Object> pF = new HashMap<>();
                 pF.put("reference", FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()));
-                FirebaseFirestore.getInstance().collection("users").document(to_idUser).collection("pendingFriends").add(pF);
+                FirebaseFirestore.getInstance().collection("users").document(to_idUser).collection("pendingFriends").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).set(pF);
     }
 
 }

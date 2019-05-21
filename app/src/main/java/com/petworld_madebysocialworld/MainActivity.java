@@ -1,5 +1,6 @@
 package com.petworld_madebysocialworld;
 
+import Models.Friend;
 import Models.User;
 import android.Manifest;
 import android.app.Activity;
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private final static int REQUEST_ID_MULTIPLE_PERMISSIONS = 2;
     private Activity act;
     private Context cont;
+    private int friendsChangesCount, pendingRequestsCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -302,6 +304,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void listenToChanges() {
 
+        final FriendsSingleton friendsSingleton = FriendsSingleton.getInstance();
+
         //pending friends
         final Context context = cont;
         final Activity activity = act;
@@ -314,17 +318,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     return;
                 }
 
-                for (DocumentChange dc : snapshots.getDocumentChanges()) {
-                    if (dc.getType() == DocumentChange.Type.ADDED) {
-                        PushNotification pushAux = new PushNotification();
-                        pushAux.addNotification(activity, "PetWorld", "Tienes una nueva solicitud de amistad", R.drawable.ic_group, context);
-                    }
+                final List<DocumentChange> documentChanges = snapshots.getDocumentChanges();
+                pendingRequestsCount = 0;
+
+                if (documentChanges.size() == 0 && friendsSingleton.getRequestsListInfo().size() == 0) {
+                    friendsSingleton.setNoRequests(true);
                 }
 
+                for (final DocumentChange dc : snapshots.getDocumentChanges()) {
+                    db.document(dc.getDocument().getDocumentReference("reference").getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                if (document.exists()) {
+                                    if (dc.getType() == DocumentChange.Type.ADDED) {
+                                        PushNotification pushAux = new PushNotification();
+                                        pushAux.addNotification(activity, "PetWorld", "Tienes una nueva solicitud de amistad de " + document.get("name"), R.drawable.ic_group, context);
+                                        friendsSingleton.addRequestSnapshot(document.getId(), document.getData());
+                                    }
+
+                                    ++pendingRequestsCount;
+                                    if (friendsSingleton.friendsFragmentIni() && pendingRequestsCount == documentChanges.size()) friendsSingleton.updateRequestsSnapshots();
+                                } else {
+                                    Log.d(TAG, "No such document");
+                                }
+                            } else {
+                                Log.d(TAG, "get failed with ", task.getException());
+                            }
+                        }
+                    });
+                }
             }
         });
 
-        db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Friends").addSnapshotListener(new EventListener<QuerySnapshot>() {
+        db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("friends").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot snapshots,
                                 @Nullable FirebaseFirestoreException e) {
@@ -333,28 +361,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     return;
                 }
 
-                for (DocumentChange dc : snapshots.getDocumentChanges()) {
-                    if (dc.getType() == DocumentChange.Type.ADDED) {
-                        FriendsSingleton.getInstance().addFriend(dc.getDocument().getId(), dc.getDocument().getData());
-                    }
-                    if (dc.getType() == DocumentChange.Type.REMOVED) {
-                        FriendsSingleton.getInstance().deleteFriend(dc.getDocument().getId(), dc.getDocument().getData());
-                    }
+                final List<DocumentChange> documentChanges = snapshots.getDocumentChanges();
+                friendsChangesCount = 0;
+
+                if (documentChanges.size() == 0 && friendsSingleton.getFriendsListInfo().size() == 0) {
+                    friendsSingleton.setNoFriends(true);
+                }
+
+                for (final DocumentChange dc : documentChanges) {
+                    db.document(dc.getDocument().getDocumentReference("reference").getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                if (document.exists()) {
+                                    if (dc.getType() == DocumentChange.Type.ADDED) {
+                                        friendsSingleton.addFriendSnapshot(document.getId(), document.getData());
+                                    } else if (dc.getType() == DocumentChange.Type.REMOVED) {
+                                        friendsSingleton.deleteFriendSnapshot(document.getId(), document.getData());
+                                    }
+
+                                    ++friendsChangesCount;
+                                    if (friendsSingleton.friendsFragmentIni() && friendsChangesCount == documentChanges.size()) friendsSingleton.updateFriendsSnapshots();
+                                } else {
+                                    Log.d(TAG, "No such document");
+                                }
+                            } else {
+                                Log.d(TAG, "get failed with ", task.getException());
+                            }
+                        }
+                    });
                 }
 
             }
         });
     }
-
-
-
-
-
-
-
-
-
-    // -----------------   USELESS CODE   -------------- //
 
     private boolean checkAndRequestPermissions() {
         int readpermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);

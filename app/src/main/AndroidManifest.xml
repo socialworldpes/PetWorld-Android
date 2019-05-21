@@ -25,39 +25,60 @@
                 android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
+                android:name=".ViewRouteActivity"
+                android:label="activity_view_route"
+                android:screenOrientation="portrait">
+        </activity>
+        <activity
                 android:name=".SearchFriendsActivity"
                 android:label="@string/title_activity_search_friends"
-                android:theme="@style/AppTheme.NoActionBar">
+                android:theme="@style/AppTheme.NoActionBar"
+                android:screenOrientation="portrait">
         </activity>
         <activity
                 android:name=".FriendsActivity"
                 android:label="@string/title_activity_friends"
-                android:theme="@style/AppTheme.NoActionBar">
+                android:theme="@style/AppTheme.NoActionBar"
+                android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".ViewWalkActivity">
+        <activity android:name=".ViewWalkActivity"
+                  android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".LeadsActivity">
+        <activity android:name=".LeadsActivity"
+                  android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".CreateRouteActivity">
+        <activity android:name=".CreateRouteActivity"
+                  android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".CreateWalkActivity">
+        <activity android:name=".CreateWalkActivity"
+                  android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".CreateMeetingActivity">
+        <activity android:name=".CreateMeetingActivity"
+                  android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".EditPetActivity">
+        <activity android:name=".EditPetActivity"
+                  android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".CreatePetActivity">
+        <activity android:name=".EditRouteActivity"
+                  android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".ViewPetActivity">
+        <activity android:name=".CreatePetActivity"
+                  android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".ViewMeetingActivity">
+        <activity android:name=".ViewPetActivity"
+                  android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".UserActivity">
+        <activity android:name=".ViewMeetingActivity"
+                  android:screenOrientation="portrait">
+        </activity>
+        <activity android:name=".UserActivity"
+                  android:screenOrientation="portrait">
         </activity>
         <activity
                 android:name=".MapActivity"
                 android:label="@string/title_activity_map"
-                android:theme="@style/AppTheme.Translucent">
+                android:theme="@style/AppTheme.Translucent"
+                android:screenOrientation="portrait">
         </activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -69,7 +90,8 @@
         -->
         <activity
                 android:name=".MainActivity"
-                android:theme="@style/AppTheme.Translucent">
+                android:theme="@style/AppTheme.Translucent"
+                android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>

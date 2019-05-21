@@ -19,8 +19,8 @@ public class FriendsListAdapter extends ArrayAdapter<Friend> implements ListAdap
     private ArrayList<Friend> friendsListInfo;
     private Context context;
 
-    public FriendsListAdapter(Context context, int textViewResourceid) {
-        super(context, textViewResourceid);
+    public FriendsListAdapter(Context context, int textViewResourceid, ArrayList<Friend> friendsList) {
+        super(context, textViewResourceid, friendsList);
         friendsSingleton = FriendsSingleton.getInstance();
         friendsListInfo = friendsSingleton.getFriendsListInfo();
         this.context = context;
@@ -83,34 +83,14 @@ public class FriendsListAdapter extends ArrayAdapter<Friend> implements ListAdap
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (removeFriend(friendData.getId())) notifyDataSetChanged();
-                    Snackbar.make(v, friendData.getName() + " " + position, Snackbar.LENGTH_LONG)
+                    Snackbar.make(v, "Has eliminado a" + friendData.getName() + " de tus amigos", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
+                    friendsSingleton.deleteFriend(friendData, true);
                 }
             });
             if (friendData.getId().equals("NoFriends")) button.setVisibility(View.INVISIBLE);
         }
         return convertView;
-    }
-
-    public boolean addFriend(Friend friend) {
-        // ADD EN FIREBASE
-        boolean added = friendsListInfo.add(friend);
-        notifyDataSetChanged();
-        return added;
-    }
-
-    public boolean removeFriend(String newfriendId) {
-        for (int i = 0; i < friendsListInfo.size(); ++i) {
-            // TEST - NO SE SI friendsListInfo.remove(i) != null se cumple
-            if (friendsListInfo.get(i).getId().equals(newfriendId) && friendsListInfo.remove(i) != null) {
-                // DELETE FROM FIREBASE
-                notifyDataSetChanged();
-                return true;
-            }
-        }
-
-        return false;
     }
 
     @Override

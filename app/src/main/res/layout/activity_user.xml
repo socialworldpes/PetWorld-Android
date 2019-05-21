@@ -14,22 +14,54 @@
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp" android:layout_width="0dp"
             android:layout_height="56dp"/>
     <TextView
-            android:text="Soc un User"
+            android:text="Nom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/textView3" android:layout_marginTop="8dp"
-            app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
+            android:id="@+id/tvName"
+            android:textSize="24sp"
+            app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp" app:layout_constraintBottom_toTopOf="@+id/button4"
-            android:textSize="30sp"/>
-    <Button
-            android:text="Tornar Mapa"
+            android:layout_marginTop="24dp" app:layout_constraintTop_toBottomOf="@+id/toolbar"/>
+    <TextView
+            android:text="Email"
             android:layout_width="wrap_content"
-            android:layout_height="51dp"
-            android:id="@+id/button4"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="8dp" app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="8dp" android:textSize="24sp" android:onClick="goToLogIn"
-            android:layout_marginBottom="180dp" app:layout_constraintBottom_toBottomOf="parent"/>
+            android:layout_height="wrap_content"
+            android:id="@+id/tvEmail"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/tvName"/>
+    <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/walksTv" app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="24dp"
+            app:layout_constraintTop_toBottomOf="@+id/routesTv" android:layout_marginTop="24dp"/>
+    <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/petsTv" app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="24dp"
+            android:layout_marginTop="32dp" app:layout_constraintTop_toBottomOf="@+id/tvEmail"/>
+    <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/friendsTv" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="24dp" app:layout_constraintTop_toBottomOf="@+id/petsTv"
+            android:layout_marginTop="24dp"/>
+    <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/meetingsTv" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="24dp" app:layout_constraintTop_toBottomOf="@+id/friendsTv"
+            android:layout_marginTop="24dp"/>
+    <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/routesTv" app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="24dp"
+            app:layout_constraintTop_toBottomOf="@+id/meetingsTv" android:layout_marginTop="24dp"/>
 
 </android.support.constraint.ConstraintLayout>

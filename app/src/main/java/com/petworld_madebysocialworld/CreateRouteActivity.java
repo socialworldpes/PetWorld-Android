@@ -1,25 +1,23 @@
 package com.petworld_madebysocialworld;
 
-import Models.User;
-import android.app.assist.AssistStructure;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import com.google.android.gms.maps.model.LatLng;
+import android.graphics.Color;
+import android.location.Location;
+import android.support.v7.widget.Toolbar;
+import android.text.Html;
+import android.widget.TextView;
+import com.google.android.gms.maps.model.*;
 import android.net.Uri;
-import android.os.Debug;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 import com.google.android.gms.maps.*;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.*;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -45,10 +43,7 @@ public class CreateRouteActivity extends AppCompatActivity {
     private FirebaseFirestore db;
 
     //map
-    private GoogleMap mMap;
-
-    //valores cambiados como location
-    LatLng location;
+    private GoogleMap map;
 
     //images
     ArrayList<Bitmap> images;
@@ -58,17 +53,29 @@ public class CreateRouteActivity extends AppCompatActivity {
     //booleans
     private boolean imagesCanContinue;
 
+    // line of points
+    private List<LatLng> path = new ArrayList<LatLng>();
+    Polyline pathPolyline;
+
+    // layout
     private EditText descriptionInput;
     private EditText nameInput;
     private EditText locationNameInput;
-
     private Button btnAddRoute;
     private Button btnUploadImage;
+
+    //marker googleMaps
+    private List<Marker> myMarkers;
+    private int indexLastRemoved;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_route);
+
+        setupToolbar();
         initFireBase();
         initLayout();
         initVariables();
@@ -78,13 +85,25 @@ public class CreateRouteActivity extends AppCompatActivity {
 
 
 
+    private void setupToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Crear Ruta");
+        toolbar.setTitleTextColor(Color.WHITE);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { onBackPressed(); }
+        });
+    }
+
     private void initLayout() {
-        /*descriptionInput = findViewById(R.id.descriptionInput);
+        descriptionInput = findViewById(R.id.descriptionInput);
         nameInput = findViewById(R.id.nameInput);
         locationNameInput = findViewById(R.id.locationNameInput);
 
         btnAddRoute = findViewById(R.id.createButton);
-        btnUploadImage = findViewById(R.id.uploadImagesButton);*/
+        btnUploadImage = findViewById(R.id.uploadImagesButton);
     }
 
     private void initVariables() {
@@ -92,7 +111,12 @@ public class CreateRouteActivity extends AppCompatActivity {
         images = new ArrayList<>();
         uriImages = new ArrayList<>();
         urlImages = new ArrayList<>();
-        location =  new LatLng(41.3818, 2.1685);
+        myMarkers =  new ArrayList<>();
+
+        // path variable
+        LatLng location = getIntent().getParcelableExtra("location");
+        if (location == null) location =  new LatLng(41.3818, 2.1685);
+        path.add(location);
     }
 
     private void initListeners() {
@@ -165,32 +189,22 @@ public class CreateRouteActivity extends AppCompatActivity {
         route.put("placeName", locationNameInput.getText().toString());
         route.put("images", Arrays.asList());
 
-        List<GeoPoint> path = readPath();
-        route.put("path", path);
-        route.put("placeLocation", path.get(0));
+        List<GeoPoint> geoPointList = parsePath(path);
+        route.put("path", geoPointList);
+        route.put("placeLocation", geoPointList.get(0));
 
         addRouteToFireBase(route);
     }
 
-    private List<GeoPoint> readPath() {
+    //parse the LatLng to GeoPoint of the List
+    private List<GeoPoint> parsePath(List<LatLng> latLngList) {
+        List<GeoPoint> geoPointList = new ArrayList<GeoPoint>();
 
-        //init path
-        List<LatLng> path = new ArrayList<LatLng>();
-        //init points
-        LatLng point2 = new LatLng(2.0, 1.0);
-        //add points to path
-        //location es puntoPartida
-        path.add(location);
-        path.add(point2);
-
-        //convert path<LatLng> to path<GeoPoint>
-        List<GeoPoint> pathGeoPoint = new ArrayList<GeoPoint>();
-        for (LatLng ll: path) {
-            pathGeoPoint.add(new GeoPoint(ll.latitude, ll.longitude));
+        for (LatLng ll: latLngList) {
+            geoPointList.add(new GeoPoint(ll.latitude, ll.longitude));
         }
 
-
-        return pathGeoPoint;
+        return geoPointList;
     }
 
     private void addRouteToFireBase(HashMap<String, Object> route) {
@@ -269,40 +283,243 @@ public class CreateRouteActivity extends AppCompatActivity {
                 } else {
                     Log.w("task ko", "Error getting documents.", task.getException());
                 }
-                Toast.makeText(getApplicationContext(), "route Añadida",
-                        Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), "Ruta creada", Toast.LENGTH_LONG).show();
                 startMap();
             }
         });
     }
 
+
+
+
+
+
+    // -------------- MAP FUNCTIONS ------------------- //
+
     private void setUpMap() {
 
-        Toast.makeText(this, "dENTRO MARP READY", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Mapa listo", Toast.LENGTH_SHORT).show();
 
-
-        /*((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapCreateRoute)).getMapAsync(new OnMapReadyCallback() {
+        ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapCreateRoute)).getMapAsync(new OnMapReadyCallback() {
             @Override
-            public void onMapReady(GoogleMap googleMap) {
-                mMap = googleMap;
-                CameraUpdate cameraupdate = CameraUpdateFactory.newLatLngZoom(location, (float) 30.2);
-                mMap.moveCamera(cameraupdate);
-                mMap.addMarker(new MarkerOptions()
-                        .position(location)
+            public void onMapReady(final GoogleMap googleMap) {
+                map = googleMap;
+                CameraUpdate cameraupdate = CameraUpdateFactory.newLatLngZoom(path.get(0), (float) 16);
+                map.moveCamera(cameraupdate);
+                map.addMarker(new MarkerOptions()
+                        .position(path.get(0))
+                        .draggable(true)
+                        .anchor((float) 0.5, (float) 0.5)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue))
                 );
-                mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                //add placeLocation mark
+                addMark(path.get(0), map);
+
+                //TODO: improve custom layout
+                //set adapter for custom window info
+                googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+
                     @Override
-                    public void onMapLongClick(com.google.android.gms.maps.model.LatLng latLng) {
-                        location = latLng;
-                        mMap.clear();
-                        CameraUpdate cameraupdate = CameraUpdateFactory.newLatLng(location);
-                        mMap.moveCamera(cameraupdate);
-                        mMap.addMarker(new MarkerOptions()
-                                .position(latLng)
-                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                    public View getInfoWindow(Marker arg0) {
+                        return null;
+                    }
+
+                    @Override
+                    public View getInfoContents(Marker marker) {
+
+                        View v = getLayoutInflater().inflate(R.layout.marker_info, null);
+
+                        TextView title = (TextView) v.findViewById(R.id.title);
+                        TextView info= (TextView) v.findViewById(R.id.info);
+
+                        title.setText("Borrar Punto");
+                        info.setText(Html.fromHtml("<font color='red' size = '6'>"+ "X"+"</font>"));
+
+                        return v;
+                    }
+                });
+                //delete point when click windows info
+                googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                    @Override
+                    public void onInfoWindowClick(Marker marker) {
+
+                        for (Marker myMarker: myMarkers) {
+                            if(marker.equals(myMarker)) {
+                                //remove mark
+                                myMarkers.remove(marker);
+                                myMarker.remove();
+                                //remove point
+                                removePoint(marker.getPosition());
+                                refreshPolyLine();
+                                break;
+                            }
+                        }
+                    }
+                });
+
+                //show info when click mark
+                googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                    @Override
+                    public boolean onMarkerClick(Marker marker) {
+
+                        for(Marker myMarker: myMarkers)
+                            if (marker.equals(myMarker)) {
+                                myMarker.showInfoWindow();
+                                return true;
+                            }
+                        return false;
+                    }
+                });
+                //drag marker
+                googleMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+                    @Override
+                    public void onMarkerDragStart(Marker marker) {
+                        for (Marker myMarker: myMarkers) {
+                            Log.d("For myMarkers", " ");
+                            if(marker.equals(myMarker)) {
+                                Log.d("For myMarkers", "equals ");
+                                //remove point
+                                //¿¿**NO ENCUENTRA UN PUNTO IGUAL EN EL PATH***??
+                                removePoint(myMarker.getPosition());
+                                //remove mark
+                                myMarkers.remove(myMarker);
+
+                                break;
+                            }
+                        }
+
+                    }
+
+                    @Override
+                    public void onMarkerDrag(Marker marker) {
+
+                    }
+
+                    @Override
+                    public void onMarkerDragEnd(Marker marker) {
+                        Log.d("indexLastRemoved: ", "" + indexLastRemoved);
+                        myMarkers.add(indexLastRemoved, marker);
+                        path.add(indexLastRemoved, marker.getPosition());
+                        refreshPolyLine();
+
+                    }
+                });
+
+                // map line
+                pathPolyline = map.addPolyline(new PolylineOptions()
+                        .add(path.get(0))
+                        .width(20)
+                        .color(Color.parseColor("#2D9CDB")));
+
+                map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                    @Override
+                    public void onMapLongClick(LatLng newPoint) {
+                        LatLng nearestPoint = findNearestPoint(newPoint);
+
+                        if(areSamePoint(nearestPoint, newPoint)){
+                            mapRemovePoint(nearestPoint);
+                        }else{
+                            mapAppendPoint(newPoint);
+                            addMark(newPoint, googleMap);
+                        }
+                    }
+                });
+
+                map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                    @Override
+                    public void onMapClick(LatLng newPoint) {
+                        LatLng nearestPoint = findNearestPoint(newPoint);
+
+                        if(areSamePoint(nearestPoint, newPoint)){
+                            mapRemovePoint(nearestPoint);
+                        }else{
+                            mapAppendPoint(newPoint);
+                            addMark(newPoint, googleMap);
+                        }
                     }
                 });
             }
-        });*/
+        });
+    }
+
+    private void removePoint(LatLng point) {
+        int i = findPointIndex(point);
+        indexLastRemoved = i;
+        path.remove(i);
+    }
+
+    private int findPointIndex(LatLng position) {
+        int i = -1;
+        for (LatLng point: path) {
+            Log.d("indexLastRemoved: FOR", "" + i);
+
+            i++;
+            //no encuentra un punto igual cuando arrastramos
+            if (point.equals(position) || (point.latitude == position.latitude && point.longitude == position .longitude)) {
+                Log.d("indexLastRemoved: BREAK", "" + i);
+                break;
+            }
+        }
+
+        Log.d("indexLastRemoved: end", "" + i);
+        return i;
+
+    }
+
+    private void addMark(LatLng newPoint, GoogleMap googleMap) {
+        Marker mark = googleMap.addMarker(new MarkerOptions()
+                    .position(newPoint)
+                    .title("Borrar Punto")
+                    .snippet("X")
+                    .draggable(true)
+                    .anchor((float) 0.5, (float) 0.5)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_green))
+        );
+        myMarkers.add(mark);
+    }
+
+    private boolean areSamePoint(LatLng p1, LatLng p2){
+        if (p1 == null || p2 == null) return false;
+        // TODO: instead of 100 use a dp distance depending on the zoom level
+        return false;
+        //return dist(p1, p2) <= 100;
+    }
+
+    private LatLng findNearestPoint( LatLng p){
+
+        float[] distance =  new float[1];
+        float[] distanceNearestPoint =  new float[1];
+
+        LatLng nearestPoint = null;
+
+        for (LatLng point : path) {
+            if (nearestPoint != null) {
+                Location.distanceBetween(p.latitude, p.longitude, nearestPoint.latitude, nearestPoint.longitude, distanceNearestPoint);
+                Location.distanceBetween(p.latitude, p.longitude, point.latitude, point.longitude, distance);
+
+                if (distanceNearestPoint[0] > distance[0] ) nearestPoint = point;
+            }
+            else nearestPoint = point;
+        }
+
+
+        if (path.isEmpty()) return null;
+        // TODO: calculate the closest point
+        return nearestPoint;
+    }
+
+    private boolean mapRemovePoint(LatLng p){
+        return path.remove(p);
+    }
+
+    private void mapAppendPoint(LatLng newPoint){
+        path.add(newPoint);
+        //map.clear();
+
+        pathPolyline.setPoints(path);
+    }
+
+    private void refreshPolyLine() {
+        pathPolyline.setPoints(path);
     }
 }

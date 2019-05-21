@@ -8,19 +8,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+import com.google.firebase.auth.FirebaseAuth;
+import com.petworld_madebysocialworld.FriendsSingleton;
 import com.petworld_madebysocialworld.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Map;
 
-class RequestsListAdapter extends ArrayAdapter<Friend> implements ListAdapter {
-    ArrayList<Friend> requestsListInfo;
-    Context context;
+public class RequestsListAdapter extends ArrayAdapter<Friend> implements ListAdapter {
+    private FriendsSingleton friendsSingleton;
+    private ArrayList<Friend> requestsListInfo;
+    private Context context;
 
-    public RequestsListAdapter(Context context, int textViewResourceid, ArrayList<Friend> arrayList) {
-        super(context, textViewResourceid);
-        requestsListInfo = arrayList;
+    public RequestsListAdapter(Context context, int textViewResourceid, ArrayList<Friend> requestsList) {
+        super(context, textViewResourceid, requestsList);
+        friendsSingleton = FriendsSingleton.getInstance();
+        requestsListInfo = friendsSingleton.getRequestsListInfo();
         this.context = context;
     }
 
@@ -82,15 +85,17 @@ class RequestsListAdapter extends ArrayAdapter<Friend> implements ListAdapter {
             acceptBttn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Snackbar.make(v, "Accept: " + friendData.getName() + " " + position, Snackbar.LENGTH_LONG)
+                    Snackbar.make(v, "Se ha añadido " + friendData.getName() + " a tus amigos", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
+                    friendsSingleton.acceptRequest(friendData);
                 }
             });
             refuseBttn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Snackbar.make(v, "Refuse: " + friendData.getName() + " " + position, Snackbar.LENGTH_LONG)
+                    Snackbar.make(v, "Has rechazado a " + friendData.getName() + " como amigo", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
+                    friendsSingleton.refuseRequest(friendData);
                 }
             });
             if (friendData.getId().equals("NoPendingRequests")) {

@@ -26,10 +26,7 @@ import android.view.View;
 
 
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -240,7 +237,17 @@ public class MapActivity extends AppCompatActivity
             @Override
             public boolean onMarkerClick(Marker marker) {
                 String[] parts = marker.getSnippet().split("-");
-                if(parts[0].equals("Meeting")) showMeeting(parts[1]);
+                switch (parts[0]){
+                    case "Meeting":
+                        showMeeting(parts[1]);
+                        break;
+                    case "Walk":
+                        showWalk(parts[1]);
+                        break;
+                    case "Route":
+                        showRoute(parts[1]);
+                        break;
+                }
                 return true;
             }
         });
@@ -268,7 +275,20 @@ public class MapActivity extends AppCompatActivity
 
                                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()), DEFAULT_ZOOM));
 
-                            } else Toast.makeText(MapActivity.this, "Tu ubicación es nula", Toast.LENGTH_SHORT).show();
+                            } else {
+                                /*
+                                AlertDialog alertDialog = new AlertDialog.Builder(MapActivity.this).create();s
+                                alertDialog.setMessage("Activa ubicación");
+                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                alertDialog.show();
+                                */
+                                Toast.makeText(MapActivity.this, "Tu ubicación es nula", Toast.LENGTH_SHORT).show();
+                            }
                         } else Toast.makeText(MapActivity.this, "Error al obtener la ubicación", Toast.LENGTH_LONG).show();
                     }
                 });
@@ -362,8 +382,29 @@ public class MapActivity extends AppCompatActivity
     }
 
     public void newRoute(){
-        Intent intent = new Intent(MapActivity.this, CreateRouteActivity.class);
-        startActivity(intent);
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        try {
+            if (mLocationPermissionGranted){
+                Task location = mFusedLocationProviderClient.getLastLocation();
+                location.addOnCompleteListener(new OnCompleteListener() {
+                    @Override
+                    public void onComplete(@NonNull Task task) {
+                        if (task.isSuccessful()){
+                            Location currentLocation = (Location) task.getResult();
+                            if (currentLocation != null){
+
+                                Intent intent = new Intent(MapActivity.this, CreateRouteActivity.class);
+                                intent.putExtra("location", new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                                startActivity(intent);
+
+                            } else Toast.makeText(MapActivity.this, "Tu ubicación es nula", Toast.LENGTH_SHORT).show();
+                        } else Toast.makeText(MapActivity.this, "Error al obtener la ubicación", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }else Toast.makeText(MapActivity.this, "Da permiso para acceder a la ubicación", Toast.LENGTH_LONG).show();
+        } catch (SecurityException e){
+            Toast.makeText(MapActivity.this, "Seleciona un punto en el mapa primero", Toast.LENGTH_LONG).show();
+        }
     }
 
     public void newMeeting(LatLng location){
@@ -386,7 +427,19 @@ public class MapActivity extends AppCompatActivity
 
     public void showMeeting(String id){
         Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
-        Log.d("id", id);
+        Log.d("MeetingId: ", id);
+        intent.putExtra("id", id);
+        startActivity(intent);
+    }
+    public void showRoute(String id){
+        Intent intent = new Intent(MapActivity.this, ViewRouteActivity.class);
+        Log.d("RouteId: ", id);
+        intent.putExtra("id", id);
+        startActivity(intent);
+    }
+    public void showWalk(String id){
+        Intent intent = new Intent(MapActivity.this, ViewWalkActivity.class);
+        Log.d("WalkId: ", id);
         intent.putExtra("id", id);
         startActivity(intent);
     }
@@ -498,6 +551,7 @@ public class MapActivity extends AppCompatActivity
             if (mLocationPermissionGranted) {
                 mMap.setMyLocationEnabled(true);
                 mMap.getUiSettings().setMyLocationButtonEnabled(true);
+                setMyLocationButtonPosition();
             } else {
                 mMap.setMyLocationEnabled(false);
                 mMap.getUiSettings().setMyLocationButtonEnabled(false);
@@ -508,6 +562,15 @@ public class MapActivity extends AppCompatActivity
         } catch (SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
         }
+    }
+
+    public void setMyLocationButtonPosition() {
+        View locationButton = ((View) findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+        // position on right top
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+        rlp.setMargins(0, 200, 180, 0);
     }
 
     public void goToLogIn (View view){
@@ -629,6 +692,9 @@ public class MapActivity extends AppCompatActivity
 
                                         }
 
+                                        // Therefore it loads the listLayout as soon as the Meetings and Walks are loaded
+                                        loadListLayout(position);
+
                                         if (task.getResult().isEmpty()) Log.d("Route", "NO hay rutas cerca");
                                     }
                                 }
@@ -638,9 +704,6 @@ public class MapActivity extends AppCompatActivity
                 });
             }
         });
-
-        loadListLayout(position);
-
     }
 
     public boolean checkConditions(GeoPoint point, LatLngBounds bounds, Date date) {
@@ -747,7 +810,7 @@ public class MapActivity extends AppCompatActivity
         if (position == 0) {
             if (meetings.size() != 0){
 
-                for(final Map<String, Object> mapTmp : meetings) {
+                for (final Map<String, Object> mapTmp : meetings) {
 
                     LinearLayout linearLayoutList = new LinearLayout(context);
 

@@ -1,8 +1,8 @@
 package com.petworld_madebysocialworld;
 
-import Models.User;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
@@ -41,29 +41,42 @@ public class ViewPetActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pet_profile_2);
+        setContentView(R.layout.activity_view_pet);
+
+        setupToolbar();
         initFireBase();
         initTextView();
         initIntent();
         initButtons();
         if (mAuth.getCurrentUser() != null)
             initLayout();
-        initNavigationDrawer();
+
     }
 
 
 
 
+    private void setupToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("View Mascota");
+        toolbar.setTitleTextColor(Color.WHITE);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { onBackPressed(); }
+        });
+    }
 
     private void initButtons() {
-        btnEditar  = findViewById(R.id.buttonEdit);
+        btnEditar  = findViewById(R.id.editButton);
         btnEditar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 editActivity();
             }
         });
-        btnBorrar = findViewById(R.id.buttonBorrar);
+        btnBorrar = findViewById(R.id.deleteButton);
         btnBorrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -135,11 +148,11 @@ public class ViewPetActivity extends AppCompatActivity {
     }
 
     private void initTextView() {
-        name = findViewById(R.id.textViewName2);
-        gender = findViewById(R.id.textViewGender2);
-        race = findViewById(R.id.textViewRace2);
-        specie = findViewById(R.id.textViewSpecie2);
-        comment = findViewById(R.id.textViewComment2);
+        name = findViewById(R.id.namePetInput);
+        gender = findViewById(R.id.genderPetInput);
+        race = findViewById(R.id.speciePetInput);
+        specie = findViewById(R.id.racePetInput);
+        comment = findViewById(R.id.commentPetInput);
     }
 
     private void initLayout() {

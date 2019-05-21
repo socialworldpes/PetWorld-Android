@@ -10,6 +10,15 @@
     <string name="formato_fecha">dd/mm/yyyy</string>
     <string name="formato_hora">hh:mm</string>
     <string name="no_net_info">Sin conexión a internet</string>
+    <string name="description">Descripción</string>
+    <string name="RouteName">Nombre de la ruta</string>
+    <string name="LocationName">Nombre del punto de salida</string>
+    <string name="title_activity_view_route">ViewRouteActivity</string>
+    <string name="petName">Nombre</string>
+    <string name="petGender">Genero</string>
+    <string name="petSpecie">Especie</string>
+    <string name="petRace">Raza</string>
+    <string name="petComment">Comentario</string>
     <string name="title_activity_friends">FriendsActivity</string>
     <string name="title_activity_search_friends">SearchFriendsActivity</string>
     <string name="Friends">Amigos</string>
@@ -19,4 +28,5 @@
     <string name="tab_text_2">Tab 2</string>
     <string name="InfoMeetings">Información</string>
     <string name="ParticipantsMeetings">Participantes</string>
+    <string name="NearBy">Buscar en esta zona</string>
 </resources>

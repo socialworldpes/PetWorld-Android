@@ -1,10 +1,11 @@
 package com.petworld_madebysocialworld;
 
-import Models.User;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -60,15 +61,15 @@ public class EditPetActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pet_update_2);
+        setContentView(R.layout.activity_edit_pet);
+
+        setupToolbar();
         initFireBase();
         initItems();
         initListeners();
         initIntent();
         initVariables();
-        if (mAuth.getCurrentUser() != null)
-            initLayout();
-        initNavigationDrawer();
+        initLayout();
     }
 
     private void initVariables() {
@@ -104,19 +105,27 @@ public class EditPetActivity extends AppCompatActivity {
     }
 
     private void initItems() {
-        name = findViewById(R.id.editTextName);
-        gender = findViewById(R.id.editTextGender);
-        race = findViewById(R.id.editTextRace);
-        specie = findViewById(R.id.editTextSpecie);
-        comment = findViewById(R.id.editTextComment);
-        nameUpdate = findViewById(R.id.headingNameUpdate);
-        genderUpdate = findViewById(R.id.headingGenderUpdate);
-        raceUpdate = findViewById(R.id.headingRaceUpdate);
-        specieUpdate = findViewById(R.id.headingSpecieUpdate);
-        commentUpdate = findViewById(R.id.headingCommentUpdate);
-        btnUploadImage = findViewById(R.id.buttonLoadImageUpdate);
-        btnUpdatePet = findViewById(R.id.buttonUpdatePet);
+        name = findViewById(R.id.namePetInput);
+        gender = findViewById(R.id.genderPetInput);
+        race = findViewById(R.id.racePetInput);
+        specie = findViewById(R.id.speciePetInput);
+        comment = findViewById(R.id.commentPetInput);
+        btnUploadImage = findViewById(R.id.buttonLoadImage);
+        btnUpdatePet = findViewById(R.id.editButton);
     }
+
+    private void setupToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Editar Mascota");
+        toolbar.setTitleTextColor(Color.WHITE);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { onBackPressed(); }
+        });
+    }
+
 
     private void initLayout() {
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -133,6 +142,10 @@ public class EditPetActivity extends AppCompatActivity {
                     specie.setText("" + task.getResult().get("specie"));
                     race.setText("" + task.getResult().get("race"));
                     comment.setText("" + task.getResult().get("comment"));
+                    urlImages = (ArrayList<String>) task.getResult().get("photo");
+                    refreshImageView();
+                    uriImages = uriParse(urlImages);
+
 
 
                 } else {
@@ -141,6 +154,14 @@ public class EditPetActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private ArrayList<Uri> uriParse(ArrayList<String> urlImages) {
+
+        ArrayList<Uri> result =  new ArrayList<>();
+        for (String s: urlImages)
+            result.add(Uri.parse(s));
+        return result;
     }
 
     private void initIntent() {
@@ -217,10 +238,22 @@ public class EditPetActivity extends AppCompatActivity {
                     uriImages = imageData.getParcelableArrayListExtra(Define.INTENT_PATH);
                     if (uriImages.size() > 0){
                         imagesCanContinue = true;
+                        refreshImageView();
                     }
                     break;
                 }
         }
+    }
+    private void refreshImageView() {
+
+        for (Uri uri: uriImages)
+            urlImages.add(uri.toString());
+
+        ViewPager viewPager= findViewById(R.id.viewPager);
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getApplicationContext(), urlImages);
+        viewPager.setAdapter(adapter);
+
+
     }
 
     private void startMap() {
@@ -235,7 +268,7 @@ public class EditPetActivity extends AppCompatActivity {
         //DrawerUtil.getDrawer(this,toolBar);
     }
     private boolean checkNulls() {
-        String check;
+       /*  String check;
         boolean result = true;
         check = name.getText().toString();
         if (check == null || check.equals("")) {
@@ -268,6 +301,8 @@ public class EditPetActivity extends AppCompatActivity {
         }
         else resetHeading(R.id.headingCommentUpdate);
         return result;
+        */
+       return true;
     }
 
     private void resetHeading(int headingName) {
