@@ -692,6 +692,9 @@ public class MapActivity extends AppCompatActivity
 
                                         }
 
+                                        // Therefore it loads the listLayout as soon as the Meetings and Walks are loaded
+                                        loadListLayout(position);
+
                                         if (task.getResult().isEmpty()) Log.d("Route", "NO hay rutas cerca");
                                     }
                                 }
@@ -701,9 +704,6 @@ public class MapActivity extends AppCompatActivity
                 });
             }
         });
-
-        loadListLayout(position);
-
     }
 
     public boolean checkConditions(GeoPoint point, LatLngBounds bounds, Date date) {
@@ -810,7 +810,7 @@ public class MapActivity extends AppCompatActivity
         if (position == 0) {
             if (meetings.size() != 0){
 
-                for(final Map<String, Object> mapTmp : meetings) {
+                for (final Map<String, Object> mapTmp : meetings) {
 
                     LinearLayout linearLayoutList = new LinearLayout(context);
 
