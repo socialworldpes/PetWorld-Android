@@ -24,4 +24,9 @@
     <string name="Friends">Amigos</string>
     <string name="Requests">Solicitudes</string>
     <string name="NearBy">Buscar en esta zona</string>
+    <string name="WalkName">Nombre del Paseo</string>
+    <string name="create">Crear</string>
+    <string name="StartHour">Hora de inicio</string>
+    <string name="StartDate">Fecha de inicio</string>
+    <string name="UploadImages">Subir imágenes</string>
 </resources>
