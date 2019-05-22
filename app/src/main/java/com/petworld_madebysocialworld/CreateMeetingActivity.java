@@ -226,6 +226,9 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                     meeting.put("placeName", ((EditText)findViewById(R.id.des2)).getText().toString());
                     meeting.put("start", Timestamp.valueOf(fechaFormateada + " " + tiempoFormateado));
                     meeting.put("visibility", "public");
+                    ArrayList<DocumentReference> auxP = new ArrayList<>();
+                    auxP.add((FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid())));
+                    meeting.put("participants", auxP);
                     FirebaseFirestore.getInstance().collection("meetings").add(meeting).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(final DocumentReference documentReference) {

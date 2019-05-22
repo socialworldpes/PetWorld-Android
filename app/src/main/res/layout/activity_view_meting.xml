@@ -5,7 +5,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".FriendsActivity">
+        tools:context=".ViewMetingActivity">
 
     <android.support.design.widget.AppBarLayout
             android:layout_height="wrap_content"
@@ -19,23 +19,14 @@
                 android:gravity="center"
                 android:minHeight="?actionBarSize"
                 android:padding="@dimen/appbar_padding"
-                android:text="Gestión de Amigos"
+                android:text="@string/app_name"
                 android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title"/>
 
         <android.support.design.widget.TabLayout
                 android:id="@+id/tabs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?attr/colorPrimary" app:tabSelectedTextColor="@color/accent">
-            <android.support.design.widget.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:id="@+id/tabItemFriends"
-                    android:text="@string/Friends"/>
-            <android.support.design.widget.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:id="@+id/tabItemRequests"
-                    android:text="@string/Requests"/>
-        </android.support.design.widget.TabLayout>
+                android:background="?attr/colorPrimary"/>
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager
@@ -59,5 +50,5 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
-            app:srcCompat="@drawable/add_friend_icon" app:backgroundTint="@color/md_lime_600"/>
+            app:srcCompat="@android:drawable/ic_dialog_email"/>
 </android.support.design.widget.CoordinatorLayout>
