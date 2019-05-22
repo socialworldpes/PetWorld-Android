@@ -20,8 +20,13 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity
+                android:name=".ViewMetingActivity"
+                android:label="@string/title_activity_view_meting"
+                android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
                 android:name=".ViewRouteActivity"
-                android:label="@string/title_activity_view_route"
+                android:label="activity_view_route"
                 android:screenOrientation="portrait">
         </activity>
         <activity
@@ -89,7 +94,8 @@
                 android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
