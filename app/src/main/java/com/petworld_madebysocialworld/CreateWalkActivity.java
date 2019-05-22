@@ -1,5 +1,6 @@
 package com.petworld_madebysocialworld;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
@@ -32,24 +33,24 @@ import java.util.*;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class CreateWalkActivity extends AppCompatActivity {
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
+    // Firebase
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirebaseStorage storage = FirebaseStorage.getInstance();
 
     //images
     ArrayList<Bitmap> images;
     ArrayList<Uri> uriImages;
     ArrayList<String> urlImages;
 
-    //booleans
-    private boolean imagesCanContinue;
-
-    // layout
+    // Layout
     private EditText descriptionInput;
     private EditText nameInput;
     private Button dateInput;
     private Button hourInput;
     private Button btnAddWalk;
     private Button btnUploadImage;
+    private Button routeInput;
 
     private String userID;
     private Route routeToShow;
@@ -70,45 +71,25 @@ public class CreateWalkActivity extends AppCompatActivity {
     DatePickerDialog datePickerDialog;
     TimePickerDialog timePickerDialog;
 
+    // picked Route data
+    private String pickedRouteId;
+    private String pickedRouteName;
+    private String pickedRouteDescription;
+    private String pickedRouteImageURL;
+    private String pickedRouteLocationName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_walk);
 
         setupToolbar();
-        initFireBase();
-        initLayout();
         initVariables();
+        initLayout();
         initListeners();
         initPickers();
         codeThatWasInsideOnCreate();
     }
-
-    private void initPickers() {
-        datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                pickedYear = year; pickedMonth = month; pickedDay = dayOfMonth;
-                pickedDate = new GregorianCalendar(pickedYear, pickedMonth, pickedDay, pickedHour, pickedMinute).getTime();
-                String formattedDate = df.format(pickedDate);
-                dateInput.setText(formattedDate);
-            }
-        }, pickedYear, pickedMonth, pickedDay);
-
-        timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                pickedHour = hourOfDay; pickedMinute = minute;
-                pickedDate = new GregorianCalendar(pickedYear, pickedMonth, pickedDay, pickedHour, pickedMinute).getTime();
-                String formattedDate = hf.format(pickedDate);
-                hourInput.setText(formattedDate);
-            }
-            //Estos valores deben ir en ese orden
-            //Al colocar en false se muestra en formato 12 horas y true en formato 24 horas
-            //Pero el sistema devuelve la hora en formato 24 horas
-        }, pickedHour, pickedMinute, false);
-    }
-
 
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -122,18 +103,7 @@ public class CreateWalkActivity extends AppCompatActivity {
         });
     }
 
-    private void initLayout() {
-        descriptionInput = findViewById(R.id.descriptionInput);
-        nameInput = findViewById(R.id.nameInput);
-        dateInput = findViewById(R.id.dateInput);
-        hourInput = findViewById(R.id.hourInput);
-
-        btnAddWalk = findViewById(R.id.createButton);
-        btnUploadImage = findViewById(R.id.uploadImagesButton);
-    }
-
     private void initVariables() {
-        imagesCanContinue = false;
         images = new ArrayList<>();
         uriImages = new ArrayList<>();
         urlImages = new ArrayList<>();
@@ -141,6 +111,19 @@ public class CreateWalkActivity extends AppCompatActivity {
         // init formatter
         df = new android.text.format.DateFormat().getMediumDateFormat(getApplicationContext());
         hf = new android.text.format.DateFormat().getTimeFormat(getApplicationContext());
+    }
+
+    private void initLayout() {
+        descriptionInput = findViewById(R.id.descriptionInput);
+        nameInput = findViewById(R.id.nameInput);
+        dateInput = findViewById(R.id.dateInput);
+        dateInput.setText(df.format(pickedDate));
+        hourInput = findViewById(R.id.hourInput);
+        hourInput.setText(hf.format(pickedDate));
+        routeInput = findViewById(R.id.routeInput);
+
+        btnAddWalk = findViewById(R.id.createButton);
+        btnUploadImage = findViewById(R.id.uploadImagesButton);
     }
 
     private void initListeners() {
@@ -155,6 +138,53 @@ public class CreateWalkActivity extends AppCompatActivity {
 
             }
         });
+        dateInput.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pickDate();
+
+            }
+        });
+        hourInput.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pickTime();
+
+            }
+        });
+        routeInput.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pickRoute();
+
+            }
+        });
+    }
+
+    private void initPickers() {
+        datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                pickedYear = year; pickedMonth = month; pickedDay = dayOfMonth;
+                pickedDate = new GregorianCalendar(pickedYear, pickedMonth, pickedDay, pickedHour, pickedMinute).getTime();
+                String formattedDate = df.format(pickedDate);
+                dateInput.setText(formattedDate);
+            }
+        }, pickedYear, pickedMonth, pickedDay);
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
+
+        timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                pickedHour = hourOfDay; pickedMinute = minute;
+                pickedDate = new GregorianCalendar(pickedYear, pickedMonth, pickedDay, pickedHour, pickedMinute).getTime();
+                String formattedTime = hf.format(pickedDate);
+                hourInput.setText(formattedTime);
+            }
+            //Estos valores deben ir en ese orden
+            //Al colocar en false se muestra en formato 12 horas y true en formato 24 horas
+            //Pero el sistema devuelve la hora en formato 24 horas
+        }, pickedHour, pickedMinute, false);
     }
 
     private void startMap() {
@@ -164,13 +194,11 @@ public class CreateWalkActivity extends AppCompatActivity {
 
     private void createWalk() {
         HashMap<String, Object> walk =  new HashMap<String, Object>();
-        String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        // Read fields
-        walk.put("creator", userID);
+        walk.put("creator",     mAuth.getCurrentUser().getUid());
+        walk.put("route",       db.collection("routes").document(pickedRouteId));
         walk.put("description", descriptionInput.getText().toString());
-        walk.put("name", nameInput.getText().toString());
-        walk.put("images", Arrays.asList());
+        walk.put("name",        nameInput.getText().toString());
+        walk.put("images",      Arrays.asList());
 
         addWalkToFireBase(walk);
     }
@@ -183,25 +211,20 @@ public class CreateWalkActivity extends AppCompatActivity {
                 //ojo, ahora hay que guardar las fotos en su sitio y ponerlas en firebase RECOGER LINK y añadir a lugar correspondiente
                 final DocumentReference docRAux = documentReference;
                 for (int i = 0; i < uriImages.size(); i++) {
-                    final int j = i;
-                    final StorageReference imagesRef = FirebaseStorage.getInstance().getReference().child("walks/" + documentReference.getId() + "_" + i);
+                    final StorageReference imagesRef = storage.getReference().child("walks/" + documentReference.getId() + "_" + i);
                     Uri file = uriImages.get(i);
 
                     UploadTask uploadTask = imagesRef.putFile(file);
                     Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                         @Override
                         public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                            if (!task.isSuccessful()) {
-                                throw task.getException();
-                            }
-                            // Continue with the task to get the download URL
+                            if (!task.isSuccessful()) { throw task.getException(); }
                             return imagesRef.getDownloadUrl();
                         }
                     }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                         @Override
                         public void onComplete(@NonNull Task<Uri> task) {
                             if (task.isSuccessful()) {
-                                Log.d("PRUEBA007", "walks/" + documentReference.getId() + "_" + j);
                                 urlImages.add(task.getResult().toString());
                                 docRAux.update("images", urlImages);
                             } else {
@@ -213,7 +236,7 @@ public class CreateWalkActivity extends AppCompatActivity {
                     });
                 }
 
-                String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                String userID = mAuth.getCurrentUser().getUid();
                 addWalkRefToUser(documentReference, userID);
             }
 
@@ -225,7 +248,7 @@ public class CreateWalkActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    String userID = mAuth.getCurrentUser().getUid();
                     DocumentSnapshot result = task.getResult();
                     ArrayList<DocumentReference> arrayReference = (ArrayList<DocumentReference>) result.get("walks");
                     if (arrayReference == null) arrayReference = new ArrayList<>();
@@ -253,47 +276,56 @@ public class CreateWalkActivity extends AppCompatActivity {
 
 
     private void refreshImageView() {
-
         for (Uri uri: uriImages)
             urlImages.add(uri.toString());
 
         ViewPager viewPager = findViewById(R.id.viewPager);
         ViewPagerAdapter adapter = new ViewPagerAdapter(getApplicationContext(), urlImages);
         viewPager.setAdapter(adapter);
-
-
     }
 
-    private void initFireBase() {
-        mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
-    }
-
-    private void loadImage(){;
+    private void loadImage(){
         FishBun.with(this).setImageAdapter(new PicassoAdapter()).setMaxCount(3).startAlbum();
     }
 
-    public void pickDate(View view) {
+    public void pickDate() {
         datePickerDialog.updateDate(pickedYear, pickedMonth, pickedDay);
         datePickerDialog.show();
     }
 
-    public void pickTime(View view) {
+    public void pickTime() {
         timePickerDialog.updateTime(pickedHour, pickedMinute);
         timePickerDialog.show();
     }
 
+    private void pickRoute() {
+        startActivityForResult(new Intent(CreateWalkActivity.this, RoutesActivity.class), 1);
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1) {
+            if(resultCode == Activity.RESULT_OK){
+                pickedRouteId           = data.getStringExtra("routeId");
+                pickedRouteName         = data.getStringExtra("routeName");
+                pickedRouteDescription  = data.getStringExtra("routeDescription");
+                pickedRouteImageURL     = data.getStringExtra("routeImageURL");
+                pickedRouteLocationName = data.getStringExtra("routeName");
+
+                routeInput.setText(pickedRouteName);
+            }
+            // if (resultCode == Activity.RESULT_CANCELED) {}
+        }
+    }
 
 
 
 
 
     protected void codeThatWasInsideOnCreate() {
-        /*
+/*
         //initNavigationDrawer();
-        db = FirebaseFirestore.getInstance();
-        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        userID = mAuth.getCurrentUser().getUid();
 
         Button but = findViewById(R.id.elegirRuta);
         but.setOnClickListener(new View.OnClickListener() {
@@ -417,6 +449,6 @@ public class CreateWalkActivity extends AppCompatActivity {
             description.setText(routeToShow.getDescription());
             idTextView.setText(routeToShow.getId());
         }
-        */
+*/
     }
 }
