@@ -310,7 +310,7 @@ public class CreateWalkActivity extends AppCompatActivity {
                 pickedRouteName         = data.getStringExtra("routeName");
                 pickedRouteDescription  = data.getStringExtra("routeDescription");
                 pickedRouteImageURL     = data.getStringExtra("routeImageURL");
-                pickedRouteLocationName = data.getStringExtra("routeName");
+                pickedRouteLocationName = data.getStringExtra("routeLocationName");
 
                 routeInput.setText(pickedRouteName);
             }
