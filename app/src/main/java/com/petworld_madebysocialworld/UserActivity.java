@@ -2,6 +2,7 @@ package com.petworld_madebysocialworld;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.maps.model.LatLng;
@@ -23,10 +25,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.*;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class UserActivity extends AppCompatActivity {
 
@@ -81,28 +82,77 @@ public class UserActivity extends AppCompatActivity {
                 ArrayList<DocumentReference> petsQ = (ArrayList<DocumentReference>)documentSnapshot.get("pets");
                 if (petsQ != null){
                     petsSize = petsQ.size();
-                    for (final DocumentReference dc : petsQ) {
-                        db.document(dc.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                Toast.makeText(context, "Dins Loop", Toast.LENGTH_SHORT).show();
-                                if (task.isSuccessful()) {
-                                    DocumentSnapshot document = task.getResult();
-                                    if (document.exists()) {
-                                        String name = (String)document.get("name");
-                                        String comment = (String)document.get("comment");
-                                        String gender = (String)document.get("gender");
-                                        Toast.makeText(context, "Name: " + name + " Comment: " + comment + " gender: " + gender, Toast.LENGTH_SHORT).show();
-                                    } else {
+                    if (petsSize > 0) {
+                        LinearLayout linearLayoutTmp = (LinearLayout) findViewById(R.id.LayoutMeetings);
+                        for (final DocumentReference dc : petsQ) {
+                            db.document(dc.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    //Toast.makeText(context, "Dins Loop", Toast.LENGTH_SHORT).show();
+                                    if (task.isSuccessful()) {
+                                        final DocumentSnapshot document = task.getResult();
+                                        if (document.exists()) {
+
+                                            String name = (String) document.get("name");
+                                            String comment = (String) document.get("comment");
+                                            String gender = (String) document.get("gender");
+                                            Toast.makeText(context, "Name: " + name + " Comment: " + comment + " gender: " + gender, Toast.LENGTH_SHORT).show();
+
+                                            TextView textViewNameList = new TextView(context);
+                                            textViewNameList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                    LinearLayout.LayoutParams.WRAP_CONTENT));
+                                            textViewNameList.setText(name);
+                                            textViewNameList.setTextColor(Color.BLACK);
+                                            textViewNameList.setTextSize(1, 20);
+                                            textViewNameList.setPadding(40, 20, 40, 5);
+
+                                            /*
+                                            textViewNameList.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+
+                                                    String id = document.getId();
+                                                    Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
+                                                    intent.putExtra("id", id);
+                                                    startActivity(intent);
+                                                }
+
+                                            });
+                                            */
+
+                                            linearLayoutTmp.addView(textViewNameList);
+
+                                            Timestamp timeList = (Timestamp) mapTmp.get("start");
+                                            Date timeDateList = timeList.toDate();
+                                            Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                                            String timeStringList = formatter.format(timeDateList);
+
+                                            TextView textViewTime = new TextView(context);
+                                            textViewTime.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                    LinearLayout.LayoutParams.WRAP_CONTENT));
+                                            textViewTime.setText(timeStringList);
+                                            textViewTime.setPadding(40, 5, 40, 20);
+
+                                            linearLayoutTmp.addView(textViewTime);
+
+
+                                            String descriptionList = (String) mapTmp.get("description");
+
+                                            TextView textViewDescreList = new TextView(context);
+                                            textViewDescreList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                    LinearLayout.LayoutParams.WRAP_CONTENT));
+                                            textViewDescreList.setText(descriptionList);
+                                            textViewDescreList.setPadding(40, 20, 40, 20);
+
+                                            linearLayoutSheet.addView(textViewDescreList);
+                                        }
                                     }
-                                } else {
                                 }
-                            }
-                        });
+                            });
+                        }
                     }
                 }
                 petsTv.setText("" + petsSize);
-                loadPets();
 
                 ArrayList<String> frindsQ = (ArrayList<String>)documentSnapshot.get("frinds");
                 if (frindsQ != null){
@@ -131,50 +181,6 @@ public class UserActivity extends AppCompatActivity {
         });
 
 
-    }
-
-    private void loadPets(){
-        Toast.makeText(context, "Dins LoadPets", Toast.LENGTH_SHORT).show();
-
-        db.collection("users").document(id).collection("meetings").addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot snapshots,
-                                @Nullable FirebaseFirestoreException e) {
-                Toast.makeText(context, "Dins Collection", Toast.LENGTH_SHORT).show();
-                if (e != null) {
-                    return;
-                }
-
-                final List<DocumentChange> documentChanges = snapshots.getDocumentChanges();
-
-                if (documentChanges.size() == 0) {
-                    Toast.makeText(context, "Size = 0", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(context, "Size != 0", Toast.LENGTH_SHORT).show();
-                }
-
-                for (final DocumentChange dc : documentChanges) {
-                    db.document(dc.getDocument().getDocumentReference("reference").getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            Toast.makeText(context, "Dins Loop", Toast.LENGTH_SHORT).show();
-                            if (task.isSuccessful()) {
-                                DocumentSnapshot document = task.getResult();
-                                if (document.exists()) {
-                                    String name = (String)document.get("name");
-                                    String comment = (String)document.get("comment");
-                                    String gender = (String)document.get("gender");
-                                    Toast.makeText(context, "Name: " + name + " Comment: " + comment + " gender: " + gender, Toast.LENGTH_SHORT).show();
-                                } else {
-                                }
-                            } else {
-                            }
-                        }
-                    });
-                }
-
-            }
-        });
     }
 
     private void initNavigationDrawer() {
