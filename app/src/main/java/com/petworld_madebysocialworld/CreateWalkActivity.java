@@ -1,10 +1,15 @@
 package com.petworld_madebysocialworld;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.icu.text.DateFormat;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,6 +30,7 @@ import com.sangcomz.fishbun.adapter.image.impl.PicassoAdapter;
 
 import java.util.*;
 
+@RequiresApi(api = Build.VERSION_CODES.N)
 public class CreateWalkActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -40,14 +46,29 @@ public class CreateWalkActivity extends AppCompatActivity {
     // layout
     private EditText descriptionInput;
     private EditText nameInput;
-    private EditText dateInput;
-    private EditText hourInput;
+    private Button dateInput;
+    private Button hourInput;
     private Button btnAddWalk;
     private Button btnUploadImage;
 
     private String userID;
     private Route routeToShow;
 
+    // Date
+    private Calendar c = Calendar.getInstance();
+    private int pickedMonth  = c.get(Calendar.MONTH);
+    private int pickedDay    = c.get(Calendar.DAY_OF_MONTH);
+    private int pickedYear   = c.get(Calendar.YEAR);
+    private int pickedHour   = c.get(Calendar.HOUR_OF_DAY);
+    private int pickedMinute = c.get(Calendar.MINUTE);
+    private Date pickedDate  = new GregorianCalendar(pickedYear, pickedMonth, pickedDay, pickedHour, pickedMinute).getTime();
+    // Date Formatter & Hour Formatter
+    private java.text.DateFormat df;
+    private java.text.DateFormat hf;
+
+    // Pickers
+    DatePickerDialog datePickerDialog;
+    TimePickerDialog timePickerDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,9 +80,34 @@ public class CreateWalkActivity extends AppCompatActivity {
         initLayout();
         initVariables();
         initListeners();
+        initPickers();
         codeThatWasInsideOnCreate();
     }
 
+    private void initPickers() {
+        datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                pickedYear = year; pickedMonth = month; pickedDay = dayOfMonth;
+                pickedDate = new GregorianCalendar(pickedYear, pickedMonth, pickedDay, pickedHour, pickedMinute).getTime();
+                String formattedDate = df.format(pickedDate);
+                dateInput.setText(formattedDate);
+            }
+        }, pickedYear, pickedMonth, pickedDay);
+
+        timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                pickedHour = hourOfDay; pickedMinute = minute;
+                pickedDate = new GregorianCalendar(pickedYear, pickedMonth, pickedDay, pickedHour, pickedMinute).getTime();
+                String formattedDate = hf.format(pickedDate);
+                hourInput.setText(formattedDate);
+            }
+            //Estos valores deben ir en ese orden
+            //Al colocar en false se muestra en formato 12 horas y true en formato 24 horas
+            //Pero el sistema devuelve la hora en formato 24 horas
+        }, pickedHour, pickedMinute, false);
+    }
 
 
     private void setupToolbar() {
@@ -91,6 +137,10 @@ public class CreateWalkActivity extends AppCompatActivity {
         images = new ArrayList<>();
         uriImages = new ArrayList<>();
         urlImages = new ArrayList<>();
+
+        // init formatter
+        df = new android.text.format.DateFormat().getMediumDateFormat(getApplicationContext());
+        hf = new android.text.format.DateFormat().getTimeFormat(getApplicationContext());
     }
 
     private void initListeners() {
@@ -223,6 +273,15 @@ public class CreateWalkActivity extends AppCompatActivity {
         FishBun.with(this).setImageAdapter(new PicassoAdapter()).setMaxCount(3).startAlbum();
     }
 
+    public void pickDate(View view) {
+        datePickerDialog.updateDate(pickedYear, pickedMonth, pickedDay);
+        datePickerDialog.show();
+    }
+
+    public void pickTime(View view) {
+        timePickerDialog.updateTime(pickedHour, pickedMinute);
+        timePickerDialog.show();
+    }
 
 
 
@@ -348,7 +407,7 @@ public class CreateWalkActivity extends AppCompatActivity {
 
             ImageView image = (ImageView) routeSelected.findViewById(R.id.route_image);
             TextView name = (TextView) routeSelected.findViewById(R.id.route_name);
-            TextView place= (TextView) routeSelected.findViewById(R.id.route_place);
+            TextView place = (TextView) routeSelected.findViewById(R.id.route_place);
             TextView description = (TextView) routeSelected.findViewById(R.id.route_description);
             TextView idTextView = (TextView) routeSelected.findViewById(R.id.route_id);
 
