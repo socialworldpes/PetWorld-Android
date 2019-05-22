@@ -3,9 +3,9 @@ package com.petworld_madebysocialworld;
 import java.util.UUID;
 
 /**
- * Entidad Lead
+ * Entidad Route
  */
-public class Lead {
+public class Route {
 
     private String Id;
     private String Name;
@@ -13,7 +13,7 @@ public class Lead {
     private String Description;
     private int Image;
 
-    public Lead(String name, String place, String description, int image) {
+    public Route(String name, String place, String description, int image) {
         Id = UUID.randomUUID().toString();
         Name = name;
         Place = place;
@@ -63,7 +63,7 @@ public class Lead {
 
     @Override
     public String toString() {
-        return "Lead{" +
+        return "Route{" +
                 "ID='" + Id + '\'' +
                 ", Name='" + Name + '\'' +
                 ", Place='" + Place + '\'' +

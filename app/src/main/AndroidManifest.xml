@@ -39,7 +39,7 @@
         <activity android:name=".ViewWalkActivity"
                   android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".LeadsActivity"
+        <activity android:name=".RoutesActivity"
                   android:screenOrientation="portrait">
         </activity>
         <activity android:name=".CreateRouteActivity"

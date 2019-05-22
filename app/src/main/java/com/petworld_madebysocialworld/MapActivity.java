@@ -55,7 +55,7 @@ import java.util.*;
 public class MapActivity extends AppCompatActivity
         implements OnMapReadyCallback, GoogleMap.OnCameraMoveStartedListener {
 
-    //private LeadsRepository repo = LeadsRepository.getInstance();
+    //private RoutesRepository repo = RoutesRepository.getInstance();
     private static final String TAG = MapActivity.class.getSimpleName();
     private GoogleMap mMap;
     private CameraPosition mCameraPosition; //prova
@@ -131,7 +131,7 @@ public class MapActivity extends AppCompatActivity
         }
 
         /*
-        if (repo.getLeads().isEmpty()) {
+        if (repo.getRoutes().isEmpty()) {
             Log.d(TAG, "onCreate: repo no creat");
         }
         else{
@@ -377,7 +377,7 @@ public class MapActivity extends AppCompatActivity
     }
 
     public void newWalk(){
-        Intent intent = new Intent(MapActivity.this, LeadsActivity.class);
+        Intent intent = new Intent(MapActivity.this, RoutesActivity.class);
         startActivity(intent);
     }
 

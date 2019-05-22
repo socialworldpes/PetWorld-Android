@@ -19,19 +19,19 @@ import java.util.List;
 
 
 /**
- * Vista para los leads del CRM
+ * Vista para los routes del CRM
  */
-public class LeadsFragment extends Fragment {
+public class RoutesFragment extends Fragment {
 
-    ListView mLeadsList;
-    ArrayAdapter<Lead> mLeadsAdapter;
+    ListView mRoutesList;
+    ArrayAdapter<Route> mRoutesAdapter;
 
-    public LeadsFragment() {
+    public RoutesFragment() {
         // Required empty public constructor
     }
 
-    public static LeadsFragment newInstance(/*parámetros*/) {
-        LeadsFragment fragment = new LeadsFragment();
+    public static RoutesFragment newInstance(/*parámetros*/) {
+        RoutesFragment fragment = new RoutesFragment();
         // Setup parámetros
         return fragment;
     }
@@ -47,25 +47,25 @@ public class LeadsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_leads, container, false);
+        View root = inflater.inflate(R.layout.fragment_routes, container, false);
 
 
         // Inicializar el adaptador con la fuente de datos.
-        List<Lead> repo = LeadsRepository.getInstance().getLeads();
+        List<Route> repo = RoutesRepository.getInstance().getRoutes();
         //es buit
-        mLeadsAdapter = new LeadsAdapter(getActivity(), repo);
+        mRoutesAdapter = new RoutesAdapter(getActivity(), repo);
 
         // Instancia del ListView.
-        mLeadsList = (ListView) root.findViewById(R.id.leads_list);
+        mRoutesList = (ListView) root.findViewById(R.id.routes_list);
 
         //Relacionando la lista con el adaptador
-        mLeadsList.setAdapter(mLeadsAdapter);
+        mRoutesList.setAdapter(mRoutesAdapter);
 
-        mLeadsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mRoutesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Lead selItem = (Lead) parent.getAdapter().getItem(position);
+                Route selItem = (Route) parent.getAdapter().getItem(position);
                 String passId = selItem.getId();
-                Intent i = new Intent(LeadsFragment.this.getActivity(), CreateWalkActivity.class);
+                Intent i = new Intent(RoutesFragment.this.getActivity(), CreateWalkActivity.class);
                 i.putExtra("itemId",passId);
                 startActivity(i);
             }
