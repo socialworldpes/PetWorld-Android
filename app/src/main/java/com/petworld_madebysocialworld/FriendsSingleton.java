@@ -24,6 +24,7 @@ public class FriendsSingleton {
 
     private ArrayList<Friend> friendsListInfo, requestsListInfo;
     private ArrayList<Friend> addFriendsSnapshots, removeFriendsSnapshots, addRequestsSnapshots;
+    private ArrayList<String> friendsListId;
 
     private FriendsSingleton() {
         db = FirebaseFirestore.getInstance();
@@ -34,6 +35,7 @@ public class FriendsSingleton {
         addFriendsSnapshots = new ArrayList<Friend>();
         removeFriendsSnapshots = new ArrayList<Friend>();
         addRequestsSnapshots = new ArrayList<Friend>();
+        friendsListId = new ArrayList<String>();
 
         friendsFragmentIni = requestsFragmentIni = false;
         noFriends = noRequests = true;
@@ -79,12 +81,20 @@ public class FriendsSingleton {
         return requestsListInfo;
     }
 
-    public ArrayList<String> getFriendsListId() {
-        ArrayList<String> friendsListId = new ArrayList<String>();
+    private void updateId(){
         for (Friend friend : friendsListInfo) {
             friendsListId.add(friend.getId());
         }
+    }
+
+    public ArrayList<String> getFriendsListId() {
+        updateId();
         return friendsListId;
+    }
+
+    public boolean isFriend(String id) {
+        updateId();
+        return friendsListId.contains(id);
     }
 
     public void addFriendSnapshot(String id, Map<String, Object> data) {

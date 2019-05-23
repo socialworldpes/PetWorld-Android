@@ -809,6 +809,7 @@ public class MapActivity extends AppCompatActivity
 
                     String nameList = (String) mapTmp.get("name");
 
+
                     TextView textViewNameList = new TextView(context);
                     textViewNameList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -827,14 +828,14 @@ public class MapActivity extends AppCompatActivity
                         intent.putExtra("location", location);
                         startActivity(intent);
                         */
-                        String id = (String) mapTmp.get("id");
-                        Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
-                        intent.putExtra("id", id);
-                        startActivity(intent);
+                            String id = (String) mapTmp.get("id");
+                            Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
+                            intent.putExtra("id", id);
+                            startActivity(intent);
                         }
 
                     });
-                    
+
                     linearLayoutList.addView(textViewNameList);
 
                     Timestamp timeList = (Timestamp) mapTmp.get("start");
@@ -861,7 +862,6 @@ public class MapActivity extends AppCompatActivity
                     textViewDescreList.setPadding(40, 20, 40, 20);
 
                     linearLayoutSheet.addView(textViewDescreList);
-
                 }
             } else {
                 TextView textViewAvis = new TextView(context);
