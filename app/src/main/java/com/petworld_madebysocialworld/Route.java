@@ -17,8 +17,8 @@ public class Route {
     private String Description;
     private int Image;
 
-    public Route(String name, String place, String description, int image, GeoPoint placeLocation) {
-        Id = "unset";
+    public Route(String name, String place, String description, int image, GeoPoint placeLocation, String id) {
+        Id = id;
         Name = name;
         Place = place;
         Description = description;
