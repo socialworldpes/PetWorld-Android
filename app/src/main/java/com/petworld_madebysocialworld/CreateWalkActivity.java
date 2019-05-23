@@ -18,11 +18,13 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.*;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.*;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -77,6 +79,7 @@ public class CreateWalkActivity extends AppCompatActivity {
     private String pickedRouteDescription;
     private String pickedRouteImageURL;
     private String pickedRouteLocationName;
+    private GeoPoint pickedRouteLocationPlace;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,6 +202,8 @@ public class CreateWalkActivity extends AppCompatActivity {
         walk.put("description", descriptionInput.getText().toString());
         walk.put("name",        nameInput.getText().toString());
         walk.put("images",      Arrays.asList());
+        walk.put("start",       pickedDate);
+        walk.put("placeLocation", pickedRouteLocationPlace);
 
         addWalkToFireBase(walk);
     }
@@ -311,6 +316,10 @@ public class CreateWalkActivity extends AppCompatActivity {
                 pickedRouteDescription  = data.getStringExtra("routeDescription");
                 pickedRouteImageURL     = data.getStringExtra("routeImageURL");
                 pickedRouteLocationName = data.getStringExtra("routeLocationName");
+                Double lat = data.getDoubleExtra("routeLocationPlaceLat", 41.389);
+                Double lng = data.getDoubleExtra("routeLocationPlaceLng", 2.088);
+                Log.d("RouteLocationPlace", "lat: "+ lat + "     lng: " + lng);
+                pickedRouteLocationPlace = new GeoPoint(lat, lng);
 
                 routeInput.setText(pickedRouteName);
             }

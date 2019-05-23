@@ -72,6 +72,8 @@ public class RoutesFragment extends Fragment {
                 returnIntent.putExtra("routeDescription",  route.getDescription());
                 returnIntent.putExtra("routeLocationName", route.getPlace());
                 returnIntent.putExtra("routeImageURL",     route.getImage());
+                returnIntent.putExtra("routeLocationPlaceLat",route.getPlaceLocation().getLatitude());
+                returnIntent.putExtra("routeLocationPlaceLng",route.getPlaceLocation().getLongitude());
 
                 Activity activity = getActivity();
                 activity.setResult(Activity.RESULT_OK,returnIntent);

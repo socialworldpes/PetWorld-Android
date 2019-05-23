@@ -3,13 +3,11 @@ package com.petworld_madebysocialworld;
 import Models.User;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -70,8 +68,9 @@ public class RoutesRepository {
                                             Map<String, Object> data = document.getData();
                                             String description = (String) data.get("description");
                                             String name = (String) data.get("name");
-                                            String place = data.get("placeLocation").toString();
-                                            saveRoute(new Route(name, place, description, R.drawable.anabohueles));
+                                            String place = (String) data.get("placeName");
+                                            GeoPoint placeLocation = (GeoPoint) data.get("placeLocation");
+                                            saveRoute(new Route(name, place, description, R.drawable.anabohueles, placeLocation));
                                         }
                                     }
                                 }

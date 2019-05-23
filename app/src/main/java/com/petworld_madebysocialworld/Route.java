@@ -1,5 +1,8 @@
 package com.petworld_madebysocialworld;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.firestore.GeoPoint;
+
 import java.util.UUID;
 
 /**
@@ -7,18 +10,20 @@ import java.util.UUID;
  */
 public class Route {
 
+    private GeoPoint PlaceLocation;
     private String Id;
     private String Name;
     private String Place;
     private String Description;
     private int Image;
 
-    public Route(String name, String place, String description, int image) {
-        Id = UUID.randomUUID().toString();
+    public Route(String name, String place, String description, int image, GeoPoint placeLocation) {
+        Id = "unset";
         Name = name;
         Place = place;
         Description = description;
         Image = image;
+        PlaceLocation = placeLocation;
     }
 
     public String getId() {
@@ -35,6 +40,14 @@ public class Route {
 
     public void setName(String name) {
         Name = name;
+    }
+
+    public GeoPoint getPlaceLocation() {
+        return PlaceLocation;
+    }
+
+    public void setPlaceLocation(GeoPoint placeLocation) {
+        PlaceLocation = placeLocation;
     }
 
     public String getPlace() {
