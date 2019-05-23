@@ -6,15 +6,14 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -107,19 +106,17 @@ public class UserActivity extends AppCompatActivity {
                                             textViewNameList.setTextSize(1, 12);
                                             textViewNameList.setPadding(40, 20, 40, 5);
 
-                                            /*
+
                                             textViewNameList.setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
-
-                                                    String id = document.getId();
-                                                    Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
-                                                    intent.putExtra("id", id);
+                                                    Intent intent = new Intent(UserActivity.this, ViewPetActivity.class);
+                                                    intent.putExtra("docPetRef", dc.getPath());
                                                     startActivity(intent);
                                                 }
 
                                             });
-                                            */
+
 
                                             LayoutPets.addView(textViewNameList);
                                         }
@@ -153,19 +150,15 @@ public class UserActivity extends AppCompatActivity {
                                             textViewNameList.setTextSize(1, 12);
                                             textViewNameList.setPadding(40, 20, 40, 5);
 
-                                            /*
                                             textViewNameList.setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
-
                                                     String id = document.getId();
-                                                    Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
+                                                    Intent intent = new Intent(UserActivity.this, UserActivity.class);
                                                     intent.putExtra("id", id);
                                                     startActivity(intent);
                                                 }
-
                                             });
-                                            */
                                             LayoutFriends.addView(textViewNameList);
                                         }
                                     }
@@ -198,19 +191,16 @@ public class UserActivity extends AppCompatActivity {
                                             textViewNameList.setTextSize(1, 12);
                                             textViewNameList.setPadding(40, 20, 40, 5);
 
-                                            /*
                                             textViewNameList.setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
 
                                                     String id = document.getId();
-                                                    Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
+                                                    Intent intent = new Intent(UserActivity.this, ViewMeetingActivity.class);
                                                     intent.putExtra("id", id);
                                                     startActivity(intent);
                                                 }
-
                                             });
-                                            */
                                             LayoutMeetings.addView(textViewNameList);
                                         }
                                     }
@@ -243,19 +233,16 @@ public class UserActivity extends AppCompatActivity {
                                             textViewNameList.setTextSize(1, 12);
                                             textViewNameList.setPadding(40, 20, 40, 5);
 
-                                            /*
                                             textViewNameList.setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
-
                                                     String id = document.getId();
-                                                    Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
+                                                    Intent intent = new Intent(UserActivity.this, ViewRouteActivity.class);
                                                     intent.putExtra("id", id);
                                                     startActivity(intent);
                                                 }
 
                                             });
-                                            */
                                             LayoutRoutes.addView(textViewNameList);
                                         }
                                     }
