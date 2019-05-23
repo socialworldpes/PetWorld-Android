@@ -37,6 +37,7 @@ public class UserActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private boolean isFriend;
     private FriendsSingleton friendsSingleton;
+    private LinearLayout LayoutFriends, LayoutPets, LayoutMeetings, LayoutRoutes, LayoutWalks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,11 +49,16 @@ public class UserActivity extends AppCompatActivity {
         frindsSize =  petsSize = meetingSize = routesSize = walksSize = 0;
         friendsSingleton = FriendsSingleton.getInstance();
         db = FirebaseFirestore.getInstance();
-        isFriend = friendsSingleton.isFriend(id);
-        if (isFriend){
-            Toast.makeText(context, "Es amic", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(context, "No es amic", Toast.LENGTH_SHORT).show();
+        LayoutFriends = (LinearLayout) findViewById(R.id.layoutFriends);
+        LayoutPets = (LinearLayout) findViewById(R.id.layoutPets);
+        LayoutMeetings = (LinearLayout) findViewById(R.id.layoutMeetings);
+        LayoutRoutes = (LinearLayout) findViewById(R.id.layoutsRoutes);
+        LayoutWalks  = (LinearLayout) findViewById(R.id.layoutWalks);
+
+        if (id.equals(FirebaseAuth.getInstance().getCurrentUser().getUid()))
+            isFriend = true;
+        else {
+            isFriend = friendsSingleton.isFriend(id);
         }
 
         FirebaseFirestore.getInstance().collection("users").document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -82,8 +88,7 @@ public class UserActivity extends AppCompatActivity {
                 ArrayList<DocumentReference> petsQ = (ArrayList<DocumentReference>)documentSnapshot.get("pets");
                 if (petsQ != null){
                     petsSize = petsQ.size();
-                    if (petsSize > 0) {
-                        LinearLayout linearLayoutTmp = (LinearLayout) findViewById(R.id.LayoutMeetings);
+                    if (petsSize > 0 && isFriend) {
                         for (final DocumentReference dc : petsQ) {
                             db.document(dc.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
@@ -94,16 +99,12 @@ public class UserActivity extends AppCompatActivity {
                                         if (document.exists()) {
 
                                             String name = (String) document.get("name");
-                                            String comment = (String) document.get("comment");
-                                            String gender = (String) document.get("gender");
-                                            Toast.makeText(context, "Name: " + name + " Comment: " + comment + " gender: " + gender, Toast.LENGTH_SHORT).show();
-
                                             TextView textViewNameList = new TextView(context);
                                             textViewNameList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                                                     LinearLayout.LayoutParams.WRAP_CONTENT));
                                             textViewNameList.setText(name);
                                             textViewNameList.setTextColor(Color.BLACK);
-                                            textViewNameList.setTextSize(1, 20);
+                                            textViewNameList.setTextSize(1, 12);
                                             textViewNameList.setPadding(40, 20, 40, 5);
 
                                             /*
@@ -120,31 +121,7 @@ public class UserActivity extends AppCompatActivity {
                                             });
                                             */
 
-                                            linearLayoutTmp.addView(textViewNameList);
-
-                                            Timestamp timeList = (Timestamp) mapTmp.get("start");
-                                            Date timeDateList = timeList.toDate();
-                                            Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                                            String timeStringList = formatter.format(timeDateList);
-
-                                            TextView textViewTime = new TextView(context);
-                                            textViewTime.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                                                    LinearLayout.LayoutParams.WRAP_CONTENT));
-                                            textViewTime.setText(timeStringList);
-                                            textViewTime.setPadding(40, 5, 40, 20);
-
-                                            linearLayoutTmp.addView(textViewTime);
-
-
-                                            String descriptionList = (String) mapTmp.get("description");
-
-                                            TextView textViewDescreList = new TextView(context);
-                                            textViewDescreList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                                                    LinearLayout.LayoutParams.WRAP_CONTENT));
-                                            textViewDescreList.setText(descriptionList);
-                                            textViewDescreList.setPadding(40, 20, 40, 20);
-
-                                            linearLayoutSheet.addView(textViewDescreList);
+                                            LayoutPets.addView(textViewNameList);
                                         }
                                     }
                                 }
@@ -154,27 +131,183 @@ public class UserActivity extends AppCompatActivity {
                 }
                 petsTv.setText("" + petsSize);
 
-                ArrayList<String> frindsQ = (ArrayList<String>)documentSnapshot.get("frinds");
+                ArrayList<DocumentReference> frindsQ = (ArrayList<DocumentReference>)documentSnapshot.get("frinds");
                 if (frindsQ != null){
                     frindsSize = frindsQ.size();
+                    if (frindsSize > 0  && isFriend) {
+                        for (final DocumentReference dc : frindsQ) {
+                            db.document(dc.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    //Toast.makeText(context, "Dins Loop", Toast.LENGTH_SHORT).show();
+                                    if (task.isSuccessful()) {
+                                        final DocumentSnapshot document = task.getResult();
+                                        if (document.exists()) {
+
+                                            String name = (String) document.get("name");
+                                            TextView textViewNameList = new TextView(context);
+                                            textViewNameList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                    LinearLayout.LayoutParams.WRAP_CONTENT));
+                                            textViewNameList.setText(name);
+                                            textViewNameList.setTextColor(Color.BLACK);
+                                            textViewNameList.setTextSize(1, 12);
+                                            textViewNameList.setPadding(40, 20, 40, 5);
+
+                                            /*
+                                            textViewNameList.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+
+                                                    String id = document.getId();
+                                                    Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
+                                                    intent.putExtra("id", id);
+                                                    startActivity(intent);
+                                                }
+
+                                            });
+                                            */
+                                            LayoutFriends.addView(textViewNameList);
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
                 }
                 friendsTv.setText("" + frindsSize);
 
-                ArrayList meetingsQ = (ArrayList)documentSnapshot.get("meetings");
+                ArrayList <DocumentReference> meetingsQ = (ArrayList<DocumentReference>)documentSnapshot.get("meetings");
                 if (meetingsQ != null){
                     meetingSize = meetingsQ.size();
+                    if (meetingSize > 0  && isFriend) {
+                        for (final DocumentReference dc : meetingsQ) {
+                            db.document(dc.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    //Toast.makeText(context, "Dins Loop", Toast.LENGTH_SHORT).show();
+                                    if (task.isSuccessful()) {
+                                        final DocumentSnapshot document = task.getResult();
+                                        if (document.exists()) {
+
+                                            String name = (String) document.get("name");
+                                            TextView textViewNameList = new TextView(context);
+                                            textViewNameList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                    LinearLayout.LayoutParams.WRAP_CONTENT));
+                                            textViewNameList.setText(name);
+                                            textViewNameList.setTextColor(Color.BLACK);
+                                            textViewNameList.setTextSize(1, 12);
+                                            textViewNameList.setPadding(40, 20, 40, 5);
+
+                                            /*
+                                            textViewNameList.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+
+                                                    String id = document.getId();
+                                                    Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
+                                                    intent.putExtra("id", id);
+                                                    startActivity(intent);
+                                                }
+
+                                            });
+                                            */
+                                            LayoutMeetings.addView(textViewNameList);
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
                 }
                 meetingsTv.setText("" + meetingSize);
 
-                ArrayList routesQ = (ArrayList)documentSnapshot.get("routes");
+                ArrayList <DocumentReference> routesQ = (ArrayList <DocumentReference>)documentSnapshot.get("routes");
                 if (routesQ != null){
                     routesSize = routesQ.size();
+                    if (routesSize > 0  && isFriend) {
+                        for (final DocumentReference dc : routesQ) {
+                            db.document(dc.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    //Toast.makeText(context, "Dins Loop", Toast.LENGTH_SHORT).show();
+                                    if (task.isSuccessful()) {
+                                        final DocumentSnapshot document = task.getResult();
+                                        if (document.exists()) {
+
+                                            String name = (String) document.get("name");
+                                            TextView textViewNameList = new TextView(context);
+                                            textViewNameList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                    LinearLayout.LayoutParams.WRAP_CONTENT));
+                                            textViewNameList.setText(name);
+                                            textViewNameList.setTextColor(Color.BLACK);
+                                            textViewNameList.setTextSize(1, 12);
+                                            textViewNameList.setPadding(40, 20, 40, 5);
+
+                                            /*
+                                            textViewNameList.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+
+                                                    String id = document.getId();
+                                                    Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
+                                                    intent.putExtra("id", id);
+                                                    startActivity(intent);
+                                                }
+
+                                            });
+                                            */
+                                            LayoutRoutes.addView(textViewNameList);
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
                 }
                 routesTv.setText("" + routesSize);
 
-                ArrayList walksQ = (ArrayList)documentSnapshot.get("walks");
+                ArrayList <DocumentReference> walksQ = (ArrayList <DocumentReference>)documentSnapshot.get("walks");
                 if (walksQ != null){
                     walksSize = walksQ.size();
+                    if (walksSize > 0  && isFriend) {
+                        for (final DocumentReference dc : walksQ) {
+                            db.document(dc.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    //Toast.makeText(context, "Dins Loop", Toast.LENGTH_SHORT).show();
+                                    if (task.isSuccessful()) {
+                                        final DocumentSnapshot document = task.getResult();
+                                        if (document.exists()) {
+
+                                            String name = (String) document.get("name");
+                                            TextView textViewNameList = new TextView(context);
+                                            textViewNameList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                    LinearLayout.LayoutParams.WRAP_CONTENT));
+                                            textViewNameList.setText(name);
+                                            textViewNameList.setTextColor(Color.BLACK);
+                                            textViewNameList.setTextSize(1, 12);
+                                            textViewNameList.setPadding(40, 20, 40, 5);
+
+                                            /*
+                                            textViewNameList.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+
+                                                    String id = document.getId();
+                                                    Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
+                                                    intent.putExtra("id", id);
+                                                    startActivity(intent);
+                                                }
+
+                                            });
+                                            */
+                                            LayoutWalks.addView(textViewNameList);
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
                 }
                 walksTv.setText("" + walksSize);
             }
