@@ -11,6 +11,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.*;
@@ -22,6 +23,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.*;
+import com.google.firebase.firestore.EventListener;
 import com.squareup.picasso.Picasso;
 
 import java.text.Format;
@@ -37,6 +39,7 @@ public class UserActivity extends AppCompatActivity {
     private boolean isFriend;
     private FriendsSingleton friendsSingleton;
     private LinearLayout LayoutFriends, LayoutPets, LayoutMeetings, LayoutRoutes, LayoutWalks;
+    private TextView friendsTv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +48,8 @@ public class UserActivity extends AppCompatActivity {
         initNavigationDrawer();
         context = this;
         id = getIntent().getStringExtra("id");
+        //Toast.makeText(context, "ID main - " + id, Toast.LENGTH_SHORT).show();
+
         frindsSize =  petsSize = meetingSize = routesSize = walksSize = 0;
         friendsSingleton = FriendsSingleton.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -57,16 +62,23 @@ public class UserActivity extends AppCompatActivity {
         if (id.equals(FirebaseAuth.getInstance().getCurrentUser().getUid()))
             isFriend = true;
         else {
+          //  Toast.makeText(context, "ID: " + id, Toast.LENGTH_SHORT).show();
             isFriend = friendsSingleton.isFriend(id);
         }
 
-        FirebaseFirestore.getInstance().collection("users").document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        if(isFriend){
+          //  Toast.makeText(context, "Is Friend", Toast.LENGTH_SHORT).show();
+        } else {
+           // Toast.makeText(context, "Not Friend", Toast.LENGTH_SHORT).show();
+        }
+
+        db.collection("users").document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 TextView nameTv = findViewById(R.id.tvName);
                 TextView emailTv = findViewById(R.id.tvEmail);
                 TextView petsTv = findViewById(R.id.petsTv);
-                TextView friendsTv = findViewById(R.id.friendsTv);
+                friendsTv = findViewById(R.id.friendsTv);
                 TextView meetingsTv = findViewById(R.id.meetingsTv);
                 TextView routesTv = findViewById(R.id.routesTv);
                 TextView walksTv = findViewById(R.id.walksTv);
@@ -128,46 +140,52 @@ public class UserActivity extends AppCompatActivity {
                 }
                 petsTv.setText("" + petsSize);
 
-                ArrayList<DocumentReference> frindsQ = (ArrayList<DocumentReference>)documentSnapshot.get("friends");
-                if (frindsQ != null){
-                    frindsSize = frindsQ.size();
-                    if (frindsSize > 0  && isFriend) {
-                        for (final DocumentReference dc : frindsQ) {
-                            db.document(dc.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    //Toast.makeText(context, "Dins Loop", Toast.LENGTH_SHORT).show();
-                                    if (task.isSuccessful()) {
-                                        final DocumentSnapshot document = task.getResult();
-                                        if (document.exists()) {
+                db.collection("users").document(id).collection("friends").addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            return;
+                        }
+                        final List<DocumentChange> documentChanges = snapshots.getDocumentChanges();
+                        frindsSize = documentChanges.size();
+                        friendsTv.setText("" + frindsSize);
+                        if (documentChanges.size() != 0) {
+                            for (final DocumentChange dc : documentChanges) {
+                                db.document(dc.getDocument().getDocumentReference("reference").getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            final DocumentSnapshot document = task.getResult();
+                                            if (document.exists()) {
 
-                                            String name = (String) document.get("name");
-                                            TextView textViewNameList = new TextView(context);
-                                            textViewNameList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                                                    LinearLayout.LayoutParams.WRAP_CONTENT));
-                                            textViewNameList.setText(name);
-                                            textViewNameList.setTextColor(Color.BLACK);
-                                            textViewNameList.setTextSize(1, 12);
-                                            textViewNameList.setPadding(40, 20, 40, 5);
+                                                String name = (String) document.get("name");
+                                                TextView textViewNameList = new TextView(context);
+                                                textViewNameList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                        LinearLayout.LayoutParams.WRAP_CONTENT));
+                                                textViewNameList.setText(name);
+                                                textViewNameList.setTextColor(Color.BLACK);
+                                                textViewNameList.setTextSize(1, 12);
+                                                textViewNameList.setPadding(40, 20, 40, 5);
 
-                                            textViewNameList.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    String id = document.getId();
-                                                    Intent intent = new Intent(UserActivity.this, UserActivity.class);
-                                                    intent.putExtra("id", id);
-                                                    startActivity(intent);
-                                                }
-                                            });
-                                            LayoutFriends.addView(textViewNameList);
+                                                textViewNameList.setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View v) {
+                                                        Intent intent = new Intent(UserActivity.this, UserActivity.class);
+                                                        //Toast.makeText(context, "ID activity - " + document.getId(), Toast.LENGTH_SHORT).show();
+                                                        intent.putExtra("id", document.getId());
+                                                        startActivity(intent);
+                                                    }
+                                                });
+                                                LayoutFriends.addView(textViewNameList);
+                                            }
                                         }
                                     }
-                                }
-                            });
+                                });
+                            }
                         }
                     }
-                }
-                friendsTv.setText("" + frindsSize);
+                });
 
                 ArrayList <DocumentReference> meetingsQ = (ArrayList<DocumentReference>)documentSnapshot.get("meetings");
                 if (meetingsQ != null){

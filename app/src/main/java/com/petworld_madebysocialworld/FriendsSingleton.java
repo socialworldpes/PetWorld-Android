@@ -2,6 +2,7 @@ package com.petworld_madebysocialworld;
 
 import Models.Friend;
 import android.util.Log;
+import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.petworld_madebysocialworld.ui.main.FriendsFragment;
