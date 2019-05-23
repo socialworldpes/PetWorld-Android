@@ -715,7 +715,7 @@ public class MapActivity extends AppCompatActivity
 
     public boolean hasWalk(String routeId) {
         for (Map<String, Object> walk : walks) {
-            if (walk.get("walkForRoute").toString().equals(routeId)) return true;
+            if (walk.get("route").toString().equals(routeId)) return true;
         }
         return false;
     }
