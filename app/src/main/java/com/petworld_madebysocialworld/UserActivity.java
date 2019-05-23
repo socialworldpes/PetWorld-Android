@@ -128,7 +128,7 @@ public class UserActivity extends AppCompatActivity {
                 }
                 petsTv.setText("" + petsSize);
 
-                ArrayList<DocumentReference> frindsQ = (ArrayList<DocumentReference>)documentSnapshot.get("frinds");
+                ArrayList<DocumentReference> frindsQ = (ArrayList<DocumentReference>)documentSnapshot.get("friends");
                 if (frindsQ != null){
                     frindsSize = frindsQ.size();
                     if (frindsSize > 0  && isFriend) {
