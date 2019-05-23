@@ -433,7 +433,7 @@ public class MapActivity extends AppCompatActivity
     public void showWalk(String id){
         Intent intent = new Intent(MapActivity.this, ViewWalkActivity.class);
         Log.d("WalkId: ", id);
-        intent.putExtra("id", id);
+        intent.putExtra("idWalk", id);
         startActivity(intent);
     }
 
