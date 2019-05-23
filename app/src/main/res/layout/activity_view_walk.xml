@@ -102,15 +102,17 @@
                     android:layout_weight="25"
                     android:id="@+id/deleteButton"
                     android:textColor="#fff"
-                    android:background="#FDFA001D"/>
+                    android:background="#FDFA001D"
+                    android:elevation="1dp"
+                    android:layout_margin="5dp"/>
             <Button
                     android:text="Editar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="75"
-
+                    android:layout_margin="5dp"
                     android:id="@+id/editButton"
-                    android:background="#75D3FD" android:textColor="#fff"
+                    android:background="#75D3FD" android:textColor="#fff" android:elevation="1dp"
             />
         </LinearLayout>
     </LinearLayout>
