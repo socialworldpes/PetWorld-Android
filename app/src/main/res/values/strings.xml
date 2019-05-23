@@ -30,6 +30,7 @@
     <string name="ParticipantsMeetings">Participantes</string>
     <string name="NearBy">Buscar en esta zona</string>
     <string name="WalkName">Nombre del Paseo</string>
+    <string name="WalkDescription">Descripcion</string>
     <string name="create">Crear</string>
     <string name="StartHour">Hora de inicio</string>
     <string name="StartDate">Fecha de inicio</string>
@@ -39,4 +40,5 @@
     <string name="hour">Hora</string>
     <string name="route">Ruta</string>
     <string name="pick_a_route">Selecciona una Ruta</string>
+
 </resources>
