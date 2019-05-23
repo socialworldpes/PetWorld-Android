@@ -1,5 +1,6 @@
 package com.petworld_madebysocialworld;
 
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
@@ -63,11 +64,20 @@ public class RoutesFragment extends Fragment {
 
         mRoutesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Route selItem = (Route) parent.getAdapter().getItem(position);
-                String passId = selItem.getId();
-                Intent i = new Intent(RoutesFragment.this.getActivity(), CreateWalkActivity.class);
-                i.putExtra("itemId",passId);
-                startActivity(i);
+                Route route = (Route) parent.getAdapter().getItem(position);
+
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("routeId",           route.getId());
+                returnIntent.putExtra("routeName",         route.getName());
+                returnIntent.putExtra("routeDescription",  route.getDescription());
+                returnIntent.putExtra("routeLocationName", route.getPlace());
+                returnIntent.putExtra("routeImageURL",     route.getImage());
+                returnIntent.putExtra("routeLocationPlaceLat",route.getPlaceLocation().getLatitude());
+                returnIntent.putExtra("routeLocationPlaceLng",route.getPlaceLocation().getLongitude());
+
+                Activity activity = getActivity();
+                activity.setResult(Activity.RESULT_OK,returnIntent);
+                activity.finish();
             }
         });
         return root;

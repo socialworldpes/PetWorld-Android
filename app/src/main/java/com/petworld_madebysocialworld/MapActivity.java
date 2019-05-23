@@ -346,8 +346,7 @@ public class MapActivity extends AppCompatActivity
     }
 
     public void newWalk(View view){
-        if(selectedLocation == null) newWalk();
-        else newWalk(selectedLocation);
+        newWalk();
     }
 
     public void newMeeting(){
@@ -377,7 +376,7 @@ public class MapActivity extends AppCompatActivity
     }
 
     public void newWalk(){
-        Intent intent = new Intent(MapActivity.this, RoutesActivity.class);
+        Intent intent = new Intent(MapActivity.this, CreateWalkActivity.class);
         startActivity(intent);
     }
 
@@ -409,12 +408,6 @@ public class MapActivity extends AppCompatActivity
 
     public void newMeeting(LatLng location){
         Intent intent = new Intent(MapActivity.this, CreateMeetingActivity.class);
-        intent.putExtra("location", location);
-        startActivity(intent);
-    }
-
-    public void newWalk(LatLng location){
-        Intent intent = new Intent(MapActivity.this, CreateWalkActivity.class);
         intent.putExtra("location", location);
         startActivity(intent);
     }
