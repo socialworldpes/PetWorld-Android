@@ -68,9 +68,10 @@ public class RoutesRepository {
                                             Map<String, Object> data = document.getData();
                                             String description = (String) data.get("description");
                                             String name = (String) data.get("name");
+                                            String id = (String) document.getId();
                                             String place = (String) data.get("placeName");
                                             GeoPoint placeLocation = (GeoPoint) data.get("placeLocation");
-                                            saveRoute(new Route(name, place, description, R.drawable.anabohueles, placeLocation));
+                                            saveRoute(new Route(name, place, description, R.drawable.anabohueles, placeLocation, id));
                                         }
                                     }
                                 }
