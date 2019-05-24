@@ -561,9 +561,8 @@ public class MapActivity extends AppCompatActivity
         View locationButton = ((View) findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
         RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
         // position on right top
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
-        rlp.setMargins(0, 200, 0, 0);
+        rlp.topMargin = 200;
+        rlp.setMarginEnd(16);
     }
 
     public void goToLogIn (View view){
