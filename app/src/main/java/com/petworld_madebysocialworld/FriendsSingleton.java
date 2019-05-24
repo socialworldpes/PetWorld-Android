@@ -83,8 +83,11 @@ public class FriendsSingleton {
     }
 
     private void updateId(){
+        Log.d("FriendSing", "updateId + " + friendsListInfo.size());
+
         for (Friend friend : friendsListInfo) {
             friendsListId.add(friend.getId());
+            Log.d("FriendSing", "id = " + friend.getId());
         }
     }
 
@@ -94,6 +97,7 @@ public class FriendsSingleton {
     }
 
     public boolean isFriend(String id) {
+        Log.d("FriendSing", "isFriend");
         updateId();
         return friendsListId.contains(id);
     }
