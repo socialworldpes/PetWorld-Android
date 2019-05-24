@@ -83,8 +83,11 @@ public class FriendsSingleton {
     }
 
     private void updateId(){
+        Log.d("FriendSing", "updateId + " + friendsListInfo.size());
+
         for (Friend friend : friendsListInfo) {
             friendsListId.add(friend.getId());
+            Log.d("FriendSing", "id = " + friend.getId());
         }
     }
 
@@ -94,6 +97,7 @@ public class FriendsSingleton {
     }
 
     public boolean isFriend(String id) {
+        Log.d("FriendSing", "isFriend");
         updateId();
         return friendsListId.contains(id);
     }
@@ -129,7 +133,7 @@ public class FriendsSingleton {
         // Adds the friend to the listView
         boolean loaded = loadFriendToList(friend);
 
-        if (loaded) {
+        if (friendsFragmentIni && loaded) {
             friendsFragment.setViewAndAdapter();
 
             // Only occurs when a friend is accepted from a request
@@ -218,6 +222,7 @@ public class FriendsSingleton {
         removeFriendsSnapshots.clear();
 
         if (noFriends || friendsListInfo.size() == 0) addNoFriends();
+
     }
 
     public void updateRequestsSnapshots() {

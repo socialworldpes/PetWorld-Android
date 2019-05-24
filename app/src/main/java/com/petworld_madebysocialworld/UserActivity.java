@@ -67,9 +67,9 @@ public class UserActivity extends AppCompatActivity {
         }
 
         if(isFriend){
-          //  Toast.makeText(context, "Is Friend", Toast.LENGTH_SHORT).show();
+            Log.d("FriendSing", "YES");
         } else {
-           // Toast.makeText(context, "Not Friend", Toast.LENGTH_SHORT).show();
+            Log.d("FriendSing", "NO");
         }
 
         db.collection("users").document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -99,7 +99,8 @@ public class UserActivity extends AppCompatActivity {
                 ArrayList<DocumentReference> petsQ = (ArrayList<DocumentReference>)documentSnapshot.get("pets");
                 if (petsQ != null){
                     petsSize = petsQ.size();
-                    if (petsSize > 0 && isFriend) {
+                    //if (petsSize > 0 && isFriend) {
+                    if (petsSize > 0) {
                         for (final DocumentReference dc : petsQ) {
                             db.document(dc.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
@@ -190,7 +191,8 @@ public class UserActivity extends AppCompatActivity {
                 ArrayList <DocumentReference> meetingsQ = (ArrayList<DocumentReference>)documentSnapshot.get("meetings");
                 if (meetingsQ != null){
                     meetingSize = meetingsQ.size();
-                    if (meetingSize > 0  && isFriend) {
+                    //if (meetingSize > 0  && isFriend) {
+                    if (meetingSize > 0) {
                         for (final DocumentReference dc : meetingsQ) {
                             db.document(dc.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
@@ -232,7 +234,8 @@ public class UserActivity extends AppCompatActivity {
                 ArrayList <DocumentReference> routesQ = (ArrayList <DocumentReference>)documentSnapshot.get("routes");
                 if (routesQ != null){
                     routesSize = routesQ.size();
-                    if (routesSize > 0  && isFriend) {
+                    //if (routesSize > 0  && isFriend) {
+                    if (routesSize > 0) {
                         for (final DocumentReference dc : routesQ) {
                             db.document(dc.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
@@ -274,7 +277,8 @@ public class UserActivity extends AppCompatActivity {
                 ArrayList <DocumentReference> walksQ = (ArrayList <DocumentReference>)documentSnapshot.get("walks");
                 if (walksQ != null){
                     walksSize = walksQ.size();
-                    if (walksSize > 0  && isFriend) {
+                    //if (walksSize > 0  && isFriend) {
+                    if (walksSize > 0) {
                         for (final DocumentReference dc : walksQ) {
                             db.document(dc.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
