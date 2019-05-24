@@ -36,6 +36,7 @@ public class ViewPetActivity extends AppCompatActivity {
     private Button btnEditar;
     private Button btnBorrar;
     private String userID;
+    private String owner;
     private ArrayList<String> imageUrls;
 
     @Override
@@ -48,6 +49,7 @@ public class ViewPetActivity extends AppCompatActivity {
         initTextView();
         initIntent();
         initButtons();
+        identification();
         if (mAuth.getCurrentUser() != null)
             initLayout();
 
@@ -68,7 +70,7 @@ public class ViewPetActivity extends AppCompatActivity {
         });
     }
 
-    private void initButtons() {
+    private void identification() {
         btnEditar  = findViewById(R.id.editButton);
         btnEditar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,6 +92,24 @@ public class ViewPetActivity extends AppCompatActivity {
         diaBox.show();
 
     }
+
+    private void initButtons() {
+        btnEditar  = findViewById(R.id.editButton);
+        btnEditar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editActivity();
+            }
+        });
+        btnBorrar = findViewById(R.id.deleteButton);
+        btnBorrar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                borrarMascota();
+            }
+        });
+    }
+
 
     private void borrarReferenciaUsuario() {
         Log.d("alPetRef: ", "in");
@@ -156,12 +176,12 @@ public class ViewPetActivity extends AppCompatActivity {
     }
 
     private void initLayout() {
-        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        userID = mAuth.getCurrentUser().getUid();
+
         Log.d("petProfilePetRef", "" + petPath);
         DocumentReference docRef = db.document(petPath);
         Log.d("userID", userID);
         Log.d("petRefIntent", petPath);
-
 
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -176,6 +196,13 @@ public class ViewPetActivity extends AppCompatActivity {
                     specie.setText("" + task.getResult().get("specie"));
                     race.setText("" + task.getResult().get("race"));
                     comment.setText("" + task.getResult().get("comment"));
+                    owner =(String) task.getResult().get("owner");
+
+                    Log.d("tacobell", "Owner: " + owner + " UserID: " + userID);
+                    if (!owner.equals(userID)){
+                        btnEditar.setVisibility(View.GONE);;
+                        btnBorrar.setVisibility(View.GONE);;
+                    }
 
                     //images
                     ViewPager viewPager = findViewById(R.id.viewPager);
