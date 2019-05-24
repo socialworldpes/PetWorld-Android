@@ -77,11 +77,9 @@
                     android:hint="@string/petSpecie"
                     app:layout_constraintTop_toTopOf="parent">
 
-                <EditText
-                        android:id="@+id/speciePetInput"
+                <Spinner
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="text"/>
+                        android:layout_height="wrap_content" android:id="@+id/selectSpecie" android:layout_weight="1"/>
 
             </android.support.design.widget.TextInputLayout>
 

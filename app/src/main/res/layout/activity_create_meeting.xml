@@ -85,8 +85,9 @@
                         android:background="@null"
                         android:hint="@string/formato_fecha"
                         app:layout_constraintStart_toStartOf="parent"
-                        android:layout_marginStart="50dp"
-                        android:layout_marginTop="18dp" app:layout_constraintTop_toBottomOf="@+id/des"/>
+                        android:layout_marginStart="48dp"
+                        tools:layout_editor_absoluteY="202dp" android:layout_marginTop="26dp"
+                        app:layout_constraintTop_toBottomOf="@+id/selectSpecie"/>
 
                 <EditText
                         android:id="@+id/et_mostrar_hora_picker"
@@ -97,7 +98,7 @@
                         android:background="@null"
                         android:hint="@string/formato_hora"
                         app:layout_constraintStart_toStartOf="parent"
-                        android:layout_marginStart="50dp" android:layout_marginTop="26dp"
+                        android:layout_marginStart="48dp" android:layout_marginTop="24dp"
                         app:layout_constraintTop_toBottomOf="@+id/et_mostrar_fecha_picker"/>
 
                 <ImageButton
@@ -107,8 +108,8 @@
                         android:src="@drawable/baseline_event_white_24"
                         tools:ignore="ContentDescription"
                         app:layout_constraintEnd_toEndOf="parent"
-                        android:layout_marginEnd="32dp"
-                        android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/des"/>
+                        android:layout_marginEnd="28dp"
+                        android:layout_marginTop="56dp" app:layout_constraintTop_toBottomOf="@+id/des"/>
 
                 <ImageButton
                         android:id="@+id/ib_obtener_hora"
@@ -116,8 +117,8 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/baseline_access_time_white_24"
                         tools:ignore="ContentDescription"
-                        android:layout_marginTop="8dp"
-                        app:layout_constraintTop_toBottomOf="@+id/ib_obtener_fecha" android:layout_marginEnd="32dp"
+                        android:layout_marginTop="16dp"
+                        app:layout_constraintTop_toBottomOf="@+id/ib_obtener_fecha" android:layout_marginEnd="28dp"
                         app:layout_constraintEnd_toEndOf="parent"/>
                 <View android:id="@+id/separator"
                       android:background="#000000"
@@ -135,9 +136,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="33dp"
                         android:id="@+id/textView"
-                        app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="50dp"
+                        app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="48dp"
                         android:textStyle="bold" android:textSize="24sp" android:fontFamily="sans-serif-medium"
-                        app:layout_constraintTop_toBottomOf="@+id/separator"/>
+                        app:layout_constraintTop_toBottomOf="@+id/separator" android:layout_marginTop="4dp"/>
                 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
                           xmlns:tools="http://schemas.android.com/tools"
                           android:layout_width="match_parent"
@@ -148,7 +149,7 @@
                           android:layout_marginStart="50dp"
                           app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
                           android:layout_marginEnd="32dp"
-                          app:layout_constraintTop_toBottomOf="@+id/des2" android:layout_marginTop="8dp"/>
+                          app:layout_constraintTop_toBottomOf="@+id/des2" app:layout_constraintHorizontal_bias="0.0"/>
                 <View android:id="@+id/separator2"
                       android:background="#000000"
                       android:layout_width="fill_parent"
@@ -164,9 +165,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="34dp"
                         android:id="@+id/textView5"
-                        app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="50dp"
+                        app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="48dp"
                         android:textStyle="bold" android:textSize="24sp" android:fontFamily="sans-serif-medium"
-                        android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/mapCreateMeeting"/>
+                        app:layout_constraintTop_toBottomOf="@+id/mapCreateMeeting"/>
                 <Button style="@style/Widget.AppCompat.Button.Borderless"
                         android:text="+"
                         android:layout_width="55dp"
@@ -183,16 +184,23 @@
                         android:id="@+id/des2" android:singleLine="false"
                         android:hint="Lugar" app:layout_constraintStart_toStartOf="parent"
                         android:layout_marginStart="50dp"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="4dp"
                         android:textAlignment="viewStart" android:textAllCaps="false"
                         app:layout_constraintTop_toBottomOf="@+id/textView"
-                        app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="32dp"/>
+                        app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="32dp"
+                        app:layout_constraintHorizontal_bias="0.0"/>
                 <ImageView
                         android:layout_width="54dp"
                         android:layout_height="32dp" app:srcCompat="@drawable/icons8_double_tick_48"
                         android:id="@+id/tickVerde" app:layout_constraintStart_toStartOf="parent"
-                        android:layout_marginStart="164dp" android:visibility="invisible"
-                        app:layout_constraintTop_toBottomOf="@+id/separator2"/>
+                        android:layout_marginStart="160dp" android:visibility="invisible"
+                        app:layout_constraintTop_toBottomOf="@+id/separator2" android:layout_marginTop="16dp"/>
+                <Spinner
+                        android:layout_width="395dp"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/selectSpecie" app:layout_constraintStart_toStartOf="parent"
+                        android:layout_marginStart="8dp" android:layout_marginTop="19dp"
+                        app:layout_constraintTop_toBottomOf="@+id/des"/>
 
             </android.support.constraint.ConstraintLayout>
         </LinearLayout>
