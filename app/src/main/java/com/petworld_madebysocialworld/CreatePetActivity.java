@@ -147,7 +147,7 @@ public class CreatePetActivity extends AppCompatActivity {
             mascota.put("race", race.getText().toString());
             mascota.put("comment", comment.getText().toString());
             mascota.put("photo", Arrays.asList());
-            mascota.put("creator", userID);
+            mascota.put("owner", userID);
 
             db.collection("pets").add(mascota).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                 @Override
