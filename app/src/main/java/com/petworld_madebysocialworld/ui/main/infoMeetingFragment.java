@@ -48,11 +48,13 @@ public class infoMeetingFragment extends Fragment {
     private ArrayList<DocumentReference> participants;
     private View view;
     private FragmentActivity myContext;
+    private boolean visibilityFabButton;
 
-    public infoMeetingFragment (Context context, String collection, String id){
+    public infoMeetingFragment (Context context, String collection, String id, boolean visibilityFabButton){
         this.context = context;
         this.collection = collection;
         this.id = id;
+        this.visibilityFabButton = visibilityFabButton;
     }
 
     @Override
@@ -97,6 +99,12 @@ public class infoMeetingFragment extends Fragment {
                 ((TextView)view.findViewById(R.id.Descripcion)).setText(description);
                 ((TextView)view.findViewById(R.id.Lugar)).setText(placeName);
                 ((TextView)view.findViewById(R.id.Fecha)).setText(start);
+
+                //set fab button to gone
+                if (visibilityFabButton)
+                    ((Activity)context).findViewById(R.id.JoinMeeting).setVisibility(View.VISIBLE);
+                else
+                    ((Activity)context).findViewById(R.id.JoinMeeting).setVisibility(View.GONE);
             }
         });
 
@@ -107,6 +115,7 @@ public class infoMeetingFragment extends Fragment {
         myContext=(FragmentActivity) activity;
         super.onAttach(activity);
     }
+
 
     private void setUpMap() {
         Log.d("MAPAAA", "BIEN!!");

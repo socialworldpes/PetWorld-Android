@@ -1,6 +1,7 @@
 package com.petworld_madebysocialworld.ui.main;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -37,18 +38,25 @@ public class ParticipantsFragment extends Fragment {
     private ArrayList<Friend> participantsListInfo;
     private ListView ListViewParticipants;
     private ParticipantsListAdapter customAdapter;
+    private boolean visibilityFabButton;
 
-    public ParticipantsFragment(Context context, String collection, String id) {
+    public ParticipantsFragment(Context context, String collection, String id, boolean visibilityFabButton) {
         this.context = context;
         this.id = id;
         this.collection = collection;
         this.participantsListInfo = new ArrayList<>();
+        this.visibilityFabButton = visibilityFabButton;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_friends, container, false);
         this.participantsListInfo = new ArrayList<>();
+
+        if (visibilityFabButton)
+            ((Activity)context).findViewById(R.id.inviteParticipantsMeeting).setVisibility(View.VISIBLE);
+        else
+            ((Activity)context).findViewById(R.id.inviteParticipantsMeeting).setVisibility(View.GONE);
 
         getParticipantsListAndSetAdapter();
 
