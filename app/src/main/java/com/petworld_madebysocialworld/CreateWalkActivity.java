@@ -30,6 +30,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.sangcomz.fishbun.FishBun;
 import com.sangcomz.fishbun.adapter.image.impl.PicassoAdapter;
+import com.sangcomz.fishbun.define.Define;
 
 import java.util.*;
 
@@ -323,7 +324,14 @@ public class CreateWalkActivity extends AppCompatActivity {
 
                 routeInput.setText(pickedRouteName);
             }
-            // if (resultCode == Activity.RESULT_CANCELED) {}
+        }
+        if (requestCode == Define.ALBUM_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                uriImages = data.getParcelableArrayListExtra(Define.INTENT_PATH);
+                if (uriImages.size() > 0){
+                    refreshImageView();
+                }
+            }
         }
     }
 
