@@ -129,7 +129,7 @@ public class FriendsSingleton {
         // Adds the friend to the listView
         boolean loaded = loadFriendToList(friend);
 
-        if (loaded) {
+        if (friendsFragmentIni && loaded) {
             friendsFragment.setViewAndAdapter();
 
             // Only occurs when a friend is accepted from a request
@@ -218,6 +218,7 @@ public class FriendsSingleton {
         removeFriendsSnapshots.clear();
 
         if (noFriends || friendsListInfo.size() == 0) addNoFriends();
+
     }
 
     public void updateRequestsSnapshots() {

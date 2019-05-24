@@ -47,6 +47,7 @@ public class FriendsFragment extends Fragment {
         if (!friendsSingleton.friendsFragmentIni()) {
             friendsSingleton.setFriendsFragment(this);
             friendsSingleton.updateFriendsSnapshots();
+            setViewAndAdapter();
         } else {
             friendsSingleton.setFriendsFragment(this);
             setViewAndAdapter();

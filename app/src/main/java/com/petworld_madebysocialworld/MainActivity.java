@@ -387,7 +387,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     }
 
                                     ++friendsChangesCount;
-                                    if (friendsSingleton.friendsFragmentIni() && friendsChangesCount == documentChanges.size()) friendsSingleton.updateFriendsSnapshots();
+                                    if (friendsChangesCount == documentChanges.size()) friendsSingleton.updateFriendsSnapshots();
                                 } else {
                                     Log.d(TAG, "No such document");
                                 }
