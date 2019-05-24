@@ -1,11 +1,13 @@
 package com.petworld_madebysocialworld;
 
-import Models.User;
-import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+<<<<<<< HEAD
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.maps.*;
@@ -20,86 +22,29 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import android.view.View;
+import com.petworld_madebysocialworld.ui.main.MeetingsPagerAdapter;
 
 public class ViewMeetingActivity extends AppCompatActivity {
 
-    private String id;
-    private ArrayList<String> imageUrls;
-    private String creator;
-    private String description;
-    private String name;
-    private LatLng location;
-    private String placeName;
-    private String start;
-    private String visibility;
-    private Context context;
-    private GoogleMap mMap;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        location = null;
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view_meeting);
-        context = this;
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+        setContentView(R.layout.activity_view_meting);
+        MeetingsPagerAdapter meetingsPagerAdapter = new MeetingsPagerAdapter(this, getSupportFragmentManager(), getIntent().getStringExtra("id"));
+        ViewPager viewPager = findViewById(R.id.view_pager);
+        boolean b = meetingsPagerAdapter == null;
+        Log.d("ViewMeetingActivity", "Es nulo?  " + b);
+        viewPager.setAdapter(meetingsPagerAdapter);
+        TabLayout tabs = findViewById(R.id.tabs);
+        tabs.setupWithViewPager(viewPager);
+        FloatingActionButton fab = findViewById(R.id.fab);
 
-        //OJO, hay que pasar la id del meeting
-        id = getIntent().getStringExtra("id");
-
-        FirebaseFirestore.getInstance().collection("meetings").document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                imageUrls = (ArrayList<String>)documentSnapshot.get("images");
-                creator = (String)documentSnapshot.get("creator");
-                description = (String)documentSnapshot.get("description");
-                name = (String)documentSnapshot.get("name");
-                GeoPoint aux = ((GeoPoint)documentSnapshot.get("placeLocation"));
-                location = new LatLng(aux.getLatitude(), aux.getLongitude());
-                placeName = (String)documentSnapshot.get("placeName");
-                start = ((Timestamp)documentSnapshot.get("start")).toString();
-                visibility = (String)documentSnapshot.get("visibility");
-
-                //mapa
-                setUpMap();
-
-                ViewPager viewPager = findViewById(R.id.viewPager);
-                ViewPagerAdapter adapter = new ViewPagerAdapter(context, imageUrls);
-                viewPager.setAdapter(adapter);
-
-                ((TextView)findViewById(R.id.Titulo)).setText(name);
-                ((TextView)findViewById(R.id.Descripcion)).setText(description);
-                ((TextView)findViewById(R.id.Lugar)).setText(placeName);
-                ((TextView)findViewById(R.id.Fecha)).setText(start);
-
-                //TODO GET NAME from user
-                /*FirebaseFirestore.getInstance().collection("users").document(creator).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        //((TextView)findViewById(R.id.Fecha)).setText(documentSnapshot.get("name"));
-                    }
-                }*/
-
-            }
-        });
-
-    }
-
-    private void setUpMap() {
-        Log.d("MAPAAA", "BIEN!!");
-        while (location == null);
-
-        ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapViewMeeting)).getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(GoogleMap googleMap) {
-                mMap = googleMap;
-                mMap.getUiSettings().setAllGesturesEnabled(false);
-                CameraUpdate cameraupdate = CameraUpdateFactory.newLatLngZoom(location, (float) 18);
-                mMap.moveCamera(cameraupdate);
-                mMap.addMarker(new MarkerOptions()
-                        .position(location)
-                );
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
             }
         });
     }
@@ -110,6 +55,6 @@ public class ViewMeetingActivity extends AppCompatActivity {
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
 
             }
-        })
+        });
     }
 }

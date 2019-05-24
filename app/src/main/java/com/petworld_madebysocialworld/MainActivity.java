@@ -69,7 +69,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         u.setmAuth(FirebaseAuth.getInstance());
         db = FirebaseFirestore.getInstance();
 
-        if (u.getLogout()) signOut();
+        if (u.getLogout()) {
+            signOut();
+        }
 
         connect();
     }
@@ -105,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             try {
                 // Google Sign In was successful, authenticate with Firebase
                 if (task.isSuccessful()) {
+                    listenToChanges();
                     firebaseAuthWithGoogle(task.getResult(ApiException.class));
                 }
             } catch (ApiException e) {
@@ -227,7 +230,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                             openMap(user);
-                            //listenToChanges();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -255,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        //openMap(null);
+                        u.setLogOut(false);
                     }
                 });
     }
@@ -337,6 +339,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         PushNotification pushAux = new PushNotification();
                                         pushAux.addNotification(activity, "PetWorld", "Tienes una nueva solicitud de amistad de " + document.get("name"), R.drawable.ic_group, context);
                                         friendsSingleton.addRequestSnapshot(document.getId(), document.getData());
+                                        Log.d("FriendsListener", "new request from " + document.get("name"));
                                     }
 
                                     ++pendingRequestsCount;
@@ -378,8 +381,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 if (document.exists()) {
                                     if (dc.getType() == DocumentChange.Type.ADDED) {
                                         friendsSingleton.addFriendSnapshot(document.getId(), document.getData());
+                                        Log.d("FriendsListener", "new friend added: " + document.get("name"));
                                     } else if (dc.getType() == DocumentChange.Type.REMOVED) {
                                         friendsSingleton.deleteFriendSnapshot(document.getId(), document.getData());
+                                        Log.d("FriendsListener", "new friend removed: " + document.get("name"));
                                     }
 
                                     ++friendsChangesCount;
