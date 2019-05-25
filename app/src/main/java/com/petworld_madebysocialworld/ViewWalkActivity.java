@@ -1,9 +1,11 @@
 package com.petworld_madebysocialworld;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -15,8 +17,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.model.Document;
 
@@ -85,6 +89,42 @@ public class ViewWalkActivity extends AppCompatActivity {
     }
 
     private void deleteWalk() {
+        AlertDialog diaBox = AskOption();
+        diaBox.show();
+    }
+
+    private void deleteWalkFireBase() {
+         final String id = idWalk;
+
+        FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+
+                        ArrayList<DocumentReference> alWalksRef = (ArrayList<DocumentReference>) document.get("walks");
+                        for (DocumentReference dr : alWalksRef) {
+
+                            if (dr.getPath().equals("walks/" + id)) {
+
+                                //borra en routes/
+                                dr.delete();
+                                //borra referencia en users/routes
+                                document.getReference().update("walks", FieldValue.arrayRemove(dr));
+
+                            }
+                        }
+                    }
+                }
+                Toast.makeText(getApplicationContext(), "Paseo Borrado",
+                        Toast.LENGTH_LONG).show();
+                startMap();
+
+            }
+
+        });
     }
 
     private void editWalk() {
@@ -183,5 +223,44 @@ public class ViewWalkActivity extends AppCompatActivity {
 
     private void initVariables() {
         idWalk =  getIntent().getExtras().getString("idWalk");
+    }
+
+    private AlertDialog AskOption()
+    {
+        AlertDialog myQuittingDialogBox =new AlertDialog.Builder(this)
+                //set message, title, and icon
+                .setTitle("Borrar")
+                .setMessage("¿Borrar Paseo?")
+                .setIcon(R.drawable.ic_delete)
+
+                .setPositiveButton("Borrar", new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        //your deleting code
+
+                        deleteWalkFireBase();
+                        startMap();
+                        dialog.dismiss();
+                    }
+
+                })
+
+
+
+                .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+
+                    }
+                })
+                .create();
+        return myQuittingDialogBox;
+
+    }
+
+    private void startMap() {
+        Intent intent = new Intent (getApplicationContext(), MapActivity.class);
+        startActivityForResult(intent, 0);
     }
 }
