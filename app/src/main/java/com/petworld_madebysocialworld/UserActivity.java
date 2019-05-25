@@ -99,8 +99,7 @@ public class UserActivity extends AppCompatActivity {
                 ArrayList<DocumentReference> petsQ = (ArrayList<DocumentReference>)documentSnapshot.get("pets");
                 if (petsQ != null){
                     petsSize = petsQ.size();
-                    //if (petsSize > 0 && isFriend) {
-                    if (petsSize > 0) {
+                    if (petsSize > 0 && isFriend) {
                         for (final DocumentReference dc : petsQ) {
                             db.document(dc.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
@@ -191,8 +190,7 @@ public class UserActivity extends AppCompatActivity {
                 ArrayList <DocumentReference> meetingsQ = (ArrayList<DocumentReference>)documentSnapshot.get("meetings");
                 if (meetingsQ != null){
                     meetingSize = meetingsQ.size();
-                    //if (meetingSize > 0  && isFriend) {
-                    if (meetingSize > 0) {
+                    if (meetingSize > 0  && isFriend) {
                         for (final DocumentReference dc : meetingsQ) {
                             db.document(dc.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
@@ -234,8 +232,7 @@ public class UserActivity extends AppCompatActivity {
                 ArrayList <DocumentReference> routesQ = (ArrayList <DocumentReference>)documentSnapshot.get("routes");
                 if (routesQ != null){
                     routesSize = routesQ.size();
-                    //if (routesSize > 0  && isFriend) {
-                    if (routesSize > 0) {
+                    if (routesSize > 0  && isFriend) {
                         for (final DocumentReference dc : routesQ) {
                             db.document(dc.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
@@ -277,8 +274,7 @@ public class UserActivity extends AppCompatActivity {
                 ArrayList <DocumentReference> walksQ = (ArrayList <DocumentReference>)documentSnapshot.get("walks");
                 if (walksQ != null){
                     walksSize = walksQ.size();
-                    //if (walksSize > 0  && isFriend) {
-                    if (walksSize > 0) {
+                    if (walksSize > 0  && isFriend) {
                         for (final DocumentReference dc : walksQ) {
                             db.document(dc.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
