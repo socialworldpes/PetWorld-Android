@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RatingBar;
+import android.widget.Toast;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -105,8 +106,8 @@ public class ViewRouteActivity extends AppCompatActivity {
                     if (document.exists()) {
                         Log.d("deleteRoute:", "documents exists");
 
-                        ArrayList<DocumentReference> alMeetingRef = (ArrayList<DocumentReference>) document.get("routes");
-                        for (DocumentReference dr : alMeetingRef) {
+                        ArrayList<DocumentReference> alRoutesRef = (ArrayList<DocumentReference>) document.get("routes");
+                        for (DocumentReference dr : alRoutesRef) {
                             Log.d("deleteRoute:", "id: " + dr.getPath());
 
                             if (dr.getPath().equals("routes/" + id)) {
@@ -121,6 +122,9 @@ public class ViewRouteActivity extends AppCompatActivity {
                         }
                     }
                 }
+                Toast.makeText(getApplicationContext(), "Ruta Borrada",
+                        Toast.LENGTH_LONG).show();
+                startMap();
 
             }
 
