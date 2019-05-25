@@ -561,9 +561,8 @@ public class MapActivity extends AppCompatActivity
         View locationButton = ((View) findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
         RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
         // position on right top
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
-        rlp.setMargins(0, 200, 0, 0);
+        rlp.topMargin = 200;
+        rlp.setMarginEnd(16);
     }
 
     public void goToLogIn (View view){
@@ -809,6 +808,7 @@ public class MapActivity extends AppCompatActivity
 
                     String nameList = (String) mapTmp.get("name");
 
+
                     TextView textViewNameList = new TextView(context);
                     textViewNameList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -827,14 +827,14 @@ public class MapActivity extends AppCompatActivity
                         intent.putExtra("location", location);
                         startActivity(intent);
                         */
-                        String id = (String) mapTmp.get("id");
-                        Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
-                        intent.putExtra("id", id);
-                        startActivity(intent);
+                            String id = (String) mapTmp.get("id");
+                            Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
+                            intent.putExtra("id", id);
+                            startActivity(intent);
                         }
 
                     });
-                    
+
                     linearLayoutList.addView(textViewNameList);
 
                     Timestamp timeList = (Timestamp) mapTmp.get("start");
@@ -861,7 +861,6 @@ public class MapActivity extends AppCompatActivity
                     textViewDescreList.setPadding(40, 20, 40, 20);
 
                     linearLayoutSheet.addView(textViewDescreList);
-
                 }
             } else {
                 TextView textViewAvis = new TextView(context);

@@ -149,7 +149,6 @@ public class CreatePetActivity extends AppCompatActivity {
             mascota.put("photo", Arrays.asList());
             mascota.put("owner", userID);
 
-
             db.collection("pets").add(mascota).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                 @Override
                 public void onSuccess(final DocumentReference documentReference) {
