@@ -101,6 +101,7 @@ public class ViewPetActivity extends AppCompatActivity {
                 editActivity();
             }
         });
+        btnEditar.setVisibility(View.INVISIBLE);;
         btnBorrar = findViewById(R.id.deleteButton);
         btnBorrar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,6 +109,7 @@ public class ViewPetActivity extends AppCompatActivity {
                 borrarMascota();
             }
         });
+        btnBorrar.setVisibility(View.INVISIBLE);
     }
 
 
@@ -202,6 +204,9 @@ public class ViewPetActivity extends AppCompatActivity {
                     if (!owner.equals(userID)){
                         btnEditar.setVisibility(View.GONE);;
                         btnBorrar.setVisibility(View.GONE);;
+                    } else {
+                        btnEditar.setVisibility(View.VISIBLE);;
+                        btnBorrar.setVisibility(View.VISIBLE);;
                     }
 
                     //images
