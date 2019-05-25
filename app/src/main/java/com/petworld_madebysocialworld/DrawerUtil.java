@@ -85,40 +85,52 @@ public class DrawerUtil {
                 .withName("Usuario").withIcon(R.drawable.ic_profile);
         final ExpandableDrawerItem drawerItemManagePets = new ExpandableDrawerItem()
                 .withIdentifier(2).withName("Mascotas").withIcon(R.drawable.ic_pets).withSelectable(false);
+
         //pets menu lateral
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference docRef = db.collection("users").document(userID);
-        Log.d("test", docRef.toString());
-        Log.d("userID", userID);
+        Log.d("petMenu: ", "id doc user: " + docRef.toString());
+        Log.d("petMenu: ", "id user: " + userID);
+
+        //get current user document
         db.collection("users").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     Log.d("task string", task.toString());
-                    Log.d("task size: ", "" + task.getResult().get("pets"));
+                    Log.d("petMenu pet document: ", "" + task.getResult().get("pets"));
                     DocumentSnapshot result = task.getResult();
                     ArrayList<DocumentReference> arrayPets = (ArrayList<DocumentReference>) result.get("pets");
 
-
+                    //if user have pets
                     if (arrayPets != null) {
                         for (final DocumentReference dr : arrayPets) {
+                            Log.d("petMenu: ", "interacion: " + i);
                             if (dr.getPath() !=  null) {
                                 dr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                         DocumentSnapshot result = task.getResult();
                                         String namePet = (String) result.get("name");
+                                        Long identifier = new Long(2001 + i);
                                         drawerItemManagePets.withSubItems(
-                                                new SecondaryDrawerItem().withName(namePet).withLevel(2).withIdentifier(2001 + i)
+                                                new SecondaryDrawerItem().withName(namePet).withLevel(2).withIdentifier(identifier)
                                         );
-                                        mapPetRef.put(2001 + i, dr);
+                                        Log.d("petMenu identifier: ", "" + identifier );
+                                        mapPetRef.put(identifier.intValue(), dr);
+                                        i++;
                                     }
                                 });
-                                i++;
+
                             }
 
                         }
-                        ;
+                        //log mapPetRf
+                        Log.d("mapPetRef : ", "antes del for: " + mapPetRef.size());
+                        for (Map.Entry<Integer, DocumentReference> entry : mapPetRef.entrySet()) {
+                            Log.d("mapPetRef : ", "id pet menu lateral: " + entry.getKey() + "path: " + entry.getValue());
+                        }
+
                     }
                     i = 0;
                   /*  for (QueryDocumentSnapshot document : task.getResult()) {
@@ -182,7 +194,7 @@ public class DrawerUtil {
                         for (Map.Entry<Integer, DocumentReference> entry : mapPetRef.entrySet()) {
                             if (drawerItem.getIdentifier() == entry.getKey() && !(activity instanceof ViewPetActivity)) {
 
-                                if (!dentroIf) {
+                                if (true) {
                                     Intent  intent = new Intent(activity, ViewPetActivity.class);
                                     String petPath = entry.getValue().getPath();
                                     Log.d("drawerPetRef", petPath);
