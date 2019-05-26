@@ -40,6 +40,7 @@ public class infoMeetingFragment extends Fragment {
     private String id;
     private LatLng location;
     private String description;
+    private String specie;
     private String name;
     private String placeName;
     private String start;
@@ -78,6 +79,7 @@ public class infoMeetingFragment extends Fragment {
                 imageUrls = (ArrayList<String>)documentSnapshot.get("images");
                 creator = (String)documentSnapshot.get("creator");
                 description = (String)documentSnapshot.get("description");
+                specie = (String)documentSnapshot.get("specie");
                 name = (String)documentSnapshot.get("name");
                 GeoPoint aux = ((GeoPoint)documentSnapshot.get("placeLocation"));
                 location = new LatLng(aux.getLatitude(), aux.getLongitude());
@@ -95,6 +97,7 @@ public class infoMeetingFragment extends Fragment {
 
                 ((TextView)view.findViewById(R.id.Titulo)).setText(name);
                 ((TextView)view.findViewById(R.id.Descripcion)).setText(description);
+                ((TextView)view.findViewById(R.id.Specie)).setText(specie);
                 ((TextView)view.findViewById(R.id.Lugar)).setText(placeName);
                 ((TextView)view.findViewById(R.id.Fecha)).setText(start);
             }

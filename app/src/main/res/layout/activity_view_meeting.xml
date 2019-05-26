@@ -46,7 +46,15 @@
                                   android:id="@+id/mapViewMeeting"
                                   tools:context=".MapsActivity"
                                   android:name="com.google.android.gms.maps.SupportMapFragment"
-                                  android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/Fecha"/>
+                                  android:layout_marginTop="36dp" app:layout_constraintTop_toBottomOf="@+id/Fecha"
+                                  tools:layout_editor_absoluteX="0dp"/>
+                        <TextView
+                                android:text="TextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/Specie" app:layout_constraintStart_toStartOf="parent"
+                                android:layout_marginStart="8dp" android:layout_marginTop="9dp"
+                                app:layout_constraintTop_toBottomOf="@+id/Fecha"/>
                 </android.support.constraint.ConstraintLayout>
         </ScrollView>
 </LinearLayout>
