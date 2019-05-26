@@ -8,12 +8,12 @@
                                                  tools:context=".MapActivity">
 
     <Spinner
-            android:layout_width="395dp"
-            android:layout_height="wrap_content"
+            android:layout_width="333dp"
+            android:layout_height="34dp"
             android:id="@+id/chooseSpecie"
-            android:popupBackground="@android:color/white"
             android:layout_marginTop="79dp"
-            android:layout_marginStart="8dp" android:visibility="visible"/>
+            android:layout_marginStart="16dp" android:visibility="visible" android:background="@android:color/white"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="16dp"/>
 
     <include
             android:id="@+id/toolbar"

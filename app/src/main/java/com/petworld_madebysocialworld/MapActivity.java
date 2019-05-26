@@ -606,15 +606,13 @@ public class MapActivity extends AppCompatActivity
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Query Meetings
+        // Query Meetings & Specie filter
         final CollectionReference meetingsRef = db.collection("meetings");
         String compareSpecie = chooseSpecie.getSelectedItem().toString();
-        if(compareSpecie.equals("Todos")){
-            meetingLocations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
-        }
-        else{
-            Log.d("specie", "searchNearPlaces: "+compareSpecie);
-            meetingLocations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude)).whereEqualTo("specie", compareSpecie);
+        meetingLocations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+        if(!compareSpecie.equals("Todos")){
+            Log.d("search", "searchNearPlaces: " + compareSpecie);
+            meetingLocations = meetingLocations.whereEqualTo("specie", compareSpecie);
         }
 
         // Query Walks
