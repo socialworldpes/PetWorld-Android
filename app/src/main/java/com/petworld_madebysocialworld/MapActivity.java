@@ -112,6 +112,7 @@ public class MapActivity extends AppCompatActivity
     private LinearLayout linearLayoutSheet;
     private Query meetingLocations, walkLocations, routeLocations;
     private LatLngBounds bounds;
+    private Spinner chooseSpecie;
 
 
     // Data beeing used
@@ -192,6 +193,16 @@ public class MapActivity extends AppCompatActivity
                 return false;
             }
         });
+        //init specie dropdown
+        String[] arraySpecie = new String[] {
+                "Todos","Perro", "Gato", "Hamster", "Conejo", "Ave", "Pez", "Reptil", "Invertebrado", "Otros"
+        };
+        chooseSpecie = findViewById(R.id.chooseSpecie);
+        chooseSpecie.bringToFront();
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, arraySpecie);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        chooseSpecie.setAdapter(adapter);
     }
 
     @Override
@@ -597,7 +608,14 @@ public class MapActivity extends AppCompatActivity
 
         // Query Meetings
         final CollectionReference meetingsRef = db.collection("meetings");
-        meetingLocations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+        String compareSpecie = chooseSpecie.getSelectedItem().toString();
+        if(compareSpecie.equals("Todos")){
+            meetingLocations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+        }
+        else{
+            Log.d("specie", "searchNearPlaces: "+compareSpecie);
+            meetingLocations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude)).whereEqualTo("specie", compareSpecie);
+        }
 
         // Query Walks
         final CollectionReference walksRef = db.collection("walks");
@@ -622,6 +640,7 @@ public class MapActivity extends AppCompatActivity
                     for (QueryDocumentSnapshot document: task.getResult()) {
                         GeoPoint point = (GeoPoint) document.get("placeLocation");
                         String name = (String) document.get("name");
+                        Log.d("search", "onComplete: "+name);
                         Timestamp timestamp = (Timestamp) document.get("start");
                         Date date = timestamp.toDate();
                         if (checkConditions(point, bounds, date)) {
