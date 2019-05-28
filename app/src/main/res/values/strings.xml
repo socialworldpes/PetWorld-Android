@@ -40,5 +40,6 @@
     <string name="hour">Hora</string>
     <string name="route">Ruta</string>
     <string name="pick_a_route">Selecciona una Ruta</string>
+    <string name="edit">Editar</string>
 
 </resources>
