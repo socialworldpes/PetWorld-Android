@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -22,7 +21,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.model.Document;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
@@ -128,6 +126,10 @@ public class ViewWalkActivity extends AppCompatActivity {
     }
 
     private void editWalk() {
+        Intent intent = new Intent (getApplicationContext(), EditWalkActivity.class);
+        intent.putExtra("id", idWalk);
+        startActivityForResult(intent, 0);
+
     }
 
     private void initButtons() {
