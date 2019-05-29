@@ -5,7 +5,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".EditRouteActivity" android:orientation="vertical" android:id="@+id/layout"
+        tools:context=".EditMeetingActivity" android:orientation="vertical" android:id="@+id/layout"
         android:padding="16dp">
 
 
@@ -13,7 +13,7 @@
             android:id="@+id/nameInput_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/RouteName" app:layout_constraintTop_toTopOf="parent"
+            android:hint="@string/MeetingName" app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
         <EditText
@@ -60,30 +60,14 @@
 
             app:layout_constraintHorizontal_bias="0.498"/>
 
-    <RatingBar
-            android:id="@+id/ratingBar"
-            android:numStars="5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:clickable="true"
-            android:focusableInTouchMode="true"
-            android:focusable="true"
-            android:isIndicator="false"
-            android:layout_toEndOf="@+id/nameInput_layout"
-            android:progressTint="#FFC107"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/uploadImagesButton" android:layout_marginStart="8dp"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginEnd="8dp"
-            app:layout_constraintEnd_toEndOf="parent"/>
     <android.support.design.widget.TextInputLayout
 
             android:id="@+id/locationNameInput_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/LocationName"
-            tools:layout_editor_absoluteX="16dp" android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/ratingBar">
+            tools:layout_editor_absoluteX="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/uploadImagesButton">
 
 
         <EditText
@@ -100,7 +84,7 @@
             android:layout_height="0dp"
             tools:context=".MapsActivity"
             android:name="com.google.android.gms.maps.SupportMapFragment"
-            android:id="@+id/mapViewRoute"
+            android:id="@+id/mapViewMeeting"
             android:layout_below="@id/locationNameInput_layout"
 
             tools:layout_editor_absoluteX="16dp"
