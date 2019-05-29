@@ -573,6 +573,19 @@ public class MapActivity extends AppCompatActivity
         }
     }
 
+    public void setFilters(View view) {
+        AlertDialog alertDialog = new AlertDialog.Builder(MapActivity.this).create();
+        //alertDialog.setTitle("Alert");
+        alertDialog.setMessage("Filter");
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
+    }
+
     public void setMyLocationButtonPosition() {
         View locationButton = ((View) findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
         RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();

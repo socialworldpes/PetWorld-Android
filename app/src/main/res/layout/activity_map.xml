@@ -16,7 +16,7 @@
             app:layout_anchor="@+id/Search"
             app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginRight="20dp"
-            android:layout_marginEnd="20dp"/>
+            android:layout_marginEnd="20dp" android:onClick="setFilters"/>
     <Spinner
             android:layout_width="333dp"
             android:layout_height="34dp"
@@ -94,7 +94,7 @@
     <include layout="@layout/bottom_sheet" />
     <EditText
             android:imeOptions="actionSearch"
-            android:layout_width="302dp"
+            android:layout_width="265dp"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
             android:id="@+id/Search" app:layout_anchorGravity="top|center" app:layout_anchor="@+id/map"
