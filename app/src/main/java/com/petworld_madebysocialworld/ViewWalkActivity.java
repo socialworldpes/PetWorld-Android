@@ -22,7 +22,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.GregorianCalendar;
 
 public class ViewWalkActivity extends AppCompatActivity {
@@ -40,15 +43,26 @@ public class ViewWalkActivity extends AppCompatActivity {
     String description;
     GregorianCalendar date;
     private ArrayList<String> imageUrls;
+    private Date pickedDate;
+
+
 
     //layout
     EditText nameWalkEditText;
     EditText descriptionWalkEditText;
     EditText nameRouteEditText;
 
+    // Date Formatter & Hour Formatter
+    private java.text.DateFormat df;
+    private java.text.DateFormat hf;
+
+
+
     //buttons
     Button editButton;
     Button deleteButton;
+    private Button dateInput;
+    private Button hourInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,6 +155,9 @@ public class ViewWalkActivity extends AppCompatActivity {
         nameWalkEditText = findViewById(R.id.nameWalkEditText);
         descriptionWalkEditText = findViewById(R.id.descrptionWalkEditText);
         nameRouteEditText = findViewById(R.id.nameRoutekEditText);
+        //data
+        dateInput = findViewById(R.id.dateInput);
+        hourInput = findViewById(R.id.hourInput);
     }
 
     private void initFireBase() {
@@ -151,6 +168,8 @@ public class ViewWalkActivity extends AppCompatActivity {
     private void setLayoutText() {
         nameWalkEditText.setText(name);
         descriptionWalkEditText.setText(description);
+        dateInput.setText(df.format(pickedDate));
+        hourInput.setText(hf.format(pickedDate));
     }
 
     private void setupToolbar() {
@@ -175,6 +194,8 @@ public class ViewWalkActivity extends AppCompatActivity {
                     description = (String) result.get("description");
                     imageUrls = (ArrayList<String>)result.get("images");
                     routeDocumentReference = (DocumentReference) result.get("route");
+                    com.google.firebase.Timestamp time = (com.google.firebase.Timestamp) result.get("start");
+                    pickedDate = time.toDate();
 
 
                     //images
@@ -225,6 +246,9 @@ public class ViewWalkActivity extends AppCompatActivity {
 
     private void initVariables() {
         idWalk =  getIntent().getExtras().getString("idWalk");
+        // init formatter
+        df = new android.text.format.DateFormat().getMediumDateFormat(getApplicationContext());
+        hf = new android.text.format.DateFormat().getTimeFormat(getApplicationContext());
     }
 
     private AlertDialog AskOption()

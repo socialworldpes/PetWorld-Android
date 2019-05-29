@@ -73,6 +73,8 @@ public class EditWalkActivity extends AppCompatActivity {
     //buttons
     Button editButton;
     private Button btnUploadImage;
+    private Button dateInput;
+    private Button hourInput;
 
 
     @Override
@@ -122,6 +124,8 @@ public class EditWalkActivity extends AppCompatActivity {
                     description = (String) result.get("description");
                     urlImages = (ArrayList<String>)result.get("images");
                     routeDocumentReference = (DocumentReference) result.get("route");
+                    com.google.firebase.Timestamp time = (com.google.firebase.Timestamp) result.get("start");
+                    pickedDate = time.toDate();
 
 
                     //images
@@ -142,6 +146,8 @@ public class EditWalkActivity extends AppCompatActivity {
     private void setLayoutText() {
         nameWalkEditText.setText(name);
         descriptionWalkEditText.setText(description);
+        dateInput.setText(df.format(pickedDate));
+        hourInput.setText(hf.format(pickedDate));
     }
 
     private void setImages() {
@@ -176,6 +182,10 @@ public class EditWalkActivity extends AppCompatActivity {
         descriptionWalkEditText = findViewById(R.id.descriptionInput);
         editButton = findViewById(R.id.editButton);
         btnUploadImage = findViewById(R.id.uploadImagesButton);
+
+        //data
+        dateInput = findViewById(R.id.dateInput);
+        hourInput = findViewById(R.id.hourInput);
     }
 
     private void initFireBase() {
