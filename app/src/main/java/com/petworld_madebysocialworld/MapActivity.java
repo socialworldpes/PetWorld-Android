@@ -12,6 +12,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -113,6 +114,7 @@ public class MapActivity extends AppCompatActivity
     private Query meetingLocations, walkLocations, routeLocations;
     private LatLngBounds bounds;
     private Spinner chooseSpecie;
+    private Button filters;
 
 
     // Data beeing used
@@ -203,6 +205,9 @@ public class MapActivity extends AppCompatActivity
                 android.R.layout.simple_spinner_item, arraySpecie);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         chooseSpecie.setAdapter(adapter);
+
+        filters = findViewById(R.id.Filters);
+        filters.bringToFront();
     }
 
     @Override
