@@ -7,6 +7,7 @@ import android.content.Context;
 import android.database.DataSetObserver;
 import android.support.design.widget.Snackbar;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,11 +20,16 @@ import com.squareup.picasso.Picasso;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class ListMyWalksListAdapter implements ListAdapter {
+public class ListMyWalksListAdapter extends ArrayAdapter<Walk> implements ListAdapter {
+
     private Context context;
     private ArrayList<Walk> walkListInfo;
+    final private static String TAG = "ListMyWalksListAdapter";
+
     public ListMyWalksListAdapter(Context context, int textViewResourceid, ArrayList<Walk> walksInfo) {
-        walkListInfo = walksInfo;
+        super(context, textViewResourceid, walksInfo);
+        this.walkListInfo = walksInfo;
+        Log.d(TAG, String.valueOf(walkListInfo.size()));
         this.context = context;
     }
 
@@ -47,7 +53,7 @@ public class ListMyWalksListAdapter implements ListAdapter {
 
     @Override
     public int getCount() {
-        return walkListInfo.size();
+        Log.d(TAG, String.valueOf(walkListInfo.size())); return walkListInfo.size();
     }
 
     @Override
@@ -67,7 +73,7 @@ public class ListMyWalksListAdapter implements ListAdapter {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        //TODO VISTA DE LA LISTA
+        Log.d(TAG, "He entrado en getView");
         final Walk walkData = walkListInfo.get(position);
         if(convertView == null) {
             LayoutInflater layoutInflater = LayoutInflater.from(context);
