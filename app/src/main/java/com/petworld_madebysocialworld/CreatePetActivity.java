@@ -34,13 +34,12 @@ public class CreatePetActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private EditText name;
     private EditText gender;
-    private EditText specie;
+    private Spinner specie;
     private EditText race;
     private EditText comment;
     private Button btnAddPet;
     private Button btnUploadImage;
     private Bitmap imagePerfil;
-
     //images
     ArrayList<Bitmap> images;
     ArrayList<Uri> uriImages;
@@ -105,11 +104,20 @@ public class CreatePetActivity extends AppCompatActivity {
     private void initLayout() {
         name = findViewById(R.id.namePetInput);
         gender = findViewById(R.id.genderPetInput);
-        specie = findViewById(R.id.speciePetInput);
         race = findViewById(R.id.racePetInput);
         comment = findViewById(R.id.commentPetInput);
         btnAddPet = findViewById(R.id.buttonAddPet);
         btnUploadImage = findViewById(R.id.buttonLoadImage);
+
+        //init specie dropdown
+        String[] arraySpecie = new String[] {
+                "Perro", "Gato", "Hamster", "Conejo", "Ave", "Pez", "Reptil", "Invertebrado", "Otros"
+        };
+        specie = findViewById(R.id.selectSpecie);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, arraySpecie);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        specie.setAdapter(adapter);
     }
 
 
@@ -143,7 +151,7 @@ public class CreatePetActivity extends AppCompatActivity {
         if (true || checkNulls()) {
             mascota.put("name", name.getText().toString());
             mascota.put("gender", gender.getText().toString());
-            mascota.put("specie", specie.getText().toString());
+            mascota.put("specie", specie.getSelectedItem().toString());
             mascota.put("race", race.getText().toString());
             mascota.put("comment", comment.getText().toString());
             mascota.put("photo", Arrays.asList());

@@ -78,6 +78,7 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
     ImageButton ibObtenerFecha;
     EditText etHora;
     ImageButton ibObtenerHora;
+    Spinner specie;
 
     //map
     private final static int FRAGMENT_ID = 0x101;
@@ -126,6 +127,16 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
         ibObtenerHora = (ImageButton) findViewById(R.id.ib_obtener_hora);
         //Evento setOnClickListener - clic
         ibObtenerHora.setOnClickListener(this);
+
+        //init specie dropdown
+        String[] arraySpecie = new String[] {
+                "Perro", "Gato", "Hamster", "Conejo", "Ave", "Pez", "Reptil", "Invertebrado", "Otros"
+        };
+        specie = findViewById(R.id.selectSpecie);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, arraySpecie);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        specie.setAdapter(adapter);
 
         setUpMap();
 
@@ -221,6 +232,7 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                     meeting.put("description", ((EditText)findViewById(R.id.des)).getText().toString());
                     meeting.put("images", Arrays.asList());
                     meeting.put("name", ((EditText)findViewById(R.id.title_create_meeting)).getText().toString());
+                    meeting.put("specie", specie.getSelectedItem().toString());
                     LatLng loc = location;
                     meeting.put("placeLocation", new GeoPoint(loc.latitude, loc.longitude));
                     meeting.put("placeName", ((EditText)findViewById(R.id.des2)).getText().toString());
