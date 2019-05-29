@@ -107,7 +107,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             try {
                 // Google Sign In was successful, authenticate with Firebase
                 if (task.isSuccessful()) {
-                    listenToChanges();
                     firebaseAuthWithGoogle(task.getResult(ApiException.class));
                 }
             } catch (ApiException e) {
@@ -144,7 +143,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 // Google Sign In was successful, authenticate with Firebase
-                listenToChanges();
                 firebaseAuthWithGoogle(task.getResult(ApiException.class));
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
@@ -230,6 +228,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                             openMap(user);
+                            listenToChanges();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());

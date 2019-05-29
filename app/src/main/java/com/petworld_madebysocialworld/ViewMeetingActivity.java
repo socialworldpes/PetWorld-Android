@@ -2,8 +2,6 @@ package com.petworld_madebysocialworld;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -17,8 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import android.view.View;
-import com.petworld_madebysocialworld.ui.main.MeetingsPagerAdapter;
-import org.w3c.dom.Document;
+import com.petworld_madebysocialworld.ui.Meetings.MeetingsPagerAdapter;
 
 public class ViewMeetingActivity extends AppCompatActivity {
 

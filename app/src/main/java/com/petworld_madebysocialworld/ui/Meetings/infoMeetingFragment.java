@@ -1,4 +1,4 @@
-package com.petworld_madebysocialworld.ui.main;
+package com.petworld_madebysocialworld.ui.Meetings;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

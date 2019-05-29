@@ -141,8 +141,11 @@ public class DrawerUtil {
                 .withName("Añadir mascota").withIcon(R.drawable.ic_add);
         SecondaryDrawerItem drawerItemGroups = new SecondaryDrawerItem().withIdentifier(4)
                 .withName("Amigos").withIcon(R.drawable.ic_group);
-        SecondaryDrawerItem drawerItemRoutes = new SecondaryDrawerItem().withIdentifier(5)
-                .withName("Tus rutas").withIcon(R.drawable.ic_rutas);
+        final ExpandableDrawerItem drawerItemManageThings = new ExpandableDrawerItem()
+                .withIdentifier(6).withName("Tus cosas").withIcon(R.drawable.ic_group).withSelectable(false);
+        drawerItemManageThings
+                .withSubItems(new SecondaryDrawerItem().withName("Tus quedadas").withLevel(2).withIdentifier(8).withIcon(R.drawable.ic_rutas))
+                .withSubItems(new SecondaryDrawerItem().withName("Tus paseos").withLevel(2).withIdentifier(9).withIcon(R.drawable.ic_rutas));
         SecondaryDrawerItem drawerItemLogOut = new SecondaryDrawerItem().withIdentifier(7)
                 .withName("Cerrar sesión").withIcon(R.drawable.ic_logout);
 
@@ -161,8 +164,8 @@ public class DrawerUtil {
                         drawerItemManagePets,
                         new DividerDrawerItem(),
                         drawerItemAddPet,
+                        drawerItemManageThings,
                         drawerItemGroups,
-                        drawerItemRoutes,
                         drawerItemLogOut
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
@@ -200,13 +203,20 @@ public class DrawerUtil {
                             Intent intent = new Intent(activity, MainActivity.class);
                             view.getContext().startActivity(intent);
                         }
-
                         if (drawerItem.getIdentifier() == 3 && !(activity instanceof CreatePetActivity)){
                             Intent intent = new Intent(activity, CreatePetActivity.class);
                             view.getContext().startActivity(intent);
                         }
                         if (drawerItem.getIdentifier() == 4 && !(activity instanceof FriendsActivity)){
                             Intent intent = new Intent(activity, FriendsActivity.class);
+                            view.getContext().startActivity(intent);
+                        }
+                        if (drawerItem.getIdentifier() == 8 && !(activity instanceof  listMyMeetingsActivity)){
+                            Intent intent = new Intent(activity, listMyMeetingsActivity.class);
+                            view.getContext().startActivity(intent);
+                        }
+                        if (drawerItem.getIdentifier() == 9 && !(activity instanceof  listMyWalksActivity)){
+                            Intent intent = new Intent(activity, listMyWalksActivity.class);
                             view.getContext().startActivity(intent);
                         }
                         return true;

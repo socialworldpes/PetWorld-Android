@@ -1,4 +1,4 @@
-package com.petworld_madebysocialworld.ui.main;
+package com.petworld_madebysocialworld.ui.Meetings;
 
 import android.app.Activity;
 import android.content.Context;
@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.view.View;
 import android.widget.Toast;
 import com.petworld_madebysocialworld.R;
+import com.petworld_madebysocialworld.ui.Participants.ParticipantsFragment;
 
 /**
  * A [FragmentPagerAdapter] that returns a fragment corresponding to
