@@ -25,7 +25,7 @@ public class MeetingSmallAdapter extends RecyclerView.Adapter<MeetingSmallAdapte
     }
 
     public static class MeetingSmallViewHolder extends RecyclerView.ViewHolder {
-        public TextView name, date, place, description;
+        public TextView name, date, place, description, specie;
         // public ImageView photo;
         // public RatingBar rating;
 
@@ -35,6 +35,7 @@ public class MeetingSmallAdapter extends RecyclerView.Adapter<MeetingSmallAdapte
             date = (TextView) itemView.findViewById(R.id.date);
             place = (TextView) itemView.findViewById(R.id.place);
             description = (TextView) itemView.findViewById(R.id.description);
+            specie = (TextView) itemView.findViewById(R.id.specie);
         }
     }
 
@@ -53,6 +54,7 @@ public class MeetingSmallAdapter extends RecyclerView.Adapter<MeetingSmallAdapte
         holder.date.setText((String) m.get("start"));
         holder.place.setText((String) m.get("placeName"));
         holder.description.setText((String) m.get("description"));
+        holder.specie.setText((String) m.get("specie"));
     }
 
     // ignore
