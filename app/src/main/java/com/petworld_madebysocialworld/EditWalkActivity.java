@@ -1,6 +1,8 @@
 package com.petworld_madebysocialworld;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -12,9 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.*;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -76,6 +76,10 @@ public class EditWalkActivity extends AppCompatActivity {
     private Button dateInput;
     private Button hourInput;
 
+    // Pickers
+    DatePickerDialog datePickerDialog;
+    TimePickerDialog timePickerDialog;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -85,8 +89,35 @@ public class EditWalkActivity extends AppCompatActivity {
         initVariables();
         initLayout();
         initEvents();
+        initPickers();
         setupToolbar();
         readWalkInfo();
+    }
+
+    private void initPickers() {
+        datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                pickedYear = year; pickedMonth = month; pickedDay = dayOfMonth;
+                pickedDate = new GregorianCalendar(pickedYear, pickedMonth, pickedDay, pickedHour, pickedMinute).getTime();
+                String formattedDate = df.format(pickedDate);
+                dateInput.setText(formattedDate);
+            }
+        }, pickedYear, pickedMonth, pickedDay);
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
+
+        timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                pickedHour = hourOfDay; pickedMinute = minute;
+                pickedDate = new GregorianCalendar(pickedYear, pickedMonth, pickedDay, pickedHour, pickedMinute).getTime();
+                String formattedTime = hf.format(pickedDate);
+                hourInput.setText(formattedTime);
+            }
+            //Estos valores deben ir en ese orden
+            //Al colocar en false se muestra en formato 12 horas y true en formato 24 horas
+            //Pero el sistema devuelve la hora en formato 24 horas
+        }, pickedHour, pickedMinute, false);
     }
 
     private void initVariables() {
@@ -170,6 +201,32 @@ public class EditWalkActivity extends AppCompatActivity {
                 loadImage();
             }
         });
+
+        //data
+        dateInput.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pickDate();
+
+            }
+        });
+        hourInput.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pickTime();
+
+            }
+        });
+    }
+
+    private void pickTime() {
+        timePickerDialog.updateTime(pickedHour, pickedMinute);
+        timePickerDialog.show();
+    }
+
+    private void pickDate() {
+        datePickerDialog.updateDate(pickedYear, pickedMonth, pickedDay);
+        datePickerDialog.show();
     }
 
     private void loadImage() {
@@ -198,6 +255,7 @@ public class EditWalkActivity extends AppCompatActivity {
         HashMap<String, Object> walk = new HashMap<String, Object>();
         walk.put("description", descriptionWalkEditText.getText().toString());
         walk.put("name", nameWalkEditText.getText().toString());
+        walk.put("start",pickedDate);
 
 
         final DocumentReference walkRef = db.collection("walks").document(idWalk);
