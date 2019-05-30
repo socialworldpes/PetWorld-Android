@@ -1,5 +1,6 @@
 package com.petworld_madebysocialworld;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -12,13 +13,16 @@ import com.petworld_madebysocialworld.ui.main.MeetingsPagerAdapter;
 
 public class ViewMeetingActivity extends AppCompatActivity {
 
+    String id;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_meting);
-        MeetingsPagerAdapter meetingsPagerAdapter = new MeetingsPagerAdapter(this, getSupportFragmentManager(), getIntent().getStringExtra("id"));
+        id = getIntent().getStringExtra("id");
+        MeetingsPagerAdapter meetingsPagerAdapter = new MeetingsPagerAdapter(this, getSupportFragmentManager(), id);
         ViewPager viewPager = findViewById(R.id.view_pager);
-        boolean b = meetingsPagerAdapter == null;
+        boolean b = viewPager == null;
         Log.d("ViewMeetingActivity", "Es nulo?  " + b);
         viewPager.setAdapter(meetingsPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
@@ -32,5 +36,11 @@ public class ViewMeetingActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+    }
+
+    public void edit(View view) {
+        Intent intent = new Intent (getApplicationContext(), EditMeetingActivity.class);
+        intent.putExtra("id", id);
+        startActivityForResult(intent, 0);
     }
 }

@@ -37,7 +37,7 @@
                 android:id="@+id/descriptionInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textMultiLine" android:enabled="true" android:focusable="true"/>
+                android:focusable="true"/>
 
     </android.support.design.widget.TextInputLayout>
 
