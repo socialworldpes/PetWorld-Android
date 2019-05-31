@@ -230,8 +230,10 @@ public class DrawerUtil {
                 })
                 .build();
 
-        if (true){
-            drawerItemGroups.withBadge("1").withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.md_red_700).withCornersDp(100));
+        int numRequests = FriendsSingleton.getInstance().getRequestsListInfo().size();
+
+        if (numRequests > 0){
+            drawerItemGroups.withBadge(String.valueOf(numRequests)).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.md_red_700).withCornersDp(100));
             result.updateItem(drawerItemGroups);
         }
 
