@@ -169,6 +169,13 @@ public class EditRouteActivity extends AppCompatActivity {
         loadImageButton = findViewById(R.id.uploadImagesButton);
         imagesCanContinue = false;
         ratingBar = findViewById(R.id.ratingBar);
+        if (getIntent().getBooleanExtra("valorar", false)) {
+            //set uneditable all inpunt Text
+            nameInput.setEnabled(false);
+            descriptionInput.setEnabled(false);
+            locationNameInput.setEnabled(false);
+            loadImageButton.setEnabled(false);
+        }
     }
 
     private void readRouteInfo() {
@@ -249,7 +256,6 @@ public class EditRouteActivity extends AppCompatActivity {
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         // Read fields
-        route.put("creator", userID);
         route.put("description", descriptionInput.getText().toString());
         route.put("name", nameInput.getText().toString());
         route.put("placeName", locationNameInput.getText().toString());
