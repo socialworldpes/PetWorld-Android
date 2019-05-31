@@ -2,6 +2,7 @@ package com.petworld_madebysocialworld;
 
 import Models.User;
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
@@ -110,6 +111,7 @@ public class MapActivity extends AppCompatActivity
     private TabLayout tabLayout;
     private Context context;
     private Integer position;
+    private boolean filterM, filterR, filterW;
     private LinearLayout linearLayoutSheet;
     private Query meetingLocations, walkLocations, routeLocations;
     private LatLngBounds bounds;
@@ -205,6 +207,8 @@ public class MapActivity extends AppCompatActivity
                 android.R.layout.simple_spinner_item, arraySpecie);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         chooseSpecie.setAdapter(adapter);
+
+        filterM = filterR = filterW = true;
 
         filters = findViewById(R.id.Filters);
         filters.bringToFront();
@@ -574,6 +578,52 @@ public class MapActivity extends AppCompatActivity
     }
 
     public void setFilters(View view) {
+        View checkBoxView = View.inflate(this, R.layout.checkbox, null);
+        CheckBox checkBoxM = (CheckBox) checkBoxView.findViewById(R.id.checkboxM);
+        checkBoxM.setChecked(filterM);
+        checkBoxM.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                filterM = !filterM;
+            }
+        });
+        checkBoxM.setText("Quedadas");
+
+        CheckBox checkBoxW = (CheckBox) checkBoxView.findViewById(R.id.checkboxR);
+        checkBoxW.setChecked(filterR);
+        checkBoxW.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                filterR = !filterR;
+            }
+        });
+        checkBoxW.setText("Rutas");
+
+        CheckBox checkBoxR = (CheckBox) checkBoxView.findViewById(R.id.checkboxW);
+        checkBoxR.setChecked(filterW);
+        checkBoxR.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                filterW = !filterW;
+            }
+        });
+        checkBoxR.setText("Paseos");
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Filtrar");
+        builder.setMessage("Selecciona por que parametros quieres filtrar")
+                .setView(checkBoxView)
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        Toast.makeText(context, "M: " + filterM + " R:" + filterR + " W:" + filterW, Toast.LENGTH_SHORT).show();
+                        dialog.cancel();
+                        }
+                }).show();
+        /*
         AlertDialog alertDialog = new AlertDialog.Builder(MapActivity.this).create();
         //alertDialog.setTitle("Alert");
         alertDialog.setMessage("Filter");
@@ -584,6 +634,7 @@ public class MapActivity extends AppCompatActivity
                     }
                 });
         alertDialog.show();
+        */
     }
 
     public void setMyLocationButtonPosition() {
@@ -624,22 +675,26 @@ public class MapActivity extends AppCompatActivity
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // Query Meetings & Specie filter
-        final CollectionReference meetingsRef = db.collection("meetings");
-        String compareSpecie = chooseSpecie.getSelectedItem().toString();
-        meetingLocations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
-        if(!compareSpecie.equals("Todos")){
-            Log.d("search", "searchNearPlaces: " + compareSpecie);
-            meetingLocations = meetingLocations.whereEqualTo("specie", compareSpecie);
+        if (filterM) {
+            final CollectionReference meetingsRef = db.collection("meetings");
+            String compareSpecie = chooseSpecie.getSelectedItem().toString();
+            meetingLocations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+            if (!compareSpecie.equals("Todos")) {
+                Log.d("search", "searchNearPlaces: " + compareSpecie);
+                meetingLocations = meetingLocations.whereEqualTo("specie", compareSpecie);
+            }
         }
 
         // Query Walks
-        final CollectionReference walksRef = db.collection("walks");
-        walkLocations = walksRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
-
+        if (filterW) {
+            final CollectionReference walksRef = db.collection("walks");
+            walkLocations = walksRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+        }
         // Query Routes
-        final CollectionReference routesRef = db.collection("routes");
-        routeLocations = routesRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
-
+        if (filterR) {
+            final CollectionReference routesRef = db.collection("routes");
+            routeLocations = routesRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+        }
         loadMaps();
     }
 
@@ -1013,11 +1068,20 @@ public class MapActivity extends AppCompatActivity
             linearLayoutSheet.removeAllViews();
             bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
 
-            final CollectionReference meetingsRef = db.collection("meetings");
-            meetingLocations = meetingsRef.whereGreaterThanOrEqualTo("name", textTmp).whereLessThanOrEqualTo("name", newName);
+            if (filterM) {
+                final CollectionReference meetingsRef = db.collection("meetings");
+                meetingLocations = meetingsRef.whereGreaterThanOrEqualTo("name", textTmp).whereLessThanOrEqualTo("name", newName);
+            }
 
-            CollectionReference walksRef = db.collection("meetings");
-            walkLocations = walksRef.whereLessThanOrEqualTo("name", textTmp).whereLessThanOrEqualTo("name", newName);
+            if (filterW) {
+                CollectionReference walksRef = db.collection("walks");
+                walkLocations = walksRef.whereLessThanOrEqualTo("name", textTmp).whereLessThanOrEqualTo("name", newName);
+            }
+
+            if (filterR) {
+                CollectionReference routesRef = db.collection("routes");
+                routeLocations = routesRef.whereLessThanOrEqualTo("name", textTmp).whereLessThanOrEqualTo("name", newName);
+            }
 
             loadMaps();
 
