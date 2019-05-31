@@ -342,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     }
 
                                     ++pendingRequestsCount;
-                                    if (friendsSingleton.friendsFragmentIni() && pendingRequestsCount == documentChanges.size()) friendsSingleton.updateRequestsSnapshots();
+                                    if (pendingRequestsCount == documentChanges.size()) friendsSingleton.updateRequestsSnapshots();
                                 } else {
                                     Log.d(TAG, "No such document");
                                 }

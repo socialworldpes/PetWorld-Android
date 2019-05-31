@@ -258,7 +258,7 @@ public class FriendsSingleton {
 
         boolean loaded = loadRequestToList(friend);
 
-        if (loaded) requestsFragment.setViewAndAdapter();
+        if (requestsFragmentIni && loaded) requestsFragment.setViewAndAdapter();
 
         return loaded;
     }
