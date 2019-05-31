@@ -48,6 +48,7 @@ public class ViewRouteActivity extends AppCompatActivity {
     private ArrayList<String> imageUrls;
     Button deleteButton;
     Button editButton;
+    Button valorarButton;
 
     //map
     private GoogleMap map;
@@ -144,6 +145,7 @@ public class ViewRouteActivity extends AppCompatActivity {
         deleteButton.setVisibility(View.INVISIBLE);;
         editButton = findViewById(R.id.editButton);
         editButton.setVisibility(View.INVISIBLE);;
+        valorarButton = findViewById(R.id.valorarButton);
         ratingBar = findViewById(R.id.ratingBar);
     }
 
@@ -162,11 +164,13 @@ public class ViewRouteActivity extends AppCompatActivity {
 
                     creator = "" + task.getResult().get("creator");
                     if (!creator.equals(userID)){
-                        deleteButton.setVisibility(View.GONE);;
-                        editButton.setVisibility(View.GONE);;
+                        deleteButton.setVisibility(View.GONE);
+                        editButton.setVisibility(View.GONE);
+                        valorarButton.setVisibility(View.VISIBLE);
                     } else {
-                        deleteButton.setVisibility(View.VISIBLE);;
-                        editButton.setVisibility(View.VISIBLE);;
+                        deleteButton.setVisibility(View.VISIBLE);
+                        editButton.setVisibility(View.VISIBLE);
+                        valorarButton.setVisibility(View.GONE);
                     }
                     name = "" + task.getResult().get("name");
                     description = "" + task.getResult().get("description");
@@ -201,7 +205,6 @@ public class ViewRouteActivity extends AppCompatActivity {
 
                     //route on map
                     setUpMap();
-                } else {
                 }
             }
         });
