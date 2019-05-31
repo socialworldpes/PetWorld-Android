@@ -32,6 +32,10 @@ public class RoutesRepository {
         return repository;
     }
 
+    public static void resetRepository() {
+        repository = null;
+    }
+
     private RoutesRepository() {
         LeerRutasUsuario();
     }

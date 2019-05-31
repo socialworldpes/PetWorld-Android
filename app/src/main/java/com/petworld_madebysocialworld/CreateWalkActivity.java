@@ -111,6 +111,8 @@ public class CreateWalkActivity extends AppCompatActivity {
         images = new ArrayList<>();
         uriImages = new ArrayList<>();
         urlImages = new ArrayList<>();
+        RoutesRepository.resetRepository();
+        List<Route> repo = RoutesRepository.getInstance().getRoutes();
 
         // init formatter
         df = new android.text.format.DateFormat().getMediumDateFormat(getApplicationContext());
