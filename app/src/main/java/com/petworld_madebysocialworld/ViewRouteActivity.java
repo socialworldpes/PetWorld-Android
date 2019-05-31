@@ -56,6 +56,9 @@ public class ViewRouteActivity extends AppCompatActivity {
     private GeoPoint placeLocation;
     Polyline pathPolyline;
 
+    //boolean
+    private boolean valorar = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,11 +85,20 @@ public class ViewRouteActivity extends AppCompatActivity {
                 editRoute();
             }
         });
+        valorarButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                valorar = true;
+                editRoute();
+            }
+        });
     }
 
     private void editRoute() {
         Intent intent = new Intent (getApplicationContext(), EditRouteActivity.class);
         intent.putExtra("id", id);
+        if (valorar) intent.putExtra("valorar",  true);
+        else intent.putExtra("valorar",  false);
         startActivityForResult(intent, 0);
     }
 
