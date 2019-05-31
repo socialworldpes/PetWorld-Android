@@ -33,8 +33,11 @@ import java.util.HashMap;
 
 public class EditPetActivity extends AppCompatActivity {
 
+    //Firebase
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
+
+    //Layout
     private EditText name;
     private EditText gender;
     private EditText race;
@@ -130,8 +133,6 @@ public class EditPetActivity extends AppCompatActivity {
     private void initLayout() {
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DocumentReference docRef = db.document(petPath);
-        Log.d("userID", userID);
-
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -148,8 +149,6 @@ public class EditPetActivity extends AppCompatActivity {
 
 
 
-                } else {
-                    Log.w("task ko", "Error getting documents.", task.getException());
                 }
             }
         });
@@ -170,63 +169,56 @@ public class EditPetActivity extends AppCompatActivity {
     private void updatePet() {
 
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        Log.d("userID", userID);
         HashMap<String, Object> mascota =  new HashMap<String, Object>();
-        if (checkNulls()) {
 
 
-            mascota.put("name", name.getText().toString());
-            mascota.put("gender", gender.getText().toString());
-            mascota.put("specie", specie.getText().toString());
-            mascota.put("race", race.getText().toString());
-            mascota.put("comment",comment.getText().toString());
-            mascota.put("photo", Arrays.asList());
-            mascota.put("owner", userID);
-            final DocumentReference petRef = db.document(petPath);
-            //ojo, ahora hay que guardar las fotos en su sitio y ponerlas en firebase RECOGER LINK y añadir a lugar correspondiente
-            final DocumentReference docRAux = petRef;
-            // do something with result.
-            Log.d("PRUEBA004", "Antes de entrar en el for");
-            for (int i = 0; i < uriImages.size(); i++) {
-                Log.d("PRUEBA005", "Después de entrar en el for");
-                final int j = i;
-                final StorageReference imagesRef = FirebaseStorage.getInstance().getReference().child("pets/" + petRef.getId() + "_" + i);
-                Uri file = uriImages.get(i);
-                Log.d("PRUEBA006", "Cojo la urii");
+        //fill pet info
+        mascota.put("name", name.getText().toString());
+        mascota.put("gender", gender.getText().toString());
+        mascota.put("specie", specie.getText().toString());
+        mascota.put("race", race.getText().toString());
+        mascota.put("comment",comment.getText().toString());
+        mascota.put("photo", Arrays.asList());
+        mascota.put("owner", userID);
 
-                UploadTask uploadTask = imagesRef.putFile(file);
-                Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                    @Override
-                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                        if (!task.isSuccessful()) {
-                            throw task.getException();
-                        }
+        final DocumentReference petRef = db.document(petPath);
+        final DocumentReference docRAux = petRef;
+        // do something with result.
+        for (int i = 0; i < uriImages.size(); i++) {
+            final int j = i;
+            final StorageReference imagesRef = FirebaseStorage.getInstance().getReference().child("pets/" + petRef.getId() + "_" + i);
+            Uri file = uriImages.get(i);
 
-                        // Continue with the task to get the download URL
-                        return imagesRef.getDownloadUrl();
-                    }
-                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Uri> task) {
-                        if (task.isSuccessful()) {
-                            Log.d("PRUEBA002", "He entrado");
-                            Log.d("PRUEBA007", "pets/" + petRef.getId() + "_" + j);
-                            urlImages.add(task.getResult().toString());
-                            Log.d("Tamaño url", String.valueOf(urlImages.size()));
-                            docRAux.update("photo", urlImages);
-                        } else {
-                            // Handle failures
-                            // ...
-                        }
+            UploadTask uploadTask = imagesRef.putFile(file);
+            Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
                     }
 
-                });
-            }
-            petRef.update(mascota);
-            Toast.makeText(getApplicationContext(), "Mascota Editada",
-                    Toast.LENGTH_LONG).show();
-            startMap();
+                    // Continue with the task to get the download URL
+                    return imagesRef.getDownloadUrl();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()) {
+                        urlImages.add(task.getResult().toString());
+                        docRAux.update("photo", urlImages);
+                    } else {
+                        // Handle failures
+                        // ...
+                    }
+                }
+
+            });
         }
+        petRef.update(mascota);
+        Toast.makeText(getApplicationContext(), "Mascota Editada",
+                Toast.LENGTH_LONG).show();
+        startMap();
+
     }
 
     @Override
@@ -265,45 +257,8 @@ public class EditPetActivity extends AppCompatActivity {
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
         toolBar.setTitle("Editar Mascota");
         setSupportActionBar(toolBar);
-        //DrawerUtil.getDrawer(this,toolBar);
     }
-    private boolean checkNulls() {
-       /*  String check;
-        boolean result = true;
-        check = name.getText().toString();
-        if (check == null || check.equals("")) {
-            printErrorNull(findViewById(R.id.headingNameUpdate));
-            result = false;
-        }
-        else resetHeading(R.id.headingNameUpdate);
-        check = gender.getText().toString();
-        if (check == null || check.equals("")) {
-            printErrorNull(findViewById(R.id.headingGenderUpdate));
-            result = false;
-        }
-        else resetHeading(R.id.headingGenderUpdate);
-        check = specie.getText().toString();
-        if (check == null || check.equals("")) {
-            printErrorNull(findViewById(R.id.headingSpecieUpdate));
-            result = false;
-        }
-        else resetHeading(R.id.headingSpecieUpdate);
-        check = race.getText().toString();
-        if (check == null || check.equals("")) {
-            printErrorNull(findViewById(R.id.headingRaceUpdate));
-            result = false;
-        }
-        else resetHeading(R.id.headingRaceUpdate);
-        check = comment.getText().toString();
-        if (check == null || check.equals("")) {
-            printErrorNull(findViewById(R.id.headingCommentUpdate));
-            result = false;
-        }
-        else resetHeading(R.id.headingCommentUpdate);
-        return result;
-        */
-       return true;
-    }
+
 
     private void resetHeading(int headingName) {
         TextView textView = (TextView)findViewById(headingName);

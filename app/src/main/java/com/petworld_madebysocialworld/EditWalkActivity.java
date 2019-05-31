@@ -263,16 +263,13 @@ public class EditWalkActivity extends AppCompatActivity {
 
         //update image
 
-        //ojo, ahora hay que guardar las fotos en su sitio y ponerlas en firebase RECOGER LINK y añadir a lugar correspondiente
+
         final DocumentReference docRAux = walkRef;
         // do something with result.
-        Log.d("PRUEBA004", "Antes de entrar en el for");
         for (int i = 0; i < uriImages.size(); i++) {
-            Log.d("PRUEBA005", "Después de entrar en el for");
             final int j = i;
             final StorageReference imagesRef = FirebaseStorage.getInstance().getReference().child("walks/" + walkRef.getId() + "_" + i);
             Uri file = uriImages.get(i);
-            Log.d("PRUEBA006", "Cojo la urii: " + file.toString());
 
             UploadTask uploadTask = imagesRef.putFile(file);
             Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
@@ -289,10 +286,7 @@ public class EditWalkActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<Uri> task) {
                     if (task.isSuccessful()) {
-                        Log.d("PRUEBA002", "He entrado");
-                        Log.d("PRUEBA007", "routes/" + walkRef.getId() + "_" + j);
                         urlImages.add(task.getResult().toString());
-                        Log.d("Tamaño url", String.valueOf(urlImages.size()));
                         docRAux.update("images", urlImages);
                     } else {
                         // Handle failures

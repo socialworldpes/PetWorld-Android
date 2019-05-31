@@ -53,6 +53,8 @@ public class RoutesFragment extends Fragment {
 
         // Inicializar el adaptador con la fuente de datos.
         List<Route> repo = RoutesRepository.getInstance().getRoutes();
+
+        Log.d("repoRoutes: ", "size: " + repo.size());
         //es buit
         mRoutesAdapter = new RoutesAdapter(getActivity(), repo);
 
