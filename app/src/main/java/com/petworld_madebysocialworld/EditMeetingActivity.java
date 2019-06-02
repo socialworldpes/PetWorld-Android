@@ -1,5 +1,7 @@
 package com.petworld_madebysocialworld;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -13,10 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.RatingBar;
-import android.widget.Toast;
+import android.widget.*;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
 import com.google.android.gms.tasks.Continuation;
@@ -34,10 +33,7 @@ import com.sangcomz.fishbun.FishBun;
 import com.sangcomz.fishbun.adapter.image.impl.PicassoAdapter;
 import com.sangcomz.fishbun.define.Define;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class EditMeetingActivity extends AppCompatActivity {
 
@@ -73,7 +69,24 @@ public class EditMeetingActivity extends AppCompatActivity {
     private GoogleMap map;
     private GeoPoint placeLocation;
 
+    // Date
+    private Calendar c = Calendar.getInstance();
+    private int pickedMonth  = c.get(Calendar.MONTH);
+    private int pickedDay    = c.get(Calendar.DAY_OF_MONTH);
+    private int pickedYear   = c.get(Calendar.YEAR);
+    private int pickedHour   = c.get(Calendar.HOUR_OF_DAY);
+    private int pickedMinute = c.get(Calendar.MINUTE);
+    private Date pickedDate  = new GregorianCalendar(pickedYear, pickedMonth, pickedDay, pickedHour, pickedMinute).getTime();
 
+    // Date Formatter & Hour Formatter
+    private java.text.DateFormat df;
+    private java.text.DateFormat hf;
+
+    // Pickers
+    DatePickerDialog datePickerDialog;
+    TimePickerDialog timePickerDialog;
+    private Button dateInput;
+    private Button hourInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,10 +94,18 @@ public class EditMeetingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_meeting);
 
         initFireBase();
+        initVariables();
         initLayout();
         initEvents();
+        initPickers();
         setupToolbar();
         readMeetingInfo();
+    }
+
+    private void initVariables() {
+        // init formatter
+        df = new android.text.format.DateFormat().getMediumDateFormat(getApplicationContext());
+        hf = new android.text.format.DateFormat().getTimeFormat(getApplicationContext());
     }
 
     private void initFireBase() {
@@ -105,6 +126,28 @@ public class EditMeetingActivity extends AppCompatActivity {
                 refreshImageView();
             }
         });
+
+        //date
+        dateInput.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) { pickDate(); }
+        });
+        hourInput.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pickTime();
+            }
+        });
+    }
+
+    private void pickTime() {
+        timePickerDialog.updateTime(pickedHour, pickedMinute);
+        timePickerDialog.show();
+    }
+
+    private void pickDate() {
+        datePickerDialog.updateDate(pickedYear, pickedMonth, pickedDay);
+        datePickerDialog.show();
     }
 
     private void loadImage(){;
@@ -158,6 +201,10 @@ public class EditMeetingActivity extends AppCompatActivity {
         saveButton = findViewById(R.id.saveButton);
         loadImageButton = findViewById(R.id.uploadImagesButton);
         imagesCanContinue = false;
+
+        //date
+        dateInput = findViewById(R.id.dateInput);
+        hourInput = findViewById(R.id.hourInput);
     }
 
     private void readMeetingInfo() {
@@ -174,6 +221,9 @@ public class EditMeetingActivity extends AppCompatActivity {
                     placeName = "" + task.getResult().get("placeName");
                     name = "" + task.getResult().get("name");
                     placeLocation = (GeoPoint) task.getResult().get("placeLocation");
+                    com.google.firebase.Timestamp time = (com.google.firebase.Timestamp) task.getResult().get("start");
+                    pickedDate = time.toDate();
+
                     imageUrls = (ArrayList<String>)result.get("images");
                     //fill uri images
                     loadUriImages();
@@ -181,6 +231,8 @@ public class EditMeetingActivity extends AppCompatActivity {
                     nameInput.setText(name);
                     descriptionInput.setText(description);
                     locationNameInput.setText(placeName);
+                    dateInput.setText(df.format(pickedDate));
+                    hourInput.setText(hf.format(pickedDate));
 
                     //images
                     ViewPager viewPager = findViewById(R.id.viewPager);
@@ -216,6 +268,8 @@ public class EditMeetingActivity extends AppCompatActivity {
         meeting.put("placeName", locationNameInput.getText().toString());
         meeting.put("images", imageUrls);
         meeting.put("placeLocation", placeLocation);
+        meeting.put("start",pickedDate);
+
     }
 
     //parse the LatLng to GeoPoint of the List
@@ -310,4 +364,31 @@ public class EditMeetingActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), "Meeting Editado", Toast.LENGTH_LONG).show();
         startMap();
     }
+
+    private void initPickers() {
+        datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                pickedYear = year; pickedMonth = month; pickedDay = dayOfMonth;
+                pickedDate = new GregorianCalendar(pickedYear, pickedMonth, pickedDay, pickedHour, pickedMinute).getTime();
+                String formattedDate = df.format(pickedDate);
+                dateInput.setText(formattedDate);
+            }
+        }, pickedYear, pickedMonth, pickedDay);
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
+
+        timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                pickedHour = hourOfDay; pickedMinute = minute;
+                pickedDate = new GregorianCalendar(pickedYear, pickedMonth, pickedDay, pickedHour, pickedMinute).getTime();
+                String formattedTime = hf.format(pickedDate);
+                hourInput.setText(formattedTime);
+            }
+            //Estos valores deben ir en ese orden
+            //Al colocar en false se muestra en formato 12 horas y true en formato 24 horas
+            //Pero el sistema devuelve la hora en formato 24 horas
+        }, pickedHour, pickedMinute, false);
+    }
+
 }

@@ -240,7 +240,7 @@ public class EditWalkActivity extends AppCompatActivity {
         editButton = findViewById(R.id.editButton);
         btnUploadImage = findViewById(R.id.uploadImagesButton);
 
-        //data
+        //date
         dateInput = findViewById(R.id.dateInput);
         hourInput = findViewById(R.id.hourInput);
     }
