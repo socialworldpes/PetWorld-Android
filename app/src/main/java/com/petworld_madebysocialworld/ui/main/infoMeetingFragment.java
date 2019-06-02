@@ -14,6 +14,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.*;
+import android.widget.EditText;
 import android.widget.TextView;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.LatLng;
@@ -29,6 +30,9 @@ import com.petworld_madebysocialworld.ViewPagerAdapter;
 import com.petworld_madebysocialworld.ui.main.SectionsPagerAdapter;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 @SuppressLint("ValidFragment")
 public class infoMeetingFragment extends Fragment {
@@ -50,6 +54,10 @@ public class infoMeetingFragment extends Fragment {
     private View view;
     private FragmentActivity myContext;
 
+    // Date Formatter & Hour Formatter
+    private java.text.DateFormat df;
+    private java.text.DateFormat hf;
+
     public infoMeetingFragment (Context context, String collection, String id){
         this.context = context;
         this.collection = collection;
@@ -59,6 +67,10 @@ public class infoMeetingFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.activity_view_meeting, container, false);
+
+        // init formatter
+        df = new android.text.format.DateFormat().getMediumDateFormat(context);
+        hf = new android.text.format.DateFormat().getTimeFormat(context);
 
         create();
 
@@ -84,7 +96,10 @@ public class infoMeetingFragment extends Fragment {
                 GeoPoint aux = ((GeoPoint)documentSnapshot.get("placeLocation"));
                 location = new LatLng(aux.getLatitude(), aux.getLongitude());
                 placeName = (String)documentSnapshot.get("placeName");
-                start = ((Timestamp)documentSnapshot.get("start")).toString();
+                com.google.firebase.Timestamp time = (com.google.firebase.Timestamp) documentSnapshot.get("start");
+                Date date = time.toDate();
+                start = df.format(date) + " " + hf.format(date);
+
                 visibility = (String)documentSnapshot.get("visibility");
                 participants = (ArrayList<DocumentReference>) documentSnapshot.get("participants");
 
@@ -95,11 +110,11 @@ public class infoMeetingFragment extends Fragment {
                 ViewPagerAdapter adapter = new ViewPagerAdapter(context, imageUrls);
                 viewPager.setAdapter(adapter);
 
-                ((TextView)view.findViewById(R.id.Titulo)).setText(name);
-                ((TextView)view.findViewById(R.id.Descripcion)).setText(description);
-                ((TextView)view.findViewById(R.id.Specie)).setText(specie);
-                ((TextView)view.findViewById(R.id.Lugar)).setText(placeName);
-                ((TextView)view.findViewById(R.id.Fecha)).setText(start);
+                ((EditText)view.findViewById(R.id.Titulo)).setText(name);
+                ((EditText)view.findViewById(R.id.Descripcion)).setText(description);
+                ((EditText)view.findViewById(R.id.Specie)).setText(specie);
+                ((EditText)view.findViewById(R.id.Lugar)).setText(placeName);
+                ((EditText)view.findViewById(R.id.Fecha)).setText(start);
             }
         });
 

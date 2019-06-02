@@ -43,5 +43,6 @@
     <string name="edit">Editar</string>
     <string name="title_activity_edit_meeting">EditMeetingActivity</string>
     <string name="MeetingName">Nombre del Meeting</string>
+    <string name="LocationMeetingName">Nombre del punto de quedada</string>
 
 </resources>
