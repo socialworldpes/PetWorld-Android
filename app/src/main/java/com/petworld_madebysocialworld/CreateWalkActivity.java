@@ -92,7 +92,6 @@ public class CreateWalkActivity extends AppCompatActivity {
         initLayout();
         initListeners();
         initPickers();
-        codeThatWasInsideOnCreate();
     }
 
     private void setupToolbar() {
@@ -216,7 +215,6 @@ public class CreateWalkActivity extends AppCompatActivity {
             @Override
             public void onSuccess(final DocumentReference documentReference) {
 
-                //ojo, ahora hay que guardar las fotos en su sitio y ponerlas en firebase RECOGER LINK y añadir a lugar correspondiente
                 final DocumentReference docRAux = documentReference;
                 for (int i = 0; i < uriImages.size(); i++) {
                     final StorageReference imagesRef = storage.getReference().child("walks/" + documentReference.getId() + "_" + i);
@@ -267,16 +265,14 @@ public class CreateWalkActivity extends AppCompatActivity {
                             .update("walks", arrayReference)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
-                                public void onSuccess(Void aVoid) { Log.d("walk", "DocumentSnapshot successfully written!"); }
+                                public void onSuccess(Void aVoid) {  }
                             })
                             .addOnFailureListener(new OnFailureListener() {
                                 @Override
-                                public void onFailure(@NonNull Exception e) { Log.w("walk", "Error writing document", e); }
+                                public void onFailure(@NonNull Exception e) {  }
                             });
                 } else {
-                    Log.w("task ko", "Error getting documents.", task.getException());
                 }
-                //Toast.makeText(getApplicationContext(), "Paseo creada", Toast.LENGTH_LONG).show();
                 startMap();
             }
         });
@@ -321,7 +317,6 @@ public class CreateWalkActivity extends AppCompatActivity {
                 pickedRouteLocationName = data.getStringExtra("routeLocationName");
                 Double lat = data.getDoubleExtra("routeLocationPlaceLat", 41.389);
                 Double lng = data.getDoubleExtra("routeLocationPlaceLng", 2.088);
-                Log.d("RouteLocationPlace", "lat: "+ lat + "     lng: " + lng);
                 pickedRouteLocationPlace = new GeoPoint(lat, lng);
 
                 routeInput.setText(pickedRouteName);
@@ -341,133 +336,6 @@ public class CreateWalkActivity extends AppCompatActivity {
 
 
 
-    protected void codeThatWasInsideOnCreate() {
-/*
-        //initNavigationDrawer();
-        userID = mAuth.getCurrentUser().getUid();
-
-        Button but = findViewById(R.id.elegirRuta);
-        but.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(CreateWalkActivity.this, RoutesActivity.class));
-            }
-        });
-
-        Button selectDate = findViewById(R.id.elegirFecha);
-        dateInput = findViewById(R.id.textDate);
-
-        selectDate.setOnClickListener(new View.OnClickListener() {
-            Calendar calendar = Calendar.getInstance();
-            int year = calendar.get(Calendar.YEAR);
-            int month = calendar.get(Calendar.MONTH);
-            int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
-
-            @Override
-            public void onClick(View view) {
-                DatePickerDialog datePickerDialog = new DatePickerDialog(CreateWalkActivity.this,
-                                new DatePickerDialog.OnDateSetListener() {
-                                    @Override
-                                    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                                        dateInput.setText(day + "/" + (month+1) + "/" + year);
-                                    }
-                                }, year, month, dayOfMonth);
-                datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
-                datePickerDialog.show();
-            }
-        });
-
-        Button selectHour = findViewById(R.id.elegirHora);
-        hourInput = findViewById(R.id.textHour);
-
-        selectHour.setOnClickListener(new View.OnClickListener() {
-            Calendar calendar = Calendar.getInstance();
-            int hour = calendar.get(Calendar.HOUR);
-            int min = calendar.get(Calendar.MINUTE);
-
-            @Override
-            public void onClick(View view) {
-                TimePickerDialog timePickerDialog = new TimePickerDialog(CreateWalkActivity.this,
-                        new TimePickerDialog.OnTimeSetListener() {
-                            @Override
-                            public void onTimeSet(TimePicker timePicker, int hour, int min) {
-                                hourInput.setText(hour + ":" + min);
-                            }
-                        }, hour, min, true);
-
-                //timePickerDialog.getTimePicker().setMinDate(System.currentTimeMillis());
-                timePickerDialog.show();
-            }
-        });
 
 
-        Button createPaseo = findViewById(R.id.createWalk);
-        createPaseo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d("Debug", "onClick: In");
-                TextView dateToFB = findViewById(R.id.textDate);
-                Map<String, Object> docData = new HashMap<>();
-                docData.put("dateInput",dateToFB.getText().toString());
-                docData.put("name",routeToShow.getName());
-                docData.put("description",routeToShow.getDescription());
-                docData.put("place",routeToShow.getPlace());
-
-
-                Log.d("Debug", "onClick: docData");
-                Task resTask = db.collection("walks").add(docData);
-                Log.d("Debug", "onClick: docData");
-                resTask.addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentReference> task) {
-                        if (task.isSuccessful()) {
-                            Log.d("Debug", "onClick: If");
-                            final DocumentReference res = task.getResult();
-                            Log.d("Debug", "onClick: Result");
-                            //path = res.getPath();
-                            Log.d("Debug", "onClick: Path");
-                            db.collection("users").document(userID).get().addOnCompleteListener(
-                                    new OnCompleteListener<DocumentSnapshot>() {
-                                          @Override
-                                          public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                              if (task.isSuccessful()) {
-                                                  DocumentSnapshot toRead = task.getResult();
-                                                  Map<String,Object> data= Objects.requireNonNull(toRead).getData();
-                                                  ArrayList walks = (ArrayList) Objects.requireNonNull(data).get("walks");
-                                                  walks.add(res);
-                                                  Map<String, Object> pathMap = new HashMap<>();
-                                                  pathMap.put("walks", walks);
-                                                  db.collection("users").document(userID).update(pathMap);
-                                                  Log.d("Debug", "onClick: " +data.toString());
-                                              }
-                                          }
-                                    });
-                        }
-                    }
-                });
-                startActivity(new Intent(CreateWalkActivity.this, MapActivity.class));
-            }
-        });
-
-
-        View routeSelected = findViewById(R.id.routeSelected);
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            String id = extras.getString("itemId");
-            routeToShow = RoutesRepository.getInstance().getRoute(id);
-
-            ImageView image = (ImageView) routeSelected.findViewById(R.id.route_image);
-            TextView name = (TextView) routeSelected.findViewById(R.id.route_name);
-            TextView place = (TextView) routeSelected.findViewById(R.id.route_place);
-            TextView description = (TextView) routeSelected.findViewById(R.id.route_description);
-            TextView idTextView = (TextView) routeSelected.findViewById(R.id.route_id);
-
-            Glide.with(this).load(routeToShow.getImage()).into(image);
-            name.setText(routeToShow.getName());
-            place.setText(routeToShow.getPlace());
-            description.setText(routeToShow.getDescription());
-            idTextView.setText(routeToShow.getId());
-        }
-*/
-    }
 }

@@ -203,9 +203,6 @@ public class ViewWalkActivity extends AppCompatActivity {
                     setLayoutText();
                     readRouteInfo();
                 }
-                else {
-                    Log.w("task ko", "Error getting documents.", task.getException());
-                }
             }
         });
     }
@@ -222,9 +219,6 @@ public class ViewWalkActivity extends AppCompatActivity {
                     idRoute = result.getId();
 
 
-                }
-                else {
-                    Log.w("task ko", "Error getting documents.", task.getException());
                 }
             }
         });

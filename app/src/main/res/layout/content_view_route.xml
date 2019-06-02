@@ -115,6 +115,15 @@
                 android:id="@+id/editButton"
                 android:backgroundTint="#03A9F4" android:textColor="#fff"
                 android:elevation="1dp"/>
+        <Button
+                android:text="Valorar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="75"
+
+                android:id="@+id/valorarButton"
+                android:backgroundTint="#03A9F4" android:textColor="#fff"
+                android:elevation="1dp" android:visibility="invisible"/>
     </LinearLayout>
 
 

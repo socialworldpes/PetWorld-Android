@@ -44,6 +44,7 @@ public class RequestsFragment extends Fragment {
         if (!friendsSingleton.requestsFragmentIni()) {
             friendsSingleton.setRequestsFragment(this);
             friendsSingleton.updateRequestsSnapshots();
+            setViewAndAdapter();
         } else {
             friendsSingleton.setRequestsFragment(this);
             setViewAndAdapter();

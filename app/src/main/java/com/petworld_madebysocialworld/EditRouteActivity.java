@@ -135,14 +135,12 @@ public class EditRouteActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageData) {
         super.onActivityResult(requestCode, resultCode, imageData);
-        Log.d("onActivityresult", "in ");
         switch (requestCode) {
             case Define.ALBUM_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     uriImages = imageData.getParcelableArrayListExtra(Define.INTENT_PATH);
                     if (uriImages.size() > 0){
                         imagesCanContinue = true;
-                        Log.d("onActivityresult", "uri size: " + uriImages.size());
                         refreshImageView();
 
 
@@ -154,7 +152,6 @@ public class EditRouteActivity extends AppCompatActivity {
 
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
-        // TODO: Use route name
         toolbar.setTitle("Edit Ruta");
         toolbar.setTitleTextColor(Color.WHITE);
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
@@ -172,6 +169,13 @@ public class EditRouteActivity extends AppCompatActivity {
         loadImageButton = findViewById(R.id.uploadImagesButton);
         imagesCanContinue = false;
         ratingBar = findViewById(R.id.ratingBar);
+        if (getIntent().getBooleanExtra("valorar", false)) {
+            //set uneditable all inpunt Text
+            nameInput.setEnabled(false);
+            descriptionInput.setEnabled(false);
+            locationNameInput.setEnabled(false);
+            loadImageButton.setEnabled(false);
+        }
     }
 
     private void readRouteInfo() {
@@ -222,9 +226,6 @@ public class EditRouteActivity extends AppCompatActivity {
 
                     //save info route
                     saveInfoRoute();
-
-                } else {
-                    Log.w("task ko", "Error getting documents.", task.getException());
                 }
             }
         });
@@ -255,7 +256,6 @@ public class EditRouteActivity extends AppCompatActivity {
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         // Read fields
-        route.put("creator", userID);
         route.put("description", descriptionInput.getText().toString());
         route.put("name", nameInput.getText().toString());
         route.put("placeName", locationNameInput.getText().toString());
@@ -345,13 +345,10 @@ public class EditRouteActivity extends AppCompatActivity {
         //ojo, ahora hay que guardar las fotos en su sitio y ponerlas en firebase RECOGER LINK y añadir a lugar correspondiente
         final DocumentReference docRAux = routeRef;
         // do something with result.
-        Log.d("PRUEBA004", "Antes de entrar en el for");
         for (int i = 0; i < uriImages.size(); i++) {
-            Log.d("PRUEBA005", "Después de entrar en el for");
             final int j = i;
             final StorageReference imagesRef = FirebaseStorage.getInstance().getReference().child("routes/" + routeRef.getId() + "_" + i);
             Uri file = uriImages.get(i);
-            Log.d("PRUEBA006", "Cojo la urii: " + file.toString());
 
             UploadTask uploadTask = imagesRef.putFile(file);
             Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
@@ -368,10 +365,7 @@ public class EditRouteActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<Uri> task) {
                     if (task.isSuccessful()) {
-                        Log.d("PRUEBA002", "He entrado");
-                        Log.d("PRUEBA007", "routes/" + routeRef.getId() + "_" + j);
                         imageUrls.add(task.getResult().toString());
-                        Log.d("Tamaño url", String.valueOf(imageUrls.size()));
                         docRAux.update("images", imageUrls);
                     } else {
                         // Handle failures
