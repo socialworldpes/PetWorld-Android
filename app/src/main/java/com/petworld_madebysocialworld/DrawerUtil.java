@@ -1,5 +1,6 @@
 package com.petworld_madebysocialworld;
 
+import Models.Friend;
 import Models.User;
 import android.app.Activity;
 import android.content.Intent;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 
 import android.widget.ImageView;
+import android.widget.Toast;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -230,10 +232,24 @@ public class DrawerUtil {
                 })
                 .build();
 
-        int numRequests = FriendsSingleton.getInstance().getRequestsListInfo().size();
+        ArrayList<Friend> requestsListInfo = FriendsSingleton.getInstance().getRequestsListInfo();
+        boolean empty = false;
+        for (Friend friend : requestsListInfo ) {
+            if (!empty) {
+                Log.d("Request Chicken", "id = " + friend.getId());
+                if (friend.getId().equals("NoPendingRequests")) empty = true;
+            }
+        }
 
-        if (numRequests > 0){
+        int numRequests = requestsListInfo.size();
+
+        if (numRequests > 0 && !empty){
+            Log.d("Request Chicken", "Te solicituds");
             drawerItemGroups.withBadge(String.valueOf(numRequests)).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.md_red_700).withCornersDp(100));
+            result.updateItem(drawerItemGroups);
+        } else {
+            Log.d("Request Chicken", "No te solicituds");
+            drawerItemGroups.withBadge("123").withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.md_white_1000).withCornersDp(100));
             result.updateItem(drawerItemGroups);
         }
 

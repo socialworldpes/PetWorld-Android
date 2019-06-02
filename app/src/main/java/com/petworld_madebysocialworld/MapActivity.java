@@ -919,12 +919,6 @@ public class MapActivity extends AppCompatActivity
 
                             String id = (String) mapTmp.get("id");
                             Intent intent = new Intent(MapActivity.this, ViewWalkActivity.class);
-                            /*
-                            if (id == null)
-                                Toast.makeText(MapActivity.this, "id falla", Toast.LENGTH_SHORT).show();
-                            else Toast.makeText(MapActivity.this, "ID: " +id, Toast.LENGTH_SHORT).show();
-                            */
-
                             intent.putExtra("id", id);
                             startActivity(intent);
                         }

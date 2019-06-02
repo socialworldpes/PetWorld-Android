@@ -48,7 +48,6 @@ public class UserActivity extends AppCompatActivity {
         initNavigationDrawer();
         context = this;
         id = getIntent().getStringExtra("id");
-        //Toast.makeText(context, "ID main - " + id, Toast.LENGTH_SHORT).show();
 
         frindsSize =  petsSize = meetingSize = routesSize = walksSize = 0;
         friendsSingleton = FriendsSingleton.getInstance();
@@ -62,7 +61,6 @@ public class UserActivity extends AppCompatActivity {
         if (id.equals(FirebaseAuth.getInstance().getCurrentUser().getUid()))
             isFriend = true;
         else {
-          //  Toast.makeText(context, "ID: " + id, Toast.LENGTH_SHORT).show();
             isFriend = friendsSingleton.isFriend(id);
         }
 
@@ -86,8 +84,6 @@ public class UserActivity extends AppCompatActivity {
 
                 if ((String)documentSnapshot.get("imageURL") != null) {
                     Picasso.get().load((String) documentSnapshot.get("imageURL")).into(image);
-                } else {
-                    Toast.makeText(context, "No foto", Toast.LENGTH_SHORT).show();
                 }
 
                 name = (String)documentSnapshot.get("name");
@@ -104,7 +100,6 @@ public class UserActivity extends AppCompatActivity {
                             db.document(dc.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    //Toast.makeText(context, "Dins Loop", Toast.LENGTH_SHORT).show();
                                     if (task.isSuccessful()) {
                                         final DocumentSnapshot document = task.getResult();
                                         if (document.exists()) {
@@ -172,7 +167,6 @@ public class UserActivity extends AppCompatActivity {
                                                     @Override
                                                     public void onClick(View v) {
                                                         Intent intent = new Intent(UserActivity.this, UserActivity.class);
-                                                        //Toast.makeText(context, "ID activity - " + document.getId(), Toast.LENGTH_SHORT).show();
                                                         intent.putExtra("id", document.getId());
                                                         startActivity(intent);
                                                     }
@@ -195,7 +189,6 @@ public class UserActivity extends AppCompatActivity {
                             db.document(dc.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    //Toast.makeText(context, "Dins Loop", Toast.LENGTH_SHORT).show();
                                     if (task.isSuccessful()) {
                                         final DocumentSnapshot document = task.getResult();
                                         if (document.exists()) {
@@ -237,7 +230,6 @@ public class UserActivity extends AppCompatActivity {
                             db.document(dc.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    //Toast.makeText(context, "Dins Loop", Toast.LENGTH_SHORT).show();
                                     if (task.isSuccessful()) {
                                         final DocumentSnapshot document = task.getResult();
                                         if (document.exists()) {
@@ -279,7 +271,6 @@ public class UserActivity extends AppCompatActivity {
                             db.document(dc.getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    //Toast.makeText(context, "Dins Loop", Toast.LENGTH_SHORT).show();
                                     if (task.isSuccessful()) {
                                         final DocumentSnapshot document = task.getResult();
                                         if (document.exists()) {

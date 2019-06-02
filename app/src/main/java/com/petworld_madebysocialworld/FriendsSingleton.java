@@ -62,9 +62,7 @@ public class FriendsSingleton {
         return friendsFragmentIni;
     }
 
-    public boolean requestsFragmentIni() {
-        return requestsFragmentIni;
-    }
+    public boolean requestsFragmentIni() {return requestsFragmentIni; }
 
     public void setNoFriends(boolean noFriends) {
         this.noFriends = noFriends;
@@ -78,9 +76,7 @@ public class FriendsSingleton {
         return friendsListInfo;
     }
 
-    public ArrayList<Friend> getRequestsListInfo() {
-        return requestsListInfo;
-    }
+    public ArrayList<Friend> getRequestsListInfo() { return requestsListInfo; }
 
     private void updateId(){
         Log.d("FriendSing", "updateId + " + friendsListInfo.size());

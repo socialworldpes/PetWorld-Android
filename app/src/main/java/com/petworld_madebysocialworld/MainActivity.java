@@ -132,7 +132,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         // Get new Instance ID token
                         String token = task.getResult().getToken();
                         FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).update("token", token);
-                        // Log and toast
 
                     }
                 });
@@ -186,7 +185,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         user.put("routes", Arrays.asList());
                         user.put("visibility", "public");
                         user.put("name", fu.getDisplayName());
-                        Toast.makeText(MainActivity.this, "GetMail: " + fu.getEmail(), Toast.LENGTH_SHORT).show();
                         user.put("email", fu.getEmail());
                         user.put("imageURL", fu.getPhotoUrl().toString());
                         user.put("walks", Arrays.asList());

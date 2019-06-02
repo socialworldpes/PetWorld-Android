@@ -145,7 +145,6 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
 
     private void setUpMap() {
 
-        Toast.makeText(this, "dENTRO MARP READY", Toast.LENGTH_SHORT).show();
 
 
         ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapCreateMeeting)).getMapAsync(new OnMapReadyCallback() {
