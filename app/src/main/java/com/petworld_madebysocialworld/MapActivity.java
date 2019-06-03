@@ -111,13 +111,16 @@ public class MapActivity extends AppCompatActivity
     private TabLayout tabLayout;
     private Context context;
     private Integer position;
-    private boolean filterM, filterR, filterW;
+    private boolean filterM, filterR, filterW, filterE, meetingLocBool, walkLocBool, routeLocBool;
+    private String filterSpecie;
+    private Spinner selectSpecieFilter;
     private LinearLayout linearLayoutSheet;
     private Query meetingLocations, walkLocations, routeLocations;
     private LatLngBounds bounds;
     private Spinner chooseSpecie;
     private Button filters;
-
+    private int filterSpeciePos;
+    private Button buttonNearPlaces;
 
     // Data beeing used
     Query locations;
@@ -197,25 +200,23 @@ public class MapActivity extends AppCompatActivity
                 return false;
             }
         });
-        //init specie dropdown
-        String[] arraySpecie = new String[] {
-                "Todos","Perro", "Gato", "Hamster", "Conejo", "Ave", "Pez", "Reptil", "Invertebrado", "Otros"
-        };
-        chooseSpecie = findViewById(R.id.chooseSpecie);
-        chooseSpecie.bringToFront();
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, arraySpecie);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        chooseSpecie.setAdapter(adapter);
 
         filterM = filterR = filterW = true;
+        filterE = false;
 
         filters = findViewById(R.id.Filters);
         filters.bringToFront();
+
+        filterSpeciePos = 0;
+
+        buttonNearPlaces = findViewById(R.id.nearPlaces);
+        buttonNearPlaces.setVisibility(View.VISIBLE);
+        buttonNearPlaces.bringToFront();
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         final Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         mMap = googleMap;
 
@@ -271,7 +272,6 @@ public class MapActivity extends AppCompatActivity
                 return true;
             }
         });
-
     }
 
     /**
@@ -286,9 +286,9 @@ public class MapActivity extends AppCompatActivity
         try {
             if (mLocationPermissionGranted){
                 Task location = mFusedLocationProviderClient.getLastLocation();
-                location.addOnCompleteListener(new OnCompleteListener() {
-                    @Override
-                    public void onComplete(@NonNull Task task) {
+                        location.addOnCompleteListener(new OnCompleteListener() {
+                            @Override
+                            public void onComplete(@NonNull Task task) {
                         if (task.isSuccessful()){
                             Location currentLocation = (Location) task.getResult();
                             if (currentLocation != null){
@@ -462,8 +462,6 @@ public class MapActivity extends AppCompatActivity
             return;
         }
 
-
-
         if (mLocationPermissionGranted) {
             // Get the likely places - that is, the businesses and other points of interest that
             // are the best match for the device's current location.
@@ -612,6 +610,35 @@ public class MapActivity extends AppCompatActivity
         });
         checkBoxR.setText("Paseos");
 
+        //init specie dropdown
+        String[] arraySpecie = new String[] {
+                "Perro", "Gato", "Hamster", "Conejo", "Ave", "Pez", "Reptil", "Invertebrado", "Otros"
+        };
+
+        //Filter Specie
+        selectSpecieFilter = (Spinner) checkBoxView.findViewById(R.id.dropDownSpecies);
+        Log.d(TAG, "setFilters: " + selectSpecieFilter.getId());
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, arraySpecie);
+        Log.d(TAG, "setFilters: prova1");
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        Log.d(TAG, "setFilters: prova2");
+        selectSpecieFilter.setAdapter(adapter);
+        Log.d(TAG, "setFilters: prova3");
+
+
+        selectSpecieFilter.setSelection(filterSpeciePos);
+
+        CheckBox checkBoxE = (CheckBox) checkBoxView.findViewById(R.id.checkboxE);
+        checkBoxE.setChecked(filterE);
+        checkBoxE.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                filterE = !filterE;
+            }
+        });
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Filtrar");
         builder.setMessage("Selecciona por que parametros quieres filtrar")
@@ -620,8 +647,9 @@ public class MapActivity extends AppCompatActivity
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         Toast.makeText(context, "M: " + filterM + " R:" + filterR + " W:" + filterW, Toast.LENGTH_SHORT).show();
+                        searchNearPlacesNoView();
                         dialog.cancel();
-                        }
+                    }
                 }).show();
         /*
         AlertDialog alertDialog = new AlertDialog.Builder(MapActivity.this).create();
@@ -655,6 +683,11 @@ public class MapActivity extends AppCompatActivity
         // startActivity(nextActivity);
     }
 
+    public void searchNearPlacesNoView(){
+        View view = findViewById(R.id.nearPlaces);
+        searchNearPlaces(view);
+    }
+
     private void initNavigationDrawer() {
         //TODO: improve
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
@@ -669,6 +702,8 @@ public class MapActivity extends AppCompatActivity
 
 
     public void searchNearPlaces(View view) {
+//        Log.d(TAG, "searchNearPlaces:" + view.getId());
+//        Log.d(TAG, "searchNearPlaces:" + view.getResources().getResourceName(view.getId()));
         view.setVisibility(View.INVISIBLE);
         bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
 
@@ -677,128 +712,157 @@ public class MapActivity extends AppCompatActivity
         // Query Meetings & Specie filter
         if (filterM) {
             final CollectionReference meetingsRef = db.collection("meetings");
-            String compareSpecie = chooseSpecie.getSelectedItem().toString();
             meetingLocations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
-            if (!compareSpecie.equals("Todos")) {
-                Log.d("search", "searchNearPlaces: " + compareSpecie);
-                meetingLocations = meetingLocations.whereEqualTo("specie", compareSpecie);
+            if (filterE) {
+                filterSpecie = selectSpecieFilter.getSelectedItem().toString();
+                Log.d("search", "searchNearPlaces: " + filterSpecie);
+                filterSpeciePos = selectSpecieFilter.getSelectedItemPosition();
+                Log.d("search", "searchNearPlaces: ");
+                meetingLocations = meetingLocations.whereEqualTo("specie", filterSpecie);
             }
+            meetingLocBool = true;
+        }
+        else {
+            meetingLocBool = false;
         }
 
         // Query Walks
         if (filterW) {
             final CollectionReference walksRef = db.collection("walks");
             walkLocations = walksRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+            routeLocBool = true;
+        }
+        else {
+            walkLocBool = false;
         }
         // Query Routes
         if (filterR) {
             final CollectionReference routesRef = db.collection("routes");
             routeLocations = routesRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+            routeLocBool = true;
+        }
+        else {
+            routeLocBool = false;
         }
         loadMaps();
+
+        buttonNearPlaces.setVisibility(View.VISIBLE);
+        buttonNearPlaces.bringToFront();
     }
 
     public void loadMaps() {
         mMap.clear();
 
-        meetingLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    meetings.clear();
-                    Map<String, Object> map;
-                    for (QueryDocumentSnapshot document: task.getResult()) {
-                        GeoPoint point = (GeoPoint) document.get("placeLocation");
-                        String name = (String) document.get("name");
-                        Log.d("search", "onComplete: "+name);
-                        Timestamp timestamp = (Timestamp) document.get("start");
-                        Date date = timestamp.toDate();
-                        if (checkConditions(point, bounds, date)) {
-                            map = document.getData();
-                            map.put("id", document.getId());
-                            meetings.add(map);
-                            createMarker(point, date, "Meeting-".concat(document.getId()));
-                            Log.d("Meeting", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
-                        }
-                    }
-
-                    if (task.getResult().isEmpty()) Log.d("Meeting", "NO hay quedadas cerca");
-                }
-
-                // Its important for Walks to be queried first!
-                walkLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            walks.clear();
-                            Map<String, Object> map;
-                            for (QueryDocumentSnapshot document : task.getResult()) {
+        Log.d(TAG, "searchNearPlaces: meetingLocations ->" + meetingLocations);
+            meetingLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        meetings.clear();
+                        Map<String, Object> map;
+                        if(meetingLocBool){
+                            for (QueryDocumentSnapshot document: task.getResult()) {
                                 GeoPoint point = (GeoPoint) document.get("placeLocation");
                                 Timestamp timestamp = (Timestamp) document.get("start");
                                 Date date = timestamp.toDate();
                                 if (checkConditions(point, bounds, date)) {
                                     map = document.getData();
                                     map.put("id", document.getId());
-                                    walks.add(map);
-                                    createMarker(point, date, "Walk-".concat(document.getId()));
-                                    Log.d("Walk", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                                    meetings.add(map);
+                                    createMarker(point, date, "Meeting-".concat(document.getId()));
+                                    Log.d("Meeting searchNearPlaces", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                                 }
                             }
-
-                            if (task.getResult().isEmpty()) Log.d("Walk", "NO hay paseos cerca");
-                        }
-
-                        if (routeLocations != null) {
-
-                            routeLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        routes.clear();
-                                        Map<String, Object> map;
-                                        for (QueryDocumentSnapshot document : task.getResult()) {
-                                            GeoPoint point = (GeoPoint) document.get("placeLocation");
-
-                                            if (checkConditions(point, bounds, null) && !hasWalk(document.getId())) {
-                                                map = document.getData();
-                                                map.put("id", document.getId());
-                                            /*
-                                            if (document.getId() == null)
-                                                Toast.makeText(MapActivity.this, "El get id falla", Toast.LENGTH_SHORT).show();
-                                            else Toast.makeText(MapActivity.this, "GetID: " + document.getId(), Toast.LENGTH_SHORT).show();
-                                            */
-                                                routes.add(map);
-                                                createMarker(point, null, "Route-".concat(document.getId()));
-                                                Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
-                                            }
-
-                                        }
-
-                                        // Therefore it loads the listLayout as soon as the Meetings and Walks are loaded
-                                        loadListLayout(position);
-
-                                        if (task.getResult().isEmpty()) Log.d("Route", "NO hay rutas cerca");
-                                    }
-                                }
-                            });
+                            if (task.getResult().isEmpty()) Log.d("Meeting", "NO hay quedadas cerca");
                         }
                     }
-                });
-            }
-        });
+
+                    Log.d(TAG, "searchNearPlaces: walkLocations->" + walkLocations);
+                        // Its important for Walks to be queried first!
+                        walkLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    walks.clear();
+                                    Map<String, Object> map;
+                                    if(walkLocBool){
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            GeoPoint point = (GeoPoint) document.get("placeLocation");
+                                            Timestamp timestamp = (Timestamp) document.get("start");
+                                            Date date = timestamp.toDate();
+                                            if (checkConditions(point, bounds, date)) {
+                                                map = document.getData();
+                                                map.put("id", document.getId());
+                                                walks.add(map);
+                                                createMarker(point, date, "Walk-".concat(document.getId()));
+                                                Log.d("Walk searchNearPlaces", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                                            }
+                                        }
+
+                                        if (task.getResult().isEmpty()) Log.d("Walk", "NO hay paseos cerca");
+                                    }
+                                }
+
+                                Log.d(TAG, "searchNearPlaces: routeLocations->" + routeLocations);
+                                    routeLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                routes.clear();
+                                                Map<String, Object> map;
+                                                if(routeLocBool){
+                                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                                        GeoPoint point = (GeoPoint) document.get("placeLocation");
+                                                        String name = (String) document.get("name");
+
+                                                        if (checkConditions(point, bounds, null) && !hasWalk(document.getId())) {
+                                                            map = document.getData();
+                                                            map.put("id", document.getId());
+                                                            routes.add(map);
+                                                            createMarker(point, null, "Route-".concat(document.getId()));
+                                                            Log.d("Route searchNearPlaces", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                                                        }
+
+                                                    }
+                                                    if (task.getResult().isEmpty()) Log.d("Route", "NO hay rutas cerca");
+                                                }
+
+                                                // Therefore it loads the listLayout as soon as the Meetings and Walks are loaded
+                                                loadListLayout(position);
+                                            }
+                                        }
+                                    });
+                            }
+                        });
+                }
+            });
     }
 
     public boolean checkConditions(GeoPoint point, LatLngBounds bounds, Date date) {
+
         Calendar calendar = Calendar.getInstance();
         Date now1 = calendar.getTime();
 
         calendar.add(Calendar.DATE, 7);
         Date weekFromToday1 = calendar.getTime();
 
+//        Log.d(TAG, "searchNearPlaces: outttt");
+//        boolean temp = point.getLongitude() <= bounds.northeast.longitude;
+//        Log.d(TAG, "searchNearPlaces checkConditions: " + temp);
+//        temp = point.getLongitude() >= bounds.southwest.longitude;
+//        Log.d(TAG, "searchNearPlaces checkConditions: " + temp);
+//        temp = date == null || (now1.compareTo(date) <= 0 && date.compareTo(weekFromToday1) <= 0);
+//        Log.d(TAG, "searchNearPlaces checkConditions: " + temp);
+//        temp = now1.compareTo(date) <= 0 && date.compareTo(weekFromToday1) <= 0;
+//        Log.d(TAG, "searchNearPlaces checkConditions: " + temp);
+//        temp = date.compareTo(weekFromToday1) <= 0;
+//        Log.d(TAG, "searchNearPlaces checkConditions: " + temp);
+
         if (point.getLongitude() <= bounds.northeast.longitude &&
                 point.getLongitude() >= bounds.southwest.longitude &&
-                (date == null || (now1.compareTo(date) <= 0 && date.compareTo(weekFromToday1) <= 0))) return true;
-
+                (date == null || (now1.compareTo(date) <= 0 && date.compareTo(weekFromToday1) <= 0))) {
+                    return true;
+                }
         return false;
     }
 
@@ -811,8 +875,8 @@ public class MapActivity extends AppCompatActivity
 
     @Override
     public void onCameraMoveStarted(int reason) {
-        View b = findViewById(R.id.nearPlaces);
-        b.setVisibility(View.VISIBLE);
+        buttonNearPlaces = findViewById(R.id.nearPlaces);
+        buttonNearPlaces.setVisibility(View.VISIBLE);
     }
 
     public void addMarker(GeoPoint point, Bitmap bmp, String markerType) {
@@ -893,7 +957,6 @@ public class MapActivity extends AppCompatActivity
             if (meetings.size() != 0){
 
                 for (final Map<String, Object> mapTmp : meetings) {
-
                     LinearLayout linearLayoutList = new LinearLayout(context);
 
                     String nameList = (String) mapTmp.get("name");
@@ -1107,5 +1170,6 @@ public class MapActivity extends AppCompatActivity
             */
         }
     }
+
 }
 
