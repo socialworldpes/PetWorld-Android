@@ -29,4 +29,20 @@
     <string name="InfoMeetings">Información</string>
     <string name="ParticipantsMeetings">Participantes</string>
     <string name="NearBy">Buscar en esta zona</string>
+    <string name="WalkName">Nombre del Paseo</string>
+    <string name="WalkDescription">Descripcion</string>
+    <string name="create">Crear</string>
+    <string name="StartHour">Hora de inicio</string>
+    <string name="StartDate">Fecha de inicio</string>
+    <string name="UploadImages">Subir imágenes</string>
+    <string name="date">Fecha</string>
+    <string name="day">Día</string>
+    <string name="hour">Hora</string>
+    <string name="route">Ruta</string>
+    <string name="pick_a_route">Selecciona una Ruta</string>
+    <string name="edit">Editar</string>
+    <string name="title_activity_edit_meeting">EditMeetingActivity</string>
+    <string name="MeetingName">Nombre del Meeting</string>
+    <string name="LocationMeetingName">Nombre del punto de quedada</string>
+
 </resources>

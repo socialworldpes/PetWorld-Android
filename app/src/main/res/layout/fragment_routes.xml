@@ -4,10 +4,10 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              android:paddingTop="8dp"
-             tools:context=".LeadsFragment">
+             tools:context=".RoutesFragment">
 
     <ListView
-            android:id="@+id/leads_list"
+            android:id="@+id/routes_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:divider="@null"/>

@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RatingBar;
+import android.widget.Toast;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -31,13 +32,10 @@ import java.util.Map;
 public class ViewRouteActivity extends AppCompatActivity {
 
     // route info
-    //TODO: use a model
     String id;
-    String name;
+    String name, userID, creator;
     String description;
     String placeName;
-    //Object placeLocation;
-    //Object path;
 
     //info view
     EditText nameInput;
@@ -50,12 +48,16 @@ public class ViewRouteActivity extends AppCompatActivity {
     private ArrayList<String> imageUrls;
     Button deleteButton;
     Button editButton;
+    Button valorarButton;
 
     //map
     private GoogleMap map;
     private List<GeoPoint> path;
     private GeoPoint placeLocation;
     Polyline pathPolyline;
+
+    //boolean
+    private boolean valorar = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,34 +85,38 @@ public class ViewRouteActivity extends AppCompatActivity {
                 editRoute();
             }
         });
+        valorarButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                valorar = true;
+                editRoute();
+            }
+        });
     }
 
     private void editRoute() {
         Intent intent = new Intent (getApplicationContext(), EditRouteActivity.class);
         intent.putExtra("id", id);
+        if (valorar) intent.putExtra("valorar",  true);
+        else intent.putExtra("valorar",  false);
         startActivityForResult(intent, 0);
     }
 
     public void deleteRoute() {
         id = getIntent().getStringExtra("id");
-        Log.d("deleteRoute:", "in id: " + id);
 
         FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    Log.d("deleteRoute:", "task successful");
 
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.d("deleteRoute:", "documents exists");
 
-                        ArrayList<DocumentReference> alMeetingRef = (ArrayList<DocumentReference>) document.get("routes");
-                        for (DocumentReference dr : alMeetingRef) {
-                            Log.d("deleteRoute:", "id: " + dr.getPath());
+                        ArrayList<DocumentReference> alRoutesRef = (ArrayList<DocumentReference>) document.get("routes");
+                        for (DocumentReference dr : alRoutesRef) {
 
                             if (dr.getPath().equals("routes/" + id)) {
-                                Log.d("deleteRoute:", "equal");
 
                                 //borra en routes/
                                 dr.delete();
@@ -121,6 +127,9 @@ public class ViewRouteActivity extends AppCompatActivity {
                         }
                     }
                 }
+                Toast.makeText(getApplicationContext(), "Ruta Borrada",
+                        Toast.LENGTH_LONG).show();
+                startMap();
 
             }
 
@@ -130,7 +139,6 @@ public class ViewRouteActivity extends AppCompatActivity {
 
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
-        // TODO: Use route name
         toolbar.setTitle("View Ruta");
         toolbar.setTitleTextColor(Color.WHITE);
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
@@ -146,7 +154,10 @@ public class ViewRouteActivity extends AppCompatActivity {
         nameInput = findViewById(R.id.nameInput);
         locationNameInput = findViewById(R.id.locationNameInput);
         deleteButton = findViewById(R.id.deleteButton);
+        deleteButton.setVisibility(View.INVISIBLE);;
         editButton = findViewById(R.id.editButton);
+        editButton.setVisibility(View.INVISIBLE);;
+        valorarButton = findViewById(R.id.valorarButton);
         ratingBar = findViewById(R.id.ratingBar);
     }
 
@@ -155,7 +166,7 @@ public class ViewRouteActivity extends AppCompatActivity {
 
     private void readRouteInfo() {
         id = getIntent().getStringExtra("id");
-        Log.d("readRoute:","id route: " + id);
+        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         FirebaseFirestore.getInstance().collection("routes").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -163,6 +174,16 @@ public class ViewRouteActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot result = task.getResult();
 
+                    creator = "" + task.getResult().get("creator");
+                    if (!creator.equals(userID)){
+                        deleteButton.setVisibility(View.GONE);
+                        editButton.setVisibility(View.GONE);
+                        valorarButton.setVisibility(View.VISIBLE);
+                    } else {
+                        deleteButton.setVisibility(View.VISIBLE);
+                        editButton.setVisibility(View.VISIBLE);
+                        valorarButton.setVisibility(View.GONE);
+                    }
                     name = "" + task.getResult().get("name");
                     description = "" + task.getResult().get("description");
                     placeName = "" + task.getResult().get("placeName");
@@ -196,8 +217,6 @@ public class ViewRouteActivity extends AppCompatActivity {
 
                     //route on map
                     setUpMap();
-                } else {
-                    Log.w("task ko", "Error getting documents.", task.getException());
                 }
             }
         });

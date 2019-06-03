@@ -14,6 +14,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.*;
+import android.widget.EditText;
 import android.widget.TextView;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.LatLng;
@@ -29,6 +30,9 @@ import com.petworld_madebysocialworld.ViewPagerAdapter;
 import com.petworld_madebysocialworld.ui.main.SectionsPagerAdapter;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 @SuppressLint("ValidFragment")
 public class infoMeetingFragment extends Fragment {
@@ -40,6 +44,7 @@ public class infoMeetingFragment extends Fragment {
     private String id;
     private LatLng location;
     private String description;
+    private String specie;
     private String name;
     private String placeName;
     private String start;
@@ -50,7 +55,15 @@ public class infoMeetingFragment extends Fragment {
     private FragmentActivity myContext;
     private boolean visibilityFabButton;
 
+<<<<<<< HEAD:app/src/main/java/com/petworld_madebysocialworld/ui/Meetings/infoMeetingFragment.java
     public infoMeetingFragment (Context context, String collection, String id, boolean visibilityFabButton){
+=======
+    // Date Formatter & Hour Formatter
+    private java.text.DateFormat df;
+    private java.text.DateFormat hf;
+
+    public infoMeetingFragment (Context context, String collection, String id){
+>>>>>>> 02371ef00e212394ae309aab536b5ce4e86df5c1:app/src/main/java/com/petworld_madebysocialworld/ui/main/infoMeetingFragment.java
         this.context = context;
         this.collection = collection;
         this.id = id;
@@ -60,6 +73,10 @@ public class infoMeetingFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.activity_view_meeting, container, false);
+
+        // init formatter
+        df = new android.text.format.DateFormat().getMediumDateFormat(context);
+        hf = new android.text.format.DateFormat().getTimeFormat(context);
 
         create();
 
@@ -80,11 +97,15 @@ public class infoMeetingFragment extends Fragment {
                 imageUrls = (ArrayList<String>)documentSnapshot.get("images");
                 creator = (String)documentSnapshot.get("creator");
                 description = (String)documentSnapshot.get("description");
+                specie = (String)documentSnapshot.get("specie");
                 name = (String)documentSnapshot.get("name");
                 GeoPoint aux = ((GeoPoint)documentSnapshot.get("placeLocation"));
                 location = new LatLng(aux.getLatitude(), aux.getLongitude());
                 placeName = (String)documentSnapshot.get("placeName");
-                start = ((Timestamp)documentSnapshot.get("start")).toString();
+                com.google.firebase.Timestamp time = (com.google.firebase.Timestamp) documentSnapshot.get("start");
+                Date date = time.toDate();
+                start = df.format(date) + " " + hf.format(date);
+
                 visibility = (String)documentSnapshot.get("visibility");
                 participants = (ArrayList<DocumentReference>) documentSnapshot.get("participants");
 
@@ -95,6 +116,7 @@ public class infoMeetingFragment extends Fragment {
                 ViewPagerAdapter adapter = new ViewPagerAdapter(context, imageUrls);
                 viewPager.setAdapter(adapter);
 
+<<<<<<< HEAD:app/src/main/java/com/petworld_madebysocialworld/ui/Meetings/infoMeetingFragment.java
                 ((TextView)view.findViewById(R.id.Titulo)).setText(name);
                 ((TextView)view.findViewById(R.id.Descripcion)).setText(description);
                 ((TextView)view.findViewById(R.id.Lugar)).setText(placeName);
@@ -105,6 +127,13 @@ public class infoMeetingFragment extends Fragment {
                     ((Activity)context).findViewById(R.id.JoinMeeting).setVisibility(View.VISIBLE);
                 else
                     ((Activity)context).findViewById(R.id.JoinMeeting).setVisibility(View.GONE);
+=======
+                ((EditText)view.findViewById(R.id.Titulo)).setText(name);
+                ((EditText)view.findViewById(R.id.Descripcion)).setText(description);
+                ((EditText)view.findViewById(R.id.Specie)).setText(specie);
+                ((EditText)view.findViewById(R.id.Lugar)).setText(placeName);
+                ((EditText)view.findViewById(R.id.Fecha)).setText(start);
+>>>>>>> 02371ef00e212394ae309aab536b5ce4e86df5c1:app/src/main/java/com/petworld_madebysocialworld/ui/main/infoMeetingFragment.java
             }
         });
 

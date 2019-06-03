@@ -119,8 +119,6 @@ public class SearchFriendsActivity extends AppCompatActivity {
                     }
                 }
             });
-        } else {
-            //Toast.makeText(context, "No Noms", Toast.LENGTH_SHORT).show();
         }
         wait = true;
     }

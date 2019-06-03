@@ -1,23 +1,26 @@
 package com.petworld_madebysocialworld;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.RatingBar;
-import android.widget.Toast;
+import android.widget.*;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
-import com.google.android.gms.tasks.*;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -30,22 +33,19 @@ import com.sangcomz.fishbun.FishBun;
 import com.sangcomz.fishbun.adapter.image.impl.PicassoAdapter;
 import com.sangcomz.fishbun.define.Define;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class EditRouteActivity extends AppCompatActivity {
+public class EditMeetingActivity extends AppCompatActivity {
 
     //firestore
     private FirebaseFirestore db;
 
-    // route info
+    // meeting info
     String id;
     String name;
     String description;
     String placeName;
-    HashMap<String, Object> route =  new HashMap<String, Object>();
+    HashMap<String, Object> meeting =  new HashMap<String, Object>();
 
 
     //info view
@@ -53,9 +53,6 @@ public class EditRouteActivity extends AppCompatActivity {
     EditText descriptionInput;
     EditText locationNameInput;
     Button saveButton;
-    RatingBar ratingBar;
-    HashMap<String, Long> puntuation;
-    private Long puntationUser;
     Button loadImageButton;
 
     //images
@@ -70,23 +67,45 @@ public class EditRouteActivity extends AppCompatActivity {
 
     //map
     private GoogleMap map;
-    private List<LatLng> pathLl = new ArrayList<LatLng>();
-    private List<GeoPoint> path;
     private GeoPoint placeLocation;
-    Polyline pathPolyline;
 
+    // Date
+    private Calendar c = Calendar.getInstance();
+    private int pickedMonth  = c.get(Calendar.MONTH);
+    private int pickedDay    = c.get(Calendar.DAY_OF_MONTH);
+    private int pickedYear   = c.get(Calendar.YEAR);
+    private int pickedHour   = c.get(Calendar.HOUR_OF_DAY);
+    private int pickedMinute = c.get(Calendar.MINUTE);
+    private Date pickedDate  = new GregorianCalendar(pickedYear, pickedMonth, pickedDay, pickedHour, pickedMinute).getTime();
 
+    // Date Formatter & Hour Formatter
+    private java.text.DateFormat df;
+    private java.text.DateFormat hf;
+
+    // Pickers
+    DatePickerDialog datePickerDialog;
+    TimePickerDialog timePickerDialog;
+    private Button dateInput;
+    private Button hourInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_route);
+        setContentView(R.layout.activity_edit_meeting);
 
         initFireBase();
+        initVariables();
         initLayout();
         initEvents();
+        initPickers();
         setupToolbar();
-        readRouteInfo();
+        readMeetingInfo();
+    }
+
+    private void initVariables() {
+        // init formatter
+        df = new android.text.format.DateFormat().getMediumDateFormat(getApplicationContext());
+        hf = new android.text.format.DateFormat().getTimeFormat(getApplicationContext());
     }
 
     private void initFireBase() {
@@ -97,7 +116,7 @@ public class EditRouteActivity extends AppCompatActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveRoute();
+                saveMeeting();
             }
         });
         loadImageButton.setOnClickListener(new View.OnClickListener() {
@@ -107,12 +126,28 @@ public class EditRouteActivity extends AppCompatActivity {
                 refreshImageView();
             }
         });
-        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+
+        //date
+        dateInput.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-                puntuation.put(FirebaseAuth.getInstance().getCurrentUser().getUid(), (long) rating);
+            public void onClick(View view) { pickDate(); }
+        });
+        hourInput.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pickTime();
             }
         });
+    }
+
+    private void pickTime() {
+        timePickerDialog.updateTime(pickedHour, pickedMinute);
+        timePickerDialog.show();
+    }
+
+    private void pickDate() {
+        datePickerDialog.updateDate(pickedYear, pickedMonth, pickedDay);
+        datePickerDialog.show();
     }
 
     private void loadImage(){;
@@ -120,16 +155,12 @@ public class EditRouteActivity extends AppCompatActivity {
     }
 
     private void refreshImageView() {
-
         imageUrls =  new ArrayList<>();
-        for (Uri uri: uriImages)
-            imageUrls.add(uri.toString());
+        for (Uri uri: uriImages) imageUrls.add(uri.toString());
 
         ViewPager viewPager= findViewById(R.id.viewPager);
         ViewPagerAdapter adapter = new ViewPagerAdapter(getApplicationContext(), imageUrls);
         viewPager.setAdapter(adapter);
-
-
     }
 
     @Override
@@ -143,7 +174,6 @@ public class EditRouteActivity extends AppCompatActivity {
                         imagesCanContinue = true;
                         refreshImageView();
 
-
                     }
                     break;
                 }
@@ -152,7 +182,7 @@ public class EditRouteActivity extends AppCompatActivity {
 
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("Edit Ruta");
+        toolbar.setTitle("Edit Meeting");
         toolbar.setTitleTextColor(Color.WHITE);
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         setSupportActionBar(toolbar);
@@ -168,20 +198,16 @@ public class EditRouteActivity extends AppCompatActivity {
         saveButton = findViewById(R.id.saveButton);
         loadImageButton = findViewById(R.id.uploadImagesButton);
         imagesCanContinue = false;
-        ratingBar = findViewById(R.id.ratingBar);
-        if (getIntent().getBooleanExtra("valorar", false)) {
-            //set uneditable all inpunt Text
-            nameInput.setEnabled(false);
-            descriptionInput.setEnabled(false);
-            locationNameInput.setEnabled(false);
-            loadImageButton.setEnabled(false);
-        }
+
+        //date
+        dateInput = findViewById(R.id.dateInput);
+        hourInput = findViewById(R.id.hourInput);
     }
 
-    private void readRouteInfo() {
+    private void readMeetingInfo() {
         id = getIntent().getStringExtra("id");
 
-        FirebaseFirestore.getInstance().collection("routes").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        FirebaseFirestore.getInstance().collection("meetings").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
@@ -191,59 +217,35 @@ public class EditRouteActivity extends AppCompatActivity {
                     description = "" + task.getResult().get("description");
                     placeName = "" + task.getResult().get("placeName");
                     name = "" + task.getResult().get("name");
-                    path = (List<GeoPoint>) task.getResult().get("path");
-                    placeLocation = path.get(0);
+                    placeLocation = (GeoPoint) task.getResult().get("placeLocation");
+                    com.google.firebase.Timestamp time = (com.google.firebase.Timestamp) task.getResult().get("start");
+                    pickedDate = time.toDate();
+
                     imageUrls = (ArrayList<String>)result.get("images");
                     //fill uri images
                     loadUriImages();
 
-                    if (task.getResult().get("puntuation") == null) {
-                        HashMap<String, Long> puntuationAux =  new HashMap<>();
-                        puntuationAux.put(FirebaseAuth.getInstance().getCurrentUser().getUid(), (long) 0);
-                        puntuation = puntuationAux;
-                    }
-                    else {
-                        puntuation = (HashMap<String, Long>) task.getResult().get("puntuation");
-                    }
-
-                    //calculate puntuacion
-                    puntationUser = calculatePointsUser();
-
-                    //set puntuacion
-                    ratingBar.setRating(puntationUser);
-
                     nameInput.setText(name);
                     descriptionInput.setText(description);
                     locationNameInput.setText(placeName);
+                    dateInput.setText(df.format(pickedDate));
+                    hourInput.setText(hf.format(pickedDate));
 
                     //images
                     ViewPager viewPager = findViewById(R.id.viewPager);
                     ViewPagerAdapter adapter = new ViewPagerAdapter(getApplicationContext(), imageUrls);
                     viewPager.setAdapter(adapter);
 
-                    //route on map
+                    //meeting on map
                     setUpMap();
 
-                    //save info route
-                    saveInfoRoute();
+                    //save info meeting
+                    saveInfoMeeting();
+
+                } else {
                 }
             }
         });
-    }
-
-    private Long calculatePointsUser() {
-        Long resultado =  new Long(0);
-
-        for(Map.Entry<String, Long> entry : puntuation.entrySet()) {
-            String key = entry.getKey();
-            Long value = entry.getValue();
-
-            if (key.equals(FirebaseAuth.getInstance().getCurrentUser().getUid()))
-                resultado = value;
-
-        }
-
-        return resultado;
     }
 
     private void loadUriImages() {
@@ -252,17 +254,17 @@ public class EditRouteActivity extends AppCompatActivity {
             uriImages.add(Uri.parse(s));
     }
 
-    private void saveInfoRoute() {
+    private void saveInfoMeeting() {
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         // Read fields
-        route.put("description", descriptionInput.getText().toString());
-        route.put("name", nameInput.getText().toString());
-        route.put("placeName", locationNameInput.getText().toString());
-        route.put("images", imageUrls);
-        route.put("path", path);
-        route.put("placeLocation", path.get(0));
-        route.put("puntuation", puntuation);
+        meeting.put("creator", userID);
+        meeting.put("description", descriptionInput.getText().toString());
+        meeting.put("name", nameInput.getText().toString());
+        meeting.put("placeName", locationNameInput.getText().toString());
+        meeting.put("images", imageUrls);
+        meeting.put("placeLocation", placeLocation);
+        meeting.put("start",pickedDate);
 
     }
 
@@ -278,49 +280,22 @@ public class EditRouteActivity extends AppCompatActivity {
     }
 
     private void setUpMap() {
-        ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapViewRoute)).getMapAsync(new OnMapReadyCallback() {
+        ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapViewMeeting)).getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(final GoogleMap googleMap) {
                 map = googleMap;
-                LatLng startPoint = new LatLng(path.get(0).getLatitude(), path.get(0).getLongitude());
+                LatLng startPoint = new LatLng(placeLocation.getLatitude(), placeLocation.getLongitude());
                 CameraUpdate cameraupdate = CameraUpdateFactory.newLatLngZoom(startPoint, (float) 16);
                 map.moveCamera(cameraupdate);
-                //put points on map
-                boolean firstPoint = true;
-                for (GeoPoint point : path) {
-                    int resource;
-                    if (firstPoint) {
-                        resource = R.drawable.marker_blue;
-                        firstPoint = false;
-                    }
-                    else resource = R.drawable.marker_green;
-                    map.addMarker(new MarkerOptions()
-                            .position(new LatLng(point.getLatitude(), point.getLongitude()))
-                            //.draggable(true)
-                            .anchor((float) 0.5, (float) 0.5)
-                            .icon(BitmapDescriptorFactory.fromResource(resource))
-                    );
-                }
-                // map line
-                List<LatLng> pathLl = toLatLng(path);
-                pathPolyline = map.addPolyline(new PolylineOptions()
-                        .add(pathLl.get(0))
-                        .width(20)
-                        .color(Color.parseColor("#2D9CDB")));
-                refreshPolyLine(pathLl);
-
-
+                //put point on map
+                map.addMarker(new MarkerOptions()
+                        .position(startPoint)
+                        //.draggable(true)
+                        .anchor((float) 0.5, (float) 0.5)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue))
+                );
             }
         });
-    }
-    private List<LatLng> toLatLng(List<GeoPoint> path) {
-        List<LatLng> result =  new ArrayList<>();
-        for (GeoPoint point: path)
-            result.add(new LatLng(point.getLatitude(), point.getLongitude()));
-        return result;
-    }
-    private void refreshPolyLine(List<LatLng> path) {
-        pathPolyline.setPoints(path);
     }
 
     private void startMap() {
@@ -328,26 +303,25 @@ public class EditRouteActivity extends AppCompatActivity {
         startActivityForResult(intent, 0);
     }
 
-    private void saveRoute() {
-        saveInfoRoute();
-        updateRoute(route);
+    private void saveMeeting() {
+        saveInfoMeeting();
+        updateMeeting(meeting);
         startMap();
     }
 
-    private void updateRoute(HashMap<String, Object> route) {
+    private void updateMeeting(HashMap<String, Object> meeting) {
 
 
-        final DocumentReference routeRef = db.collection("routes").document(id);
-        routeRef.update(route);
+        final DocumentReference meetingRef = db.collection("meetings").document(id);
+        meetingRef.update(meeting);
 
         //update image
 
-        //ojo, ahora hay que guardar las fotos en su sitio y ponerlas en firebase RECOGER LINK y añadir a lugar correspondiente
-        final DocumentReference docRAux = routeRef;
+        final DocumentReference docRAux = meetingRef;
         // do something with result.
         for (int i = 0; i < uriImages.size(); i++) {
             final int j = i;
-            final StorageReference imagesRef = FirebaseStorage.getInstance().getReference().child("routes/" + routeRef.getId() + "_" + i);
+            final StorageReference imagesRef = FirebaseStorage.getInstance().getReference().child("meetings/" + meetingRef.getId() + "_" + i);
             Uri file = uriImages.get(i);
 
             UploadTask uploadTask = imagesRef.putFile(file);
@@ -357,7 +331,6 @@ public class EditRouteActivity extends AppCompatActivity {
                     if (!task.isSuccessful()) {
                         throw task.getException();
                     }
-
                     // Continue with the task to get the download URL
                     return imagesRef.getDownloadUrl();
                 }
@@ -376,11 +349,33 @@ public class EditRouteActivity extends AppCompatActivity {
             });
         }
 
-        Toast.makeText(getApplicationContext(), "Route Editada",
-                Toast.LENGTH_LONG).show();
         startMap();
     }
 
+    private void initPickers() {
+        datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                pickedYear = year; pickedMonth = month; pickedDay = dayOfMonth;
+                pickedDate = new GregorianCalendar(pickedYear, pickedMonth, pickedDay, pickedHour, pickedMinute).getTime();
+                String formattedDate = df.format(pickedDate);
+                dateInput.setText(formattedDate);
+            }
+        }, pickedYear, pickedMonth, pickedDay);
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
 
+        timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                pickedHour = hourOfDay; pickedMinute = minute;
+                pickedDate = new GregorianCalendar(pickedYear, pickedMonth, pickedDay, pickedHour, pickedMinute).getTime();
+                String formattedTime = hf.format(pickedDate);
+                hourInput.setText(formattedTime);
+            }
+            //Estos valores deben ir en ese orden
+            //Al colocar en false se muestra en formato 12 horas y true en formato 24 horas
+            //Pero el sistema devuelve la hora en formato 24 horas
+        }, pickedHour, pickedMinute, false);
+    }
 
 }

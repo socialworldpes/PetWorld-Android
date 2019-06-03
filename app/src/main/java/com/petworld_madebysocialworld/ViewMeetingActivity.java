@@ -1,6 +1,7 @@
 package com.petworld_madebysocialworld;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -21,6 +22,7 @@ public class ViewMeetingActivity extends AppCompatActivity {
 
     private boolean alreadyInvited;
     private boolean alreadyJoinedBoolean;
+    String id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,8 +89,6 @@ public class ViewMeetingActivity extends AppCompatActivity {
             }
         });
 
-        boolean b = meetingsPagerAdapter == null;
-        Log.d("ViewMeetingActivity", "Es nulo?  " + b);
         viewPager.setAdapter(meetingsPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
@@ -153,4 +153,9 @@ public class ViewMeetingActivity extends AppCompatActivity {
         });
     }
 
+    public void edit(View view) {
+        Intent intent = new Intent (getApplicationContext(), EditMeetingActivity.class);
+        intent.putExtra("id", id);
+        startActivityForResult(intent, 0);
+    }
 }

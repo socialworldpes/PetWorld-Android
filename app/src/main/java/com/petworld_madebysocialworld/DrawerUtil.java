@@ -1,8 +1,10 @@
 package com.petworld_madebysocialworld;
 
+import Models.Friend;
 import Models.User;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -11,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 
 import android.widget.ImageView;
+import android.widget.Toast;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -21,6 +24,7 @@ import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.holder.BadgeStyle;
 import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.ExpandableDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
@@ -49,6 +53,7 @@ public class DrawerUtil {
         String personEmail = user.getEmail();
         Uri personPhoto = user.getPhotoUrl();
         final String userID = user.getUid();
+
 
 
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
@@ -85,40 +90,52 @@ public class DrawerUtil {
                 .withName("Usuario").withIcon(R.drawable.ic_profile);
         final ExpandableDrawerItem drawerItemManagePets = new ExpandableDrawerItem()
                 .withIdentifier(2).withName("Mascotas").withIcon(R.drawable.ic_pets).withSelectable(false);
+
         //pets menu lateral
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference docRef = db.collection("users").document(userID);
-        Log.d("test", docRef.toString());
-        Log.d("userID", userID);
+        Log.d("petMenu: ", "id doc user: " + docRef.toString());
+        Log.d("petMenu: ", "id user: " + userID);
+
+        //get current user document
         db.collection("users").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     Log.d("task string", task.toString());
-                    Log.d("task size: ", "" + task.getResult().get("pets"));
+                    Log.d("petMenu pet document: ", "" + task.getResult().get("pets"));
                     DocumentSnapshot result = task.getResult();
                     ArrayList<DocumentReference> arrayPets = (ArrayList<DocumentReference>) result.get("pets");
 
-
+                    //if user have pets
                     if (arrayPets != null) {
                         for (final DocumentReference dr : arrayPets) {
+                            Log.d("petMenu: ", "interacion: " + i);
                             if (dr.getPath() !=  null) {
                                 dr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                         DocumentSnapshot result = task.getResult();
                                         String namePet = (String) result.get("name");
+                                        Long identifier = new Long(2001 + i);
                                         drawerItemManagePets.withSubItems(
-                                                new SecondaryDrawerItem().withName(namePet).withLevel(2).withIdentifier(2001 + i)
+                                                new SecondaryDrawerItem().withName(namePet).withLevel(2).withIdentifier(identifier)
                                         );
-                                        mapPetRef.put(2001 + i, dr);
+                                        Log.d("petMenu identifier: ", "" + identifier );
+                                        mapPetRef.put(identifier.intValue(), dr);
+                                        i++;
                                     }
                                 });
-                                i++;
+
                             }
 
                         }
-                        ;
+                        //log mapPetRf
+                        Log.d("mapPetRef : ", "antes del for: " + mapPetRef.size());
+                        for (Map.Entry<Integer, DocumentReference> entry : mapPetRef.entrySet()) {
+                            Log.d("mapPetRef : ", "id pet menu lateral: " + entry.getKey() + "path: " + entry.getValue());
+                        }
+
                     }
                     i = 0;
                   /*  for (QueryDocumentSnapshot document : task.getResult()) {
@@ -148,6 +165,7 @@ public class DrawerUtil {
                 .withSubItems(new SecondaryDrawerItem().withName("Tus paseos").withLevel(2).withIdentifier(9).withIcon(R.drawable.ic_rutas));
         SecondaryDrawerItem drawerItemLogOut = new SecondaryDrawerItem().withIdentifier(7)
                 .withName("Cerrar sesión").withIcon(R.drawable.ic_logout);
+
 
 
         Drawer result = new DrawerBuilder()
@@ -185,7 +203,7 @@ public class DrawerUtil {
                         for (Map.Entry<Integer, DocumentReference> entry : mapPetRef.entrySet()) {
                             if (drawerItem.getIdentifier() == entry.getKey() && !(activity instanceof ViewPetActivity)) {
 
-                                if (!dentroIf) {
+                                if (true) {
                                     Intent  intent = new Intent(activity, ViewPetActivity.class);
                                     String petPath = entry.getValue().getPath();
                                     Log.d("drawerPetRef", petPath);
@@ -223,6 +241,28 @@ public class DrawerUtil {
                     }
                 })
                 .build();
+
+        ArrayList<Friend> requestsListInfo = FriendsSingleton.getInstance().getRequestsListInfo();
+        boolean empty = false;
+        for (Friend friend : requestsListInfo ) {
+            if (!empty) {
+                Log.d("Request Chicken", "id = " + friend.getId());
+                if (friend.getId().equals("NoPendingRequests")) empty = true;
+            }
+        }
+
+        int numRequests = requestsListInfo.size();
+
+        if (numRequests > 0 && !empty){
+            Log.d("Request Chicken", "Te solicituds");
+            drawerItemGroups.withBadge(String.valueOf(numRequests)).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.md_red_700).withCornersDp(100));
+            result.updateItem(drawerItemGroups);
+        } else {
+            Log.d("Request Chicken", "No te solicituds");
+            drawerItemGroups.withBadge("123").withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.md_white_1000).withCornersDp(100));
+            result.updateItem(drawerItemGroups);
+        }
+
     }
 
 

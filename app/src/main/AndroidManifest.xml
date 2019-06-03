@@ -19,9 +19,21 @@
             android:roundIcon="@mipmap/ic_launcher_custom_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
+<<<<<<< HEAD
         <activity android:name=".listMyMeetingsActivity">
         </activity>
         <activity android:name=".listMyWalksActivity">
+=======
+        <activity
+                android:name=".EditMeetingActivity"
+                android:label="@string/title_activity_edit_meeting"
+                android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+                android:name=".ViewMetingActivity"
+                android:label="@string/title_activity_view_meting"
+                android:theme="@style/AppTheme.NoActionBar">
+>>>>>>> 02371ef00e212394ae309aab536b5ce4e86df5c1
         </activity>
         <activity
                 android:name=".ViewRouteActivity"
@@ -39,6 +51,7 @@
                 android:label="@string/title_activity_friends"
                 android:screenOrientation="portrait"
                 android:theme="@style/AppTheme.NoActionBar">
+<<<<<<< HEAD
         </activity>
         <activity
                 android:name=".ViewWalkActivity"
@@ -66,6 +79,39 @@
         </activity>
         <activity
                 android:name=".EditRouteActivity"
+=======
+        </activity>
+        <activity
+                android:name=".ViewWalkActivity"
+                android:screenOrientation="portrait">
+        </activity>
+        <activity
+                android:name=".RoutesActivity"
+                android:screenOrientation="portrait">
+        </activity>
+        <activity
+                android:name=".CreateRouteActivity"
+                android:screenOrientation="portrait">
+        </activity>
+        <activity
+                android:name=".CreateWalkActivity"
+                android:screenOrientation="portrait">
+        </activity>
+        <activity
+                android:name=".CreateMeetingActivity"
+                android:screenOrientation="portrait">
+        </activity>
+        <activity
+                android:name=".EditPetActivity"
+                android:screenOrientation="portrait">
+        </activity>
+        <activity
+                android:name=".EditRouteActivity"
+                android:screenOrientation="portrait">
+        </activity>
+        <activity
+                android:name=".EditWalkActivity"
+>>>>>>> 02371ef00e212394ae309aab536b5ce4e86df5c1
                 android:screenOrientation="portrait">
         </activity>
         <activity
