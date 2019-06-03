@@ -208,10 +208,6 @@ public class MapActivity extends AppCompatActivity
         filters.bringToFront();
 
         filterSpeciePos = 0;
-
-        buttonNearPlaces = findViewById(R.id.nearPlaces);
-        buttonNearPlaces.setVisibility(View.VISIBLE);
-        buttonNearPlaces.bringToFront();
     }
 
     @Override
@@ -745,9 +741,6 @@ public class MapActivity extends AppCompatActivity
             routeLocBool = false;
         }
         loadMaps();
-
-        buttonNearPlaces.setVisibility(View.VISIBLE);
-        buttonNearPlaces.bringToFront();
     }
 
     public void loadMaps() {
