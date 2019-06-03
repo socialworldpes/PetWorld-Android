@@ -229,8 +229,22 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                     if (imagesCanContinue == false){
                         imagesCanContinue = true;
                         urlImages.add("https://firebasestorage.googleapis.com/v0/b/petworld-cf5a1.appspot.com/o/meetings%2Fcatalog-default-img.jpg?alt=media&token=9a89d503-714b-407a-aa3a-4504ec3a29ca");
-                        meeting.put("iamges", urlImages);
-                        FirebaseFirestore.getInstance().collection("meetings").add(meeting);
+                        meeting.put("images", urlImages);
+                        FirebaseFirestore.getInstance().collection("meetings").add(meeting).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(final DocumentReference documentReference) {
+                                DocumentReference auxMeeting = documentReference;
+                                String MyUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                                FirebaseFirestore.getInstance().collection("users").document(MyUser).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        ArrayList<DocumentReference> aux = (ArrayList<DocumentReference>)documentSnapshot.get("meetings");
+                                        aux.add(documentReference);
+                                        documentSnapshot.getReference().update("meetings", aux);
+                                    }
+                                });
+                            }
+                        });
                     }
                     else {
                         FirebaseFirestore.getInstance().collection("meetings").add(meeting).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {

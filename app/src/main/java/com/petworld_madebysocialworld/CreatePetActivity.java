@@ -126,8 +126,6 @@ public class CreatePetActivity extends AppCompatActivity {
         for (Uri uri: uriImages)
             urlImages.add(uri.toString());
 
-        urlImages.remove(0);
-
         ViewPager viewPager= findViewById(R.id.viewPager);
         ViewPagerAdapter adapter = new ViewPagerAdapter(getApplicationContext(), urlImages);
         viewPager.setAdapter(adapter);
@@ -136,7 +134,6 @@ public class CreatePetActivity extends AppCompatActivity {
     private void loadImage(){
         FishBun.with(this).setImageAdapter(new PicassoAdapter()).setMaxCount(3).startAlbum();
     }
-
     private void addPet() {
         Log.d("PRUEBAImagesSize", "Images size: " + uriImages.size());
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -149,23 +146,27 @@ public class CreatePetActivity extends AppCompatActivity {
             mascota.put("specie", specie.getText().toString());
             mascota.put("race", race.getText().toString());
             mascota.put("comment", comment.getText().toString());
+            mascota.put("photo", Arrays.asList());
             mascota.put("owner", userID);
 
-            Log.d("URLIMAGES", String.valueOf(urlImages.size()));
-            if (urlImages.size() == 0) {
+            if (urlImages.size() == 0){
                 urlImages.add("https://firebasestorage.googleapis.com/v0/b/petworld-cf5a1.appspot.com/o/pets%2Fdefault-image-dog.jpg?alt=media&token=b9803f5c-165b-4993-9232-2a019b618c05");
                 mascota.put("photo", urlImages);
                 db.collection("pets").add(mascota).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Toast.makeText(getApplicationContext(), "Mascota Añadida",
-                                Toast.LENGTH_LONG).show();
-                        startMap();
+                    public void onSuccess(final DocumentReference documentReference) {
+                        db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                ArrayList<DocumentReference> auxPets = (ArrayList<DocumentReference>)documentSnapshot.get("pets");
+                                auxPets.add(documentReference);
+                                documentSnapshot.getReference().update("pets", auxPets);
+                            }
+                        });
                     }
                 });
-            } else {
-
-                mascota.put("photo", Arrays.asList());
+            }
+            else {
                 db.collection("pets").add(mascota).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(final DocumentReference documentReference) {

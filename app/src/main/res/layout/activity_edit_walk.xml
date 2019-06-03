@@ -21,7 +21,7 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_create_walk"
+    <include layout="@layout/content_edit_walk"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              android:layout_marginTop="56dp"/>

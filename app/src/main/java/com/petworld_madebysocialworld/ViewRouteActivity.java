@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RatingBar;
+import android.widget.Toast;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -33,7 +34,7 @@ public class ViewRouteActivity extends AppCompatActivity {
     // route info
     //TODO: use a model
     String id;
-    String name;
+    String name, userID, creator;
     String description;
     String placeName;
     //Object placeLocation;
@@ -105,8 +106,8 @@ public class ViewRouteActivity extends AppCompatActivity {
                     if (document.exists()) {
                         Log.d("deleteRoute:", "documents exists");
 
-                        ArrayList<DocumentReference> alMeetingRef = (ArrayList<DocumentReference>) document.get("routes");
-                        for (DocumentReference dr : alMeetingRef) {
+                        ArrayList<DocumentReference> alRoutesRef = (ArrayList<DocumentReference>) document.get("routes");
+                        for (DocumentReference dr : alRoutesRef) {
                             Log.d("deleteRoute:", "id: " + dr.getPath());
 
                             if (dr.getPath().equals("routes/" + id)) {
@@ -121,6 +122,9 @@ public class ViewRouteActivity extends AppCompatActivity {
                         }
                     }
                 }
+                Toast.makeText(getApplicationContext(), "Ruta Borrada",
+                        Toast.LENGTH_LONG).show();
+                startMap();
 
             }
 
@@ -146,7 +150,9 @@ public class ViewRouteActivity extends AppCompatActivity {
         nameInput = findViewById(R.id.nameInput);
         locationNameInput = findViewById(R.id.locationNameInput);
         deleteButton = findViewById(R.id.deleteButton);
+        deleteButton.setVisibility(View.INVISIBLE);;
         editButton = findViewById(R.id.editButton);
+        editButton.setVisibility(View.INVISIBLE);;
         ratingBar = findViewById(R.id.ratingBar);
     }
 
@@ -156,6 +162,7 @@ public class ViewRouteActivity extends AppCompatActivity {
     private void readRouteInfo() {
         id = getIntent().getStringExtra("id");
         Log.d("readRoute:","id route: " + id);
+        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         FirebaseFirestore.getInstance().collection("routes").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -163,6 +170,15 @@ public class ViewRouteActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot result = task.getResult();
 
+                    creator = "" + task.getResult().get("creator");
+                    Log.d("tacobell", "Creator: " + creator + " UserID: " + userID);
+                    if (!creator.equals(userID)){
+                        deleteButton.setVisibility(View.GONE);;
+                        editButton.setVisibility(View.GONE);;
+                    } else {
+                        deleteButton.setVisibility(View.VISIBLE);;
+                        editButton.setVisibility(View.VISIBLE);;
+                    }
                     name = "" + task.getResult().get("name");
                     description = "" + task.getResult().get("description");
                     placeName = "" + task.getResult().get("placeName");

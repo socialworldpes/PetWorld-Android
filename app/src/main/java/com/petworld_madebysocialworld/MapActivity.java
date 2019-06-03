@@ -55,7 +55,7 @@ import java.util.*;
 public class MapActivity extends AppCompatActivity
         implements OnMapReadyCallback, GoogleMap.OnCameraMoveStartedListener {
 
-    //private LeadsRepository repo = LeadsRepository.getInstance();
+    //private RoutesRepository repo = RoutesRepository.getInstance();
     private static final String TAG = MapActivity.class.getSimpleName();
     private GoogleMap mMap;
     private CameraPosition mCameraPosition; //prova
@@ -131,7 +131,7 @@ public class MapActivity extends AppCompatActivity
         }
 
         /*
-        if (repo.getLeads().isEmpty()) {
+        if (repo.getRoutes().isEmpty()) {
             Log.d(TAG, "onCreate: repo no creat");
         }
         else{
@@ -346,8 +346,7 @@ public class MapActivity extends AppCompatActivity
     }
 
     public void newWalk(View view){
-        if(selectedLocation == null) newWalk();
-        else newWalk(selectedLocation);
+        newWalk();
     }
 
     public void newMeeting(){
@@ -377,7 +376,7 @@ public class MapActivity extends AppCompatActivity
     }
 
     public void newWalk(){
-        Intent intent = new Intent(MapActivity.this, LeadsActivity.class);
+        Intent intent = new Intent(MapActivity.this, CreateWalkActivity.class);
         startActivity(intent);
     }
 
@@ -413,12 +412,6 @@ public class MapActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    public void newWalk(LatLng location){
-        Intent intent = new Intent(MapActivity.this, CreateWalkActivity.class);
-        intent.putExtra("location", location);
-        startActivity(intent);
-    }
-
     public void newRoute(LatLng location){
         Intent intent = new Intent(MapActivity.this, CreateRouteActivity.class);
         intent.putExtra("location", location);
@@ -440,7 +433,7 @@ public class MapActivity extends AppCompatActivity
     public void showWalk(String id){
         Intent intent = new Intent(MapActivity.this, ViewWalkActivity.class);
         Log.d("WalkId: ", id);
-        intent.putExtra("id", id);
+        intent.putExtra("idWalk", id);
         startActivity(intent);
     }
 
@@ -568,9 +561,8 @@ public class MapActivity extends AppCompatActivity
         View locationButton = ((View) findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
         RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
         // position on right top
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
-        rlp.setMargins(0, 200, 0, 0);
+        rlp.topMargin = 200;
+        rlp.setMarginEnd(16);
     }
 
     public void goToLogIn (View view){
@@ -722,7 +714,7 @@ public class MapActivity extends AppCompatActivity
 
     public boolean hasWalk(String routeId) {
         for (Map<String, Object> walk : walks) {
-            if (walk.get("walkForRoute").toString().equals(routeId)) return true;
+            if (walk.get("route").toString().equals(routeId)) return true;
         }
         return false;
     }
@@ -816,6 +808,7 @@ public class MapActivity extends AppCompatActivity
 
                     String nameList = (String) mapTmp.get("name");
 
+
                     TextView textViewNameList = new TextView(context);
                     textViewNameList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -834,14 +827,14 @@ public class MapActivity extends AppCompatActivity
                         intent.putExtra("location", location);
                         startActivity(intent);
                         */
-                        String id = (String) mapTmp.get("id");
-                        Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
-                        intent.putExtra("id", id);
-                        startActivity(intent);
+                            String id = (String) mapTmp.get("id");
+                            Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
+                            intent.putExtra("id", id);
+                            startActivity(intent);
                         }
 
                     });
-                    
+
                     linearLayoutList.addView(textViewNameList);
 
                     Timestamp timeList = (Timestamp) mapTmp.get("start");
@@ -868,7 +861,6 @@ public class MapActivity extends AppCompatActivity
                     textViewDescreList.setPadding(40, 20, 40, 20);
 
                     linearLayoutSheet.addView(textViewDescreList);
-
                 }
             } else {
                 TextView textViewAvis = new TextView(context);

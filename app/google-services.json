@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "381871766664-h72i4cmn5sfcaf1obkkt5tsrh9k23kc6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.petworld_madebysocialworld",
+            "certificate_hash": "4920b4c92aea4e931c8a8a3533c424aa01e3602f"
+          }
+        },
+        {
           "client_id": "381871766664-0kol036bnev4h6gbhreo918ek42mt2b7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
