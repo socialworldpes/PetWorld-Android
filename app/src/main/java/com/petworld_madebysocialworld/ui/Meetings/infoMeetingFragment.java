@@ -54,16 +54,12 @@ public class infoMeetingFragment extends Fragment {
     private View view;
     private FragmentActivity myContext;
     private boolean visibilityFabButton;
-
-<<<<<<< HEAD:app/src/main/java/com/petworld_madebysocialworld/ui/Meetings/infoMeetingFragment.java
-    public infoMeetingFragment (Context context, String collection, String id, boolean visibilityFabButton){
-=======
-    // Date Formatter & Hour Formatter
     private java.text.DateFormat df;
     private java.text.DateFormat hf;
 
-    public infoMeetingFragment (Context context, String collection, String id){
->>>>>>> 02371ef00e212394ae309aab536b5ce4e86df5c1:app/src/main/java/com/petworld_madebysocialworld/ui/main/infoMeetingFragment.java
+    public infoMeetingFragment (Context context, String collection, String id, boolean visibilityFabButton){
+    // Date Formatter & Hour Formatter
+
         this.context = context;
         this.collection = collection;
         this.id = id;
@@ -116,24 +112,17 @@ public class infoMeetingFragment extends Fragment {
                 ViewPagerAdapter adapter = new ViewPagerAdapter(context, imageUrls);
                 viewPager.setAdapter(adapter);
 
-<<<<<<< HEAD:app/src/main/java/com/petworld_madebysocialworld/ui/Meetings/infoMeetingFragment.java
-                ((TextView)view.findViewById(R.id.Titulo)).setText(name);
-                ((TextView)view.findViewById(R.id.Descripcion)).setText(description);
-                ((TextView)view.findViewById(R.id.Lugar)).setText(placeName);
-                ((TextView)view.findViewById(R.id.Fecha)).setText(start);
 
                 //set fab button to gone
                 if (visibilityFabButton)
                     ((Activity)context).findViewById(R.id.JoinMeeting).setVisibility(View.VISIBLE);
                 else
                     ((Activity)context).findViewById(R.id.JoinMeeting).setVisibility(View.GONE);
-=======
                 ((EditText)view.findViewById(R.id.Titulo)).setText(name);
                 ((EditText)view.findViewById(R.id.Descripcion)).setText(description);
                 ((EditText)view.findViewById(R.id.Specie)).setText(specie);
                 ((EditText)view.findViewById(R.id.Lugar)).setText(placeName);
                 ((EditText)view.findViewById(R.id.Fecha)).setText(start);
->>>>>>> 02371ef00e212394ae309aab536b5ce4e86df5c1:app/src/main/java/com/petworld_madebysocialworld/ui/main/infoMeetingFragment.java
             }
         });
 
