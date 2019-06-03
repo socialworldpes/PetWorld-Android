@@ -1,4 +1,4 @@
-package com.petworld_madebysocialworld.ui.main;
+package com.petworld_madebysocialworld.ui.Participants;
 
 import android.content.Context;
 import android.database.DataSetObserver;

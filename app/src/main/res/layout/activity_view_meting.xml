@@ -5,7 +5,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ViewMetingActivity">
+        tools:context=".ViewMeetingActivity">
 
     <android.support.design.widget.AppBarLayout
             android:layout_height="wrap_content"
@@ -45,10 +45,19 @@
     </android.support.v4.view.ViewPager>
 
     <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab"
+            android:id="@+id/JoinMeeting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
+            android:layout_gravity="bottom|right"
             android:layout_margin="@dimen/fab_margin"
-            app:srcCompat="@android:drawable/ic_dialog_email"/>
+            android:visibility="gone"
+            app:srcCompat="@android:drawable/ic_dialog_email" android:onClick="joinToMeeting"/>
+    <android.support.design.widget.FloatingActionButton
+            android:id="@+id/inviteParticipantsMeeting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/fab_margin"
+            android:clickable="true" app:srcCompat="@drawable/add_friend_icon"
+            android:layout_gravity="bottom|end"
+            android:visibility="gone" android:onClick="inviteToMeeting"/>
 </android.support.design.widget.CoordinatorLayout>

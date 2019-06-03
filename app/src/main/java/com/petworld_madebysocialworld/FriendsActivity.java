@@ -8,11 +8,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.petworld_madebysocialworld.ui.main.SectionsPagerAdapter;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class FriendsActivity extends AppCompatActivity {
 
@@ -27,7 +23,7 @@ public class FriendsActivity extends AppCompatActivity {
         viewPager.setAdapter(sectionsPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
-        FloatingActionButton fab = findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.JoinMeeting);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -107,7 +107,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             try {
                 // Google Sign In was successful, authenticate with Firebase
                 if (task.isSuccessful()) {
-                    listenToChanges();
                     firebaseAuthWithGoogle(task.getResult(ApiException.class));
                 }
             } catch (ApiException e) {
@@ -229,6 +228,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                             openMap(user);
+                            listenToChanges();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -307,11 +307,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void listenToChanges() {
 
         final FriendsSingleton friendsSingleton = FriendsSingleton.getInstance();
-
-        //pending friends
         final Context context = cont;
         final Activity activity = act;
-        db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("pendingFriends").addSnapshotListener(new EventListener<QuerySnapshot>() {
+        String myUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        //pending meetings
+        db.collection("users").document(myUser).collection("pendingMeetings").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "listen:error", e);
+                    return;
+                }
+                final List<DocumentChange> documentChanges = queryDocumentSnapshots.getDocumentChanges();
+                for (DocumentChange dC : documentChanges){
+                    Map<String, Object> aux = dC.getDocument().getData();
+                    PushNotification pushAux = new PushNotification();
+                    pushAux.addNotification(act, "Tienes meetings pendientes", "Tienes un meeting pendiente de tu amigo " + aux.get("nameUser"), R.drawable.ic_add, cont, "pendingMeeting", ((DocumentReference)aux.get("reference")).getId());
+                    dC.getDocument().getReference().delete();
+                }
+
+
+            }
+        });
+
+        //pending friends
+        db.collection("users").document(myUser).collection("pendingFriends").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot snapshots,
                                 @Nullable FirebaseFirestoreException e) {
@@ -336,7 +358,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 if (document.exists()) {
                                     if (dc.getType() == DocumentChange.Type.ADDED) {
                                         PushNotification pushAux = new PushNotification();
-                                        pushAux.addNotification(activity, "PetWorld", "Tienes una nueva solicitud de amistad de " + document.get("name"), R.drawable.ic_group, context);
+                                        pushAux.addNotification(activity, "PetWorld", "Tienes una nueva solicitud de amistad de " + document.get("name"), R.drawable.ic_group, context, "pendingFriend", null);
                                         friendsSingleton.addRequestSnapshot(document.getId(), document.getData());
                                         Log.d("FriendsListener", "new request from " + document.get("name"));
                                     }
@@ -355,7 +377,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("friends").addSnapshotListener(new EventListener<QuerySnapshot>() {
+        db.collection("users").document(myUser).collection("friends").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot snapshots,
                                 @Nullable FirebaseFirestoreException e) {
