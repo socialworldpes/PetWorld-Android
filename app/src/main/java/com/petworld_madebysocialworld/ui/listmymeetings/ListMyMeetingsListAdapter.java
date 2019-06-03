@@ -1,6 +1,6 @@
 package com.petworld_madebysocialworld.ui.listmywalks;
 
-import Models.Walk;
+import Models.Meeting;
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.util.Log;
@@ -15,16 +15,16 @@ import com.squareup.picasso.Picasso;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class ListMyWalksListAdapter extends ArrayAdapter<Walk> implements ListAdapter {
+public class ListMyMeetingsListAdapter extends ArrayAdapter<Meeting> implements ListAdapter {
 
     private Context context;
-    private ArrayList<Walk> walkListInfo;
+    private ArrayList<Meeting> meetingListInfo;
     final private static String TAG = "ListMyWalksListAdapter";
 
-    public ListMyWalksListAdapter(Context context, int textViewResourceid, ArrayList<Walk> walksInfo) {
-        super(context, textViewResourceid, walksInfo);
-        this.walkListInfo = walksInfo;
-        Log.d(TAG, String.valueOf(walkListInfo.size()));
+    public ListMyMeetingsListAdapter(Context context, int textViewResourceid, ArrayList<Meeting> meetingsInfo) {
+        super(context, textViewResourceid, meetingsInfo);
+        this.meetingListInfo = meetingsInfo;
+        Log.d(TAG, String.valueOf(meetingListInfo.size()));
         this.context = context;
     }
 
@@ -48,12 +48,12 @@ public class ListMyWalksListAdapter extends ArrayAdapter<Walk> implements ListAd
 
     @Override
     public int getCount() {
-        Log.d(TAG, String.valueOf(walkListInfo.size())); return walkListInfo.size();
+        Log.d(TAG, String.valueOf(meetingListInfo.size())); return meetingListInfo.size();
     }
 
     @Override
-    public Walk getItem(int position) {
-        return walkListInfo.get(position);
+    public Meeting getItem(int position) {
+        return meetingListInfo.get(position);
     }
 
     @Override
@@ -69,10 +69,10 @@ public class ListMyWalksListAdapter extends ArrayAdapter<Walk> implements ListAd
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         Log.d(TAG, "He entrado en getView");
-        final Walk walkData = walkListInfo.get(position);
+        final Meeting meetingData = meetingListInfo.get(position);
         if(convertView == null) {
             LayoutInflater layoutInflater = LayoutInflater.from(context);
-            convertView = layoutInflater.inflate(R.layout.walks_list_row, null);
+            convertView = layoutInflater.inflate(R.layout.meetings_list_row, null);
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -82,12 +82,12 @@ public class ListMyWalksListAdapter extends ArrayAdapter<Walk> implements ListAd
             ImageView image = convertView.findViewById(R.id.imageView);
             final TextView description = convertView.findViewById(R.id.description);
             final TextView start = convertView.findViewById(R.id.start);
-            name.setText(walkData.getName());
-            description.setText(walkData.getDescription());
-            if (walkData.getStart().getSeconds() < Timestamp.now().getSeconds())
+            name.setText(meetingData.getName());
+            description.setText(meetingData.getDescription());
+            if (meetingData.getStart().getSeconds() < Timestamp.now().getSeconds())
                 convertView.setBackgroundResource(R.color.grey);
-            start.setText(getDateIntoString(walkData.getStart()));
-            Picasso.get().load(walkData.getImageURL()).into(image);
+            start.setText(getDateIntoString(meetingData.getStart()));
+            Picasso.get().load(meetingData.getImageURL()).into(image);
         }
         return convertView;
     }
@@ -106,7 +106,7 @@ public class ListMyWalksListAdapter extends ArrayAdapter<Walk> implements ListAd
 
     @Override
     public int getViewTypeCount() {
-        return walkListInfo.size();
+        return meetingListInfo.size();
     }
 
     @Override

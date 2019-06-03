@@ -2,18 +2,16 @@ package Models;
 
 import com.google.firebase.Timestamp;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class Walk implements Comparable<Walk> {
-
+public class Meeting implements Comparable<Meeting> {
     private String description;
     private String name;
     private String image;
     private Timestamp start;
 
-    public Walk(Map<String, Object> data) {
+    public Meeting(Map<String, Object> data) {
         this.name =(String)data.get("name");
         this.description=(String)data.get("description");
         this.image=((ArrayList<String>)data.get("images")).get(0);
@@ -35,8 +33,8 @@ public class Walk implements Comparable<Walk> {
     public Timestamp getStart() {return start;}
 
     @Override
-    public int compareTo(Walk walk) {
-        return this.start.compareTo(walk.getStart());
+    public int compareTo(Meeting meeting) {
+        return this.start.compareTo(meeting.getStart());
     }
 
     @Override
@@ -44,5 +42,4 @@ public class Walk implements Comparable<Walk> {
         if (!(o instanceof Walk)) return false;
         else return ((Walk) o).getStart().equals(this.getStart());
     }
-
 }

@@ -1,35 +1,54 @@
 package com.petworld_madebysocialworld.ui.listmymeetings;
 
+import Models.Meeting;
+import Models.Walk;
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import com.petworld_madebysocialworld.R;
+import com.petworld_madebysocialworld.ui.listmywalks.ListMyMeetingsListAdapter;
+import com.petworld_madebysocialworld.ui.listmywalks.ListMyWalksListAdapter;
 
+import java.util.ArrayList;
+
+@SuppressLint("ValidFragment")
 public class ListMyMeetingsFragment extends Fragment {
 
-    private ListMyMeetingsViewModel mViewModel;
+    private Context context;
+    private View view;
+    private ArrayList<Meeting> listMeetings;
+    private static String TAG = "ListMyMeetingsFragment";
 
-    public static ListMyMeetingsFragment newInstance() {
-        return new ListMyMeetingsFragment();
+    public ListMyMeetingsFragment(Context context, ArrayList<Meeting> listMeetingsFromActivity) {
+        Log.d(TAG, "contructoraFragmentMyMeetings");
+        this.context = context;
+        listMeetings = listMeetingsFromActivity;
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.list_my_meetings_fragment, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        Log.d(TAG, "he entrado al oncreate");
+        view = inflater.inflate(R.layout.list_my_meetings_fragment, container, false);
+        return view;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onActivityCreated");
         super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(ListMyMeetingsViewModel.class);
-        // TODO: Use the ViewModel
+        ListView walkList = (ListView) view.findViewById(R.id.listMyMeetings);
+        ListMyMeetingsListAdapter customAdapter = new ListMyMeetingsListAdapter(context, R.layout.list_my_meetings_fragment, listMeetings);
+        walkList.setAdapter(customAdapter);
     }
 
 }
