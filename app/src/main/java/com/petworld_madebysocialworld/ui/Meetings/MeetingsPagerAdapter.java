@@ -25,25 +25,21 @@ public class MeetingsPagerAdapter extends FragmentPagerAdapter {
     private Fragment participantsFragment;
     private Activity actAux;
 
-    public MeetingsPagerAdapter(Context context, FragmentManager fm, String id, Activity act, boolean visibilityFabButton1, boolean visibilityFabButton2) {
+    public MeetingsPagerAdapter(Context context, FragmentManager fm, String id, Activity act) {
         super(fm);
         mContext = context;
         actAux = act;
-        infoMeetingFragment = new infoMeetingFragment(mContext, "meetings", id, visibilityFabButton1);
-        participantsFragment = new ParticipantsFragment(mContext, "meetings", id, visibilityFabButton2);
+        infoMeetingFragment = new infoMeetingFragment(mContext, "meetings", id);
+        participantsFragment = new ParticipantsFragment(mContext, "meetings", id);
     }
 
     @Override
     public Fragment getItem(int position) {
         Fragment fragment = null;
         if (position == 0) {
-            actAux.findViewById(R.id.inviteParticipantsMeeting).setVisibility(View.GONE);
-            actAux.findViewById(R.id.JoinMeeting).setVisibility(View.VISIBLE);
-            Toast.makeText(actAux, "EYYYYY", Toast.LENGTH_LONG).show();
+            Toast.makeText((Context)actAux, "Ey, estoy en el visible al cambiar de page", Toast.LENGTH_LONG);
             return infoMeetingFragment;
         } else if (position == 1) {
-            Toast.makeText(actAux, "OHHHH", Toast.LENGTH_LONG).show();
-
             return participantsFragment;
         }
         return fragment;

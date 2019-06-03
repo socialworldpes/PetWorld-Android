@@ -1,62 +1,65 @@
 package com.petworld_madebysocialworld;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Toast;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import android.view.View;
 import com.petworld_madebysocialworld.ui.Meetings.MeetingsPagerAdapter;
 
+import javax.annotation.Nullable;
+
 public class ViewMeetingActivity extends AppCompatActivity {
 
     private boolean alreadyInvited;
     private boolean alreadyJoinedBoolean;
+    private ViewPager viewPager;
+    private TabLayout tabs;
+    private MeetingsPagerAdapter meetingsPagerAdapter;
+    Activity actAux;
+    private String id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         alreadyJoinedBoolean = false;
         alreadyInvited = false;
-        Log.d("VIEW MEETINGPRIMERA VEZ", "already joines?" + String.valueOf(alreadyJoinedBoolean));
-        alreadyJoined();
-        Log.d("VIEW MEETINGSEGUNDA VEZ", "already joines?" + String.valueOf(alreadyJoinedBoolean));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_meting);
-        final Activity actAux = this;
-        actAux.findViewById(R.id.JoinMeeting).setVisibility(View.GONE);
-        if (alreadyJoinedBoolean) {
-            Log.d("VIEW MEETINGSEGUNDA VEZ", "he entrado por gone");
-            actAux.findViewById(R.id.JoinMeeting).setVisibility(View.GONE);
-        }
-        MeetingsPagerAdapter meetingsPagerAdapter = new MeetingsPagerAdapter(this, getSupportFragmentManager(), getIntent().getStringExtra("id"), this, !alreadyJoinedBoolean, !alreadyInvited);
-        ViewPager viewPager = findViewById(R.id.view_pager);
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        id = getIntent().getStringExtra("id");
+        Log.d("ID1", id);
+        actAux = this;
+        alreadyJoined();
+    }
+
+    private void initializeAndListenPageChanged() {
+        final ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
                 switch (i) {
                     case 0:
                         if (!alreadyJoinedBoolean) {
-                            if (!alreadyJoined()) {
-                                Log.d("VIEW MEETINGSEGUNDA VEZ", "he entrado por gone");
-                                actAux.findViewById(R.id.JoinMeeting).setVisibility(View.VISIBLE);
-                            }
+                            Toast.makeText(actAux, "Ey, estoy en el visible al cambiar de page", Toast.LENGTH_LONG);
+                            actAux.findViewById(R.id.JoinMeeting).setVisibility(View.VISIBLE);
                         }
                         actAux.findViewById(R.id.inviteParticipantsMeeting).setVisibility(View.GONE);
                         break;
                     case 1:
                         actAux.findViewById(R.id.JoinMeeting).setVisibility(View.GONE);
-                        if (!alreadyInvitedThisSession()){
+                        if (!alreadyInvitedThisSession())
                             actAux.findViewById(R.id.inviteParticipantsMeeting).setVisibility(View.VISIBLE);
-                        }
                         break;
                 }
             }
@@ -65,46 +68,68 @@ public class ViewMeetingActivity extends AppCompatActivity {
             public void onPageSelected(int i) {
                 switch (i) {
                     case 0:
-                        if (!alreadyJoinedBoolean) {
-                            if (!alreadyJoined()) {
-                                Log.d("VIEW MEETINGSEGUNDA VEZ", "he entrado por gone");
-                                actAux.findViewById(R.id.JoinMeeting).setVisibility(View.VISIBLE);
-                            }                        }
+                        if (!alreadyJoinedBoolean)
+                            actAux.findViewById(R.id.JoinMeeting).setVisibility(View.VISIBLE);
                         actAux.findViewById(R.id.inviteParticipantsMeeting).setVisibility(View.GONE);
                         break;
                     case 1:
                         actAux.findViewById(R.id.JoinMeeting).setVisibility(View.GONE);
-                        if (!alreadyInvitedThisSession()){
+                        if (!alreadyInvitedThisSession())
                             actAux.findViewById(R.id.inviteParticipantsMeeting).setVisibility(View.VISIBLE);
-                        }
                         break;
                 }
             }
 
             @Override
             public void onPageScrollStateChanged(int i) {
+            }
+        };
+        viewPager.addOnPageChangeListener(pageChangeListener);
 
+        // do this in a runnable to make sure the viewPager's views are already instantiated before triggering the onPageSelected call
+        viewPager.post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                pageChangeListener.onPageSelected(viewPager.getCurrentItem());
             }
         });
-
-        boolean b = meetingsPagerAdapter == null;
-        Log.d("ViewMeetingActivity", "Es nulo?  " + b);
-        viewPager.setAdapter(meetingsPagerAdapter);
-        TabLayout tabs = findViewById(R.id.tabs);
-        tabs.setupWithViewPager(viewPager);
     }
 
-    private boolean alreadyJoined() {
+    private void alreadyJoined() {
 
-        Query q = null;
         if (!alreadyJoinedBoolean) {
-            q = FirebaseFirestore.getInstance().collection("meetings")
+            Query q = null;
+            FirebaseFirestore.getInstance().collection("meetings")
                     .document(getIntent().getStringExtra("id"))
-                    .collection("participants").whereEqualTo("reference", FirebaseAuth.getInstance().getCurrentUser().getUid());
-            String s = String.valueOf(q == null);
-            Log.d("EYYY", "La q es nulo?" + s);
+                    .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    List<DocumentReference> aux = (List<DocumentReference>)documentSnapshot.get("participants");
+                    DocumentReference auxMyUser = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    secondPartAlreadyJoined(aux.contains(auxMyUser));
+                }
+            });
         }
-        return (alreadyJoinedBoolean = (q != null));
+
+    }
+
+    private void secondPartAlreadyJoined(boolean b) {
+        alreadyJoinedBoolean = b;
+        initializeSyncWithFirebase();
+    }
+
+    private void initializeSyncWithFirebase() {
+        if (!alreadyJoinedBoolean)
+            actAux.findViewById(R.id.JoinMeeting).setVisibility(View.VISIBLE);
+        Log.d("ID2", id);
+        meetingsPagerAdapter = new MeetingsPagerAdapter(actAux, getSupportFragmentManager(), id, actAux);
+        viewPager = actAux.findViewById(R.id.view_pager);
+        initializeAndListenPageChanged();
+        viewPager.setAdapter(meetingsPagerAdapter);
+        tabs = findViewById(R.id.tabs);
+        tabs.setupWithViewPager(viewPager);
     }
 
     private boolean alreadyInvitedThisSession() {
@@ -112,45 +137,61 @@ public class ViewMeetingActivity extends AppCompatActivity {
     }
 
     public void inviteToMeeting (View view) {
+        view.findViewById(R.id.inviteParticipantsMeeting).setVisibility(View.GONE);
+        Toast.makeText(view.getContext(), "Se ha enviado una invitación a tus amigos", Toast.LENGTH_SHORT);
         alreadyInvited = true;
-        DocumentReference myUser = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        final DocumentReference myUser = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
         myUser.collection("friends").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 for (DocumentSnapshot p : queryDocumentSnapshots) {
-                    DocumentReference reference = (DocumentReference) p.get("reference");
-                    Map<String,Object> aux = new HashMap<>();
-                    aux.put("reference", FirebaseFirestore.getInstance().collection("meetings")
-                            .document(getIntent().getStringExtra("id")));
-                    aux.put("nameUser", FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
-                    reference.collection("pendentMeetings").add(aux);
+                    final DocumentReference reference = (DocumentReference) p.get("reference");
+                    final Map<String,Object> aux = new HashMap<>();
+                    reference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            ArrayList<DocumentReference> meetings = (ArrayList<DocumentReference>)documentSnapshot.get("meetings");
+                            if (!meetings.contains(FirebaseFirestore.getInstance().collection("meetings").document(getIntent().getStringExtra("id")))){
+                                aux.put("reference", FirebaseFirestore.getInstance().collection("meetings")
+                                        .document(getIntent().getStringExtra("id")));
+                                aux.put("nameUser", FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+                                reference.collection("pendingMeetings").add(aux);
+                            }
+                        }
+                    });
                 }
             }
         });
     }
 
     public void joinToMeeting (View view) {
-        alreadyJoinedBoolean = true;
-        final DocumentReference myUser = FirebaseFirestore.getInstance().collection("users")
-                .document(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        final DocumentReference myMeeting = FirebaseFirestore.getInstance().collection("meetings")
-                .document((getIntent().getStringExtra("id")));
-        myUser.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                ArrayList<DocumentReference> auxList = (ArrayList<DocumentReference>)documentSnapshot.get("meetings");
-                auxList.add(myMeeting);
-                myUser.update("meetings", auxList);
-            }
-        });
-        myMeeting.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                ArrayList<DocumentReference> auxList = (ArrayList<DocumentReference>)documentSnapshot.get("participants");
-                auxList.add(myUser);
-                myMeeting.update("participants", auxList);
-            }
-        });
+        view.findViewById(R.id.JoinMeeting).setVisibility(View.GONE);
+        Toast.makeText(view.getContext(), "Te has unido a la quedada", Toast.LENGTH_SHORT);
+        if (!alreadyJoinedBoolean) {
+            alreadyJoinedBoolean = true;
+            final DocumentReference myUser = FirebaseFirestore.getInstance().collection("users")
+                    .document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+            final DocumentReference myMeeting = FirebaseFirestore.getInstance().collection("meetings")
+                    .document((getIntent().getStringExtra("id")));
+            myUser.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    ArrayList<DocumentReference> auxList = (ArrayList<DocumentReference>) documentSnapshot.get("meetings");
+                    auxList.add(myMeeting);
+                    myUser.update("meetings", auxList);
+                }
+            });
+            myMeeting.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    ArrayList<DocumentReference> auxList = (ArrayList<DocumentReference>) documentSnapshot.get("participants");
+                    auxList.add(myUser);
+                    myMeeting.update("participants", auxList);
+                    viewPager.setAdapter(meetingsPagerAdapter);
+                    viewPager.setCurrentItem(0);
+                }
+            });
+        }
     }
 
 }

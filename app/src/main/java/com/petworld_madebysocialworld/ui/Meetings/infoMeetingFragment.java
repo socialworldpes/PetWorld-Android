@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.*;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -48,13 +49,11 @@ public class infoMeetingFragment extends Fragment {
     private ArrayList<DocumentReference> participants;
     private View view;
     private FragmentActivity myContext;
-    private boolean visibilityFabButton;
 
-    public infoMeetingFragment (Context context, String collection, String id, boolean visibilityFabButton){
+    public infoMeetingFragment (Context context, String collection, String id){
         this.context = context;
         this.collection = collection;
         this.id = id;
-        this.visibilityFabButton = visibilityFabButton;
     }
 
     @Override
@@ -67,8 +66,6 @@ public class infoMeetingFragment extends Fragment {
     }
 
     private void create() {
-        location = null;
-
         //va a petar
         //info: https://stackoverflow.com/questions/20237531/how-can-i-access-getsupportfragmentmanager-in-a-fragment
 
@@ -88,8 +85,11 @@ public class infoMeetingFragment extends Fragment {
                 visibility = (String)documentSnapshot.get("visibility");
                 participants = (ArrayList<DocumentReference>) documentSnapshot.get("participants");
 
+                Log.d("creator", creator);
+
                 //mapa
-                setUpMap();
+                LatLng aux2 = new LatLng(aux.getLatitude(), aux.getLongitude());
+                setUpMap(aux2);
 
                 ViewPager viewPager = view.findViewById(R.id.viewPager);
                 ViewPagerAdapter adapter = new ViewPagerAdapter(context, imageUrls);
@@ -99,12 +99,7 @@ public class infoMeetingFragment extends Fragment {
                 ((TextView)view.findViewById(R.id.Descripcion)).setText(description);
                 ((TextView)view.findViewById(R.id.Lugar)).setText(placeName);
                 ((TextView)view.findViewById(R.id.Fecha)).setText(start);
-
-                //set fab button to gone
-                if (visibilityFabButton)
-                    ((Activity)context).findViewById(R.id.JoinMeeting).setVisibility(View.VISIBLE);
-                else
-                    ((Activity)context).findViewById(R.id.JoinMeeting).setVisibility(View.GONE);
+                Toast.makeText(view.getContext(), "He entrado en infoFragment", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -117,19 +112,19 @@ public class infoMeetingFragment extends Fragment {
     }
 
 
-    private void setUpMap() {
+    private void setUpMap(LatLng location) {
+        final LatLng auxLocation = location;
         Log.d("MAPAAA", "BIEN!!");
-        while (location == null);
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapViewMeeting);
         mapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 mMap = googleMap;
                 mMap.getUiSettings().setAllGesturesEnabled(false);
-                CameraUpdate cameraupdate = CameraUpdateFactory.newLatLngZoom(location, (float) 18);
+                CameraUpdate cameraupdate = CameraUpdateFactory.newLatLngZoom(auxLocation, (float) 15);
                 mMap.moveCamera(cameraupdate);
                 mMap.addMarker(new MarkerOptions()
-                        .position(location)
+                        .position(auxLocation)
                 );
             }
         });

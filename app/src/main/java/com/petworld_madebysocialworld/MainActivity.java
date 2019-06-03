@@ -327,8 +327,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     pushAux.addNotification(act, "Tienes meetings pendientes", "Tienes un meeting pendiente de tu amigo " + aux.get("nameUser"), R.drawable.ic_add, cont, "pendingMeeting", ((DocumentReference)aux.get("reference")).getId());
                     dC.getDocument().getReference().delete();
                 }
-
-
             }
         });
 
