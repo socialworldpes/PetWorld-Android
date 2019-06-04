@@ -259,7 +259,7 @@ public class DrawerUtil {
             result.updateItem(drawerItemGroups);
         } else {
             Log.d("Request Chicken", "No te solicituds");
-            drawerItemGroups.withBadge("123").withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.md_white_1000).withCornersDp(100));
+            drawerItemGroups.withBadge("");
             result.updateItem(drawerItemGroups);
         }
 
