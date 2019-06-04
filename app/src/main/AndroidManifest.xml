@@ -19,20 +19,24 @@
             android:roundIcon="@mipmap/ic_launcher_custom_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
-        <activity android:name=".listMyMeetingsActivity">
+        <activity android:name=".listMyMeetingsActivity"
+                  android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".listMyWalksActivity">
+        <activity android:name=".listMyWalksActivity"
+                  android:screenOrientation="portrait">
         </activity>
 
             <activity
                 android:name=".EditMeetingActivity"
                 android:label="@string/title_activity_edit_meeting"
-                android:theme="@style/AppTheme.NoActionBar">
+                android:theme="@style/AppTheme.NoActionBar"
+                android:screenOrientation="portrait">
         </activity>
         <activity
                 android:name=".ViewMetingActivity"
                 android:label="@string/title_activity_view_meting"
-                android:theme="@style/AppTheme.NoActionBar">
+                android:theme="@style/AppTheme.NoActionBar"
+                android:screenOrientation="portrait">
         </activity>
         <activity
                 android:name=".ViewRouteActivity"
@@ -72,7 +76,8 @@
                 android:screenOrientation="portrait">
         </activity>
         <activity
-                android:name=".EditRouteActivity">
+                android:name=".EditRouteActivity"
+                android:screenOrientation="portrait">
         </activity>
 
         <activity

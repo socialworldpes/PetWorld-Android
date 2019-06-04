@@ -159,7 +159,7 @@ public class DrawerUtil {
         SecondaryDrawerItem drawerItemGroups = new SecondaryDrawerItem().withIdentifier(4)
                 .withName("Amigos").withIcon(R.drawable.ic_group);
         final ExpandableDrawerItem drawerItemManageThings = new ExpandableDrawerItem()
-                .withIdentifier(6).withName("Tus cosas").withIcon(R.drawable.ic_group).withSelectable(false);
+                .withIdentifier(6).withName("Tus colaboraciones").withIcon(R.drawable.ic_idea).withSelectable(false);
         drawerItemManageThings
                 .withSubItems(new SecondaryDrawerItem().withName("Tus quedadas").withLevel(2).withIdentifier(8).withIcon(R.drawable.ic_rutas))
                 .withSubItems(new SecondaryDrawerItem().withName("Tus paseos").withLevel(2).withIdentifier(9).withIcon(R.drawable.ic_rutas));
