@@ -2,6 +2,7 @@ package com.petworld_madebysocialworld.ui.listmywalks;
 
 import Models.Meeting;
 import android.content.Context;
+import android.content.Intent;
 import android.database.DataSetObserver;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.*;
 import com.google.firebase.Timestamp;
 import com.petworld_madebysocialworld.R;
+import com.petworld_madebysocialworld.ViewMeetingActivity;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
@@ -73,9 +75,13 @@ public class ListMyMeetingsListAdapter extends ArrayAdapter<Meeting> implements 
         if(convertView == null) {
             LayoutInflater layoutInflater = LayoutInflater.from(context);
             convertView = layoutInflater.inflate(R.layout.meetings_list_row, null);
+            final View auxView = convertView;
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Intent intent = new Intent(auxView.getContext(), ViewMeetingActivity.class);
+                    intent.putExtra("id", meetingData.getId());
+                    auxView.getContext().startActivity(intent);
                 }
             });
             final TextView name = convertView.findViewById(R.id.name);

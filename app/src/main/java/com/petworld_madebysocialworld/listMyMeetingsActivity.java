@@ -41,7 +41,7 @@ public class listMyMeetingsActivity extends AppCompatActivity {
                             dR.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                 @Override
                                 public void onSuccess(DocumentSnapshot documentSnapshot2) {
-                                    result.add(new Meeting (documentSnapshot2.getData()));
+                                    result.add(new Meeting (documentSnapshot2.getData(), documentSnapshot2.getId()));
                                     if (result.size() == total) {
                                         Log.d("listMyWalksActivity", "HE entrado en result == total");
                                         initializeView(result);
