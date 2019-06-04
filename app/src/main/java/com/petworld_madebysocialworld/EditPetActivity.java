@@ -11,10 +11,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -39,9 +36,9 @@ public class EditPetActivity extends AppCompatActivity {
 
     //Layout
     private EditText name;
-    private EditText gender;
+    private Spinner gender;
+    private Spinner specie;
     private EditText race;
-    private EditText specie;
     private EditText comment;
     private TextView nameUpdate;
     private TextView genderUpdate;
@@ -109,12 +106,30 @@ public class EditPetActivity extends AppCompatActivity {
 
     private void initItems() {
         name = findViewById(R.id.namePetInput);
-        gender = findViewById(R.id.genderPetInput);
         race = findViewById(R.id.racePetInput);
-        specie = findViewById(R.id.speciePetInput);
         comment = findViewById(R.id.commentPetInput);
         btnUploadImage = findViewById(R.id.buttonLoadImage);
         btnUpdatePet = findViewById(R.id.editButton);
+
+        //init specie dropdown
+        String[] arraySpecie = new String[] {
+                "Perro", "Gato", "Hamster", "Conejo", "Ave", "Pez", "Reptil", "Invertebrado", "Otros"
+        };
+        specie = findViewById(R.id.selectSpecie);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, arraySpecie);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        specie.setAdapter(adapter);
+
+        //init gender dropdown
+        String[] arrayGender =  new String[] {
+                "Macho", "Hembra"
+        };
+        gender = findViewById(R.id.selectGender);
+        adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, arrayGender);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        gender.setAdapter(adapter);
     }
 
     private void setupToolbar() {
@@ -139,8 +154,8 @@ public class EditPetActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
 
                     name.setText("" + task.getResult().get("name"));
-                    gender.setText("" + task.getResult().get("gender"));
-                    specie.setText("" + task.getResult().get("specie"));
+                    gender.setSelection(((ArrayAdapter)gender.getAdapter()).getPosition("" + task.getResult().get("gender")));
+                    specie.setSelection(((ArrayAdapter)specie.getAdapter()).getPosition("" + task.getResult().get("specie")));
                     race.setText("" + task.getResult().get("race"));
                     comment.setText("" + task.getResult().get("comment"));
                     urlImages = (ArrayList<String>) task.getResult().get("photo");
@@ -174,8 +189,8 @@ public class EditPetActivity extends AppCompatActivity {
 
         //fill pet info
         mascota.put("name", name.getText().toString());
-        mascota.put("gender", gender.getText().toString());
-        mascota.put("specie", specie.getText().toString());
+        mascota.put("specie", specie.getSelectedItem().toString());
+        mascota.put("gender", gender.getSelectedItem().toString());
         mascota.put("race", race.getText().toString());
         mascota.put("comment",comment.getText().toString());
         mascota.put("photo", Arrays.asList());

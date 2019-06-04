@@ -57,7 +57,7 @@
 
             <EditText android:layout_width="match_parent" android:layout_height="wrap_content"
                       android:id="@+id/genderPet" android:text="Género" android:textColor="#70070707"
-                      android:textIsSelectable="false" android:clickable="false"/>
+                      android:textIsSelectable="false" android:clickable="false" android:focusable="false"/>
             <Spinner
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" android:id="@+id/selectGender" android:layout_weight="1"
@@ -66,7 +66,7 @@
 
             <EditText android:layout_width="match_parent" android:layout_height="wrap_content"
                       android:id="@+id/speciePet" android:text="Especie" android:textColor="#70070707"
-                      android:textIsSelectable="false" android:clickable="false"/>
+                      android:textIsSelectable="false" android:clickable="false" android:focusable="false"/>
             <Spinner
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" android:id="@+id/selectSpecie" android:layout_weight="1"
