@@ -705,10 +705,16 @@ public class MapActivity extends AppCompatActivity
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+        // Is necessary to initialize all queries even if they are not going to be used, since they WILL be called anyways
+        final CollectionReference meetingsRef = db.collection("meetings");
+        meetingLocations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+        final CollectionReference walksRef = db.collection("walks");
+        walkLocations = walksRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+        final CollectionReference routesRef = db.collection("routes");
+        routeLocations = routesRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
+
         // Query Meetings & Specie filter
         if (filterM) {
-            final CollectionReference meetingsRef = db.collection("meetings");
-            meetingLocations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
             if (filterE) {
                 filterSpecie = selectSpecieFilter.getSelectedItem().toString();
                 Log.d("search", "searchNearPlaces: " + filterSpecie);
@@ -718,28 +724,14 @@ public class MapActivity extends AppCompatActivity
             }
             meetingLocBool = true;
         }
-        else {
-            meetingLocBool = false;
-        }
+        else meetingLocBool = false;
 
         // Query Walks
-        if (filterW) {
-            final CollectionReference walksRef = db.collection("walks");
-            walkLocations = walksRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
-            routeLocBool = true;
-        }
-        else {
-            walkLocBool = false;
-        }
+        if (filterW) routeLocBool = true;
+        else walkLocBool = false;
         // Query Routes
-        if (filterR) {
-            final CollectionReference routesRef = db.collection("routes");
-            routeLocations = routesRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
-            routeLocBool = true;
-        }
-        else {
-            routeLocBool = false;
-        }
+        if (filterR) routeLocBool = true;
+        else routeLocBool = false;
         loadMaps();
     }
 
