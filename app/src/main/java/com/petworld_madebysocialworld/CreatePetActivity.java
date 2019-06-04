@@ -35,7 +35,7 @@ public class CreatePetActivity extends AppCompatActivity {
 
     //Layout
     private EditText name;
-    private EditText gender;
+    private Spinner gender;
     private Spinner specie;
     private EditText race;
     private EditText comment;
@@ -107,7 +107,6 @@ public class CreatePetActivity extends AppCompatActivity {
 
     private void initLayout() {
         name = findViewById(R.id.namePetInput);
-        gender = findViewById(R.id.genderPetInput);
         race = findViewById(R.id.racePetInput);
         comment = findViewById(R.id.commentPetInput);
         btnAddPet = findViewById(R.id.buttonAddPet);
@@ -122,6 +121,16 @@ public class CreatePetActivity extends AppCompatActivity {
                 android.R.layout.simple_spinner_item, arraySpecie);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         specie.setAdapter(adapter);
+
+        //init gender dropdown
+        String[] arrayGender =  new String[] {
+                "Macho", "Hembra"
+        };
+        gender = findViewById(R.id.selectGender);
+        adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, arrayGender);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        gender.setAdapter(adapter);
     }
 
 
@@ -150,8 +159,8 @@ public class CreatePetActivity extends AppCompatActivity {
 
 
         mascota.put("name", name.getText().toString());
-        mascota.put("gender", gender.getText().toString());
         mascota.put("specie", specie.getSelectedItem().toString());
+        mascota.put("gender", gender.getSelectedItem().toString());
         mascota.put("race", race.getText().toString());
         mascota.put("comment", comment.getText().toString());
         mascota.put("photo", Arrays.asList());
