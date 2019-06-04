@@ -67,8 +67,13 @@ public class ViewRouteActivity extends AppCompatActivity {
         initEvents();
         readRouteInfo();
         setupToolbar();
+    }
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent imageData) {
+        super.onActivityResult(requestCode, resultCode, imageData);
+        // So that the view is refreshed when editting the route!
+        readRouteInfo();
     }
 
     private void initEvents() {

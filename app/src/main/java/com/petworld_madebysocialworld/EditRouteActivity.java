@@ -331,7 +331,7 @@ public class EditRouteActivity extends AppCompatActivity {
     private void saveRoute() {
         saveInfoRoute();
         updateRoute(route);
-        startMap();
+        finish();
     }
 
     private void updateRoute(HashMap<String, Object> route) {
@@ -378,7 +378,6 @@ public class EditRouteActivity extends AppCompatActivity {
 
         Toast.makeText(getApplicationContext(), "Route Editada",
                 Toast.LENGTH_LONG).show();
-        startMap();
     }
 
 
