@@ -39,10 +39,10 @@ public class MeetingsPagerAdapter extends FragmentPagerAdapter {
         if (position == 0) {
             actAux.findViewById(R.id.inviteParticipantsMeeting).setVisibility(View.GONE);
             actAux.findViewById(R.id.JoinMeeting).setVisibility(View.VISIBLE);
-            Toast.makeText(actAux, "EYYYYY", Toast.LENGTH_LONG).show();
+            //Toast.makeText(actAux, "EYYYYY", Toast.LENGTH_LONG).show();
             return infoMeetingFragment;
         } else if (position == 1) {
-            Toast.makeText(actAux, "OHHHH", Toast.LENGTH_LONG).show();
+            //Toast.makeText(actAux, "OHHHH", Toast.LENGTH_LONG).show();
 
             return participantsFragment;
         }

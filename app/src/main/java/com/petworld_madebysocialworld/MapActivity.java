@@ -412,13 +412,19 @@ public class MapActivity extends AppCompatActivity
                                 intent.putExtra("location", new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                                 startActivity(intent);
 
-                            } else Toast.makeText(MapActivity.this, "Tu ubicación es nula", Toast.LENGTH_SHORT).show();
-                        } else Toast.makeText(MapActivity.this, "Error al obtener la ubicación", Toast.LENGTH_LONG).show();
+                            } else {
+                                //Toast.makeText(MapActivity.this, "Tu ubicación es nula", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            //Toast.makeText(MapActivity.this, "Error al obtener la ubicación", Toast.LENGTH_LONG).show();
+                        }
                     }
                 });
-            }else Toast.makeText(MapActivity.this, "Da permiso para acceder a la ubicación", Toast.LENGTH_LONG).show();
+            }else {
+                //Toast.makeText(MapActivity.this, "Da permiso para acceder a la ubicación", Toast.LENGTH_LONG).show();
+            }
         } catch (SecurityException e){
-            Toast.makeText(MapActivity.this, "Seleciona un punto en el mapa primero", Toast.LENGTH_LONG).show();
+            //Toast.makeText(MapActivity.this, "Seleciona un punto en el mapa primero", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -642,7 +648,7 @@ public class MapActivity extends AppCompatActivity
                 .setCancelable(false)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        Toast.makeText(context, "M: " + filterM + " R:" + filterR + " W:" + filterW, Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(context, "M: " + filterM + " R:" + filterR + " W:" + filterW, Toast.LENGTH_SHORT).show();
                         searchNearPlacesNoView();
                         dialog.cancel();
                     }

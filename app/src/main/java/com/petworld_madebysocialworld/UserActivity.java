@@ -45,7 +45,6 @@ public class UserActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
-        initNavigationDrawer();
         context = this;
         id = getIntent().getStringExtra("id");
 
@@ -284,19 +283,19 @@ public class UserActivity extends AppCompatActivity {
                                             textViewNameList.setTextSize(1, 12);
                                             textViewNameList.setPadding(40, 20, 40, 5);
 
-                                            /*
+
                                             textViewNameList.setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
 
                                                     String id = document.getId();
-                                                    Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
+                                                    Intent intent = new Intent(UserActivity.this, ViewWalkActivity.class);
                                                     intent.putExtra("id", id);
                                                     startActivity(intent);
                                                 }
 
                                             });
-                                            */
+
                                             LayoutWalks.addView(textViewNameList);
                                         }
                                     }
