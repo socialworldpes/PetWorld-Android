@@ -86,15 +86,7 @@ public class SearchFriendsActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         for (final QueryDocumentSnapshot document : task.getResult()) {
                             if (!friendsListId.contains( document.getId())) {
-                                String name = (String) document.get("name");
                                 LinearLayout linearLayoutList = new LinearLayout(context);
-                                TextView textViewDescreList = new TextView(context);
-                                textViewDescreList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                                textViewDescreList.setText(name);
-                                textViewDescreList.setPadding(40, 20, 40, 20);
-
-                                linearLayoutList.addView(textViewDescreList);
-
                                 final Button friendButton = new Button(context);
                                 friendButton.setText("Add Friend");
 
@@ -110,6 +102,14 @@ public class SearchFriendsActivity extends AppCompatActivity {
                                 });
 
                                 linearLayoutList.addView(friendButton);
+
+                                String name = (String) document.get("name");
+                                TextView textViewDescreList = new TextView(context);
+                                textViewDescreList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                                textViewDescreList.setText(name);
+                                textViewDescreList.setPadding(40, 20, 40, 20);
+
+                                linearLayoutList.addView(textViewDescreList);
 
                                 linearLayoutSheet.addView(linearLayoutList);
                             } else {
