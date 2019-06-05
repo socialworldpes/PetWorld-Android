@@ -87,8 +87,9 @@ public class SearchFriendsActivity extends AppCompatActivity {
                         for (final QueryDocumentSnapshot document : task.getResult()) {
                             if (!friendsListId.contains( document.getId())) {
                                 LinearLayout linearLayoutList = new LinearLayout(context);
-                                final Button friendButton = new Button(context);
-                                friendButton.setText("Add Friend");
+                                final ImageButton friendButton = new ImageButton(context);
+                                friendButton.setImageResource(R.drawable.add_friend_icon);
+                                friendButton.setPadding(40, 20, 40, 20);
 
                                 friendButton.setOnClickListener(new View.OnClickListener() {
                                     @Override
