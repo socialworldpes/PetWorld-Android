@@ -3,9 +3,12 @@ package com.petworld_madebysocialworld;
 import Models.Meeting;
 import Models.Walk;
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -51,6 +54,20 @@ public class listMyMeetingsActivity extends AppCompatActivity {
                         }
                     }
                 });
+        setupToolbar();
+    }
+
+    private void setupToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar4);
+        toolbar.setTitle("Tus Quedadas");
+        toolbar.setTitleTextColor(Color.WHITE);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { onBackPressed(); }
+        });
+        toolbar.bringToFront();
     }
 
     private void initializeView(ArrayList<Meeting> meetings) {

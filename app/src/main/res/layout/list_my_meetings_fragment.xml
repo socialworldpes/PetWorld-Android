@@ -8,6 +8,7 @@
         android:layout_height="match_parent"
         tools:context=".ui.listmymeetings.ListMyMeetingsFragment">
     <ListView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" android:id="@+id/listMyMeetings"/>
+            android:layout_width="414dp"
+            android:layout_height="736dp" android:id="@+id/listMyMeetings"
+            app:layout_constraintStart_toStartOf="parent" tools:layout_editor_absoluteY="-5dp"/>
 </android.support.constraint.ConstraintLayout>
