@@ -93,6 +93,20 @@
 
             </android.support.design.widget.TextInputLayout>
 
+            <android.support.design.widget.TextInputLayout
+                    android:id="@+id/racePetInput_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="@string/petRace"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                <EditText
+                        android:id="@+id/racePetInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"/>
+
+            </android.support.design.widget.TextInputLayout>
             <LinearLayout android:layout_width="match_parent"
                           android:layout_height="wrap_content"
                           android:layout_marginTop="15dp"
