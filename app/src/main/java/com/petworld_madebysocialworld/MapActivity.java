@@ -727,7 +727,7 @@ public class MapActivity extends AppCompatActivity
         else meetingLocBool = false;
 
         // Query Walks
-        if (filterW) routeLocBool = true;
+        if (filterW) walkLocBool = true;
         else walkLocBool = false;
         // Query Routes
         if (filterR) routeLocBool = true;
