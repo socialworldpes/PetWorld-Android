@@ -1,9 +1,6 @@
 package com.petworld_madebysocialworld;
 
-import Models.User;
 import android.support.annotation.NonNull;
-import android.util.Log;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -13,8 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static android.support.constraint.Constraints.TAG;
 
 /**
  * Repositorio ficticio de routes
@@ -75,7 +70,7 @@ public class RoutesRepository {
                                             String id = (String) document.getId();
                                             String place = (String) data.get("placeName");
                                             GeoPoint placeLocation = (GeoPoint) data.get("placeLocation");
-                                            saveRoute(new Route(name, place, description, R.drawable.anabohueles, placeLocation, id));
+                                            saveRoute(new Route(name, place, description, R.drawable.mapmarker, placeLocation, id));
                                         }
                                     }
                                 }

@@ -28,6 +28,7 @@ public class ViewMeetingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         alreadyJoinedBoolean = false;
         alreadyInvited = false;
+        id = getIntent().getStringExtra("id");
         Log.d("VIEW MEETINGPRIMERA VEZ", "already joines?" + String.valueOf(alreadyJoinedBoolean));
         alreadyJoined();
         Log.d("VIEW MEETINGSEGUNDA VEZ", "already joines?" + String.valueOf(alreadyJoinedBoolean));
@@ -39,7 +40,7 @@ public class ViewMeetingActivity extends AppCompatActivity {
             Log.d("VIEW MEETINGSEGUNDA VEZ", "he entrado por gone");
             actAux.findViewById(R.id.JoinMeeting).setVisibility(View.GONE);
         }
-        MeetingsPagerAdapter meetingsPagerAdapter = new MeetingsPagerAdapter(this, getSupportFragmentManager(), getIntent().getStringExtra("id"), this, !alreadyJoinedBoolean, !alreadyInvited);
+        MeetingsPagerAdapter meetingsPagerAdapter = new MeetingsPagerAdapter(this, getSupportFragmentManager(), id, this, !alreadyJoinedBoolean, !alreadyInvited);
         ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -99,7 +100,7 @@ public class ViewMeetingActivity extends AppCompatActivity {
         Query q = null;
         if (!alreadyJoinedBoolean) {
             q = FirebaseFirestore.getInstance().collection("meetings")
-                    .document(getIntent().getStringExtra("id"))
+                    .document(id)
                     .collection("participants").whereEqualTo("reference", FirebaseAuth.getInstance().getCurrentUser().getUid());
             String s = String.valueOf(q == null);
             Log.d("EYYY", "La q es nulo?" + s);
@@ -121,7 +122,7 @@ public class ViewMeetingActivity extends AppCompatActivity {
                     DocumentReference reference = (DocumentReference) p.get("reference");
                     Map<String,Object> aux = new HashMap<>();
                     aux.put("reference", FirebaseFirestore.getInstance().collection("meetings")
-                            .document(getIntent().getStringExtra("id")));
+                            .document(id));
                     aux.put("nameUser", FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
                     reference.collection("pendentMeetings").add(aux);
                 }
@@ -134,7 +135,7 @@ public class ViewMeetingActivity extends AppCompatActivity {
         final DocumentReference myUser = FirebaseFirestore.getInstance().collection("users")
                 .document(FirebaseAuth.getInstance().getCurrentUser().getUid());
         final DocumentReference myMeeting = FirebaseFirestore.getInstance().collection("meetings")
-                .document((getIntent().getStringExtra("id")));
+                .document((id));
         myUser.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {

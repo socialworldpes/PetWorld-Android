@@ -3,6 +3,7 @@ package com.petworld_madebysocialworld;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -69,6 +70,8 @@ public class UserActivity extends AppCompatActivity {
             Log.d("FriendSing", "NO");
         }
 
+        setupToolbar();
+
         db.collection("users").document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -110,7 +113,10 @@ public class UserActivity extends AppCompatActivity {
                                             textViewNameList.setText(name);
                                             textViewNameList.setTextColor(Color.BLACK);
                                             textViewNameList.setTextSize(1, 12);
-                                            textViewNameList.setPadding(40, 20, 40, 5);
+                                            textViewNameList.setPadding(20,20,20,20);
+                                            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewPager.LayoutParams.WRAP_CONTENT, ViewPager.LayoutParams.WRAP_CONTENT);
+                                            params.setMargins(60,10,10,10);
+                                            textViewNameList.setLayoutParams(params);
 
 
                                             textViewNameList.setOnClickListener(new View.OnClickListener() {
@@ -160,7 +166,10 @@ public class UserActivity extends AppCompatActivity {
                                                 textViewNameList.setText(name);
                                                 textViewNameList.setTextColor(Color.BLACK);
                                                 textViewNameList.setTextSize(1, 12);
-                                                textViewNameList.setPadding(40, 20, 40, 5);
+                                                textViewNameList.setPadding(20,20,20,20);
+                                                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewPager.LayoutParams.WRAP_CONTENT, ViewPager.LayoutParams.WRAP_CONTENT);
+                                                params.setMargins(60,10,10,10);
+                                                textViewNameList.setLayoutParams(params);
 
                                                 textViewNameList.setOnClickListener(new View.OnClickListener() {
                                                     @Override
@@ -199,7 +208,10 @@ public class UserActivity extends AppCompatActivity {
                                             textViewNameList.setText(name);
                                             textViewNameList.setTextColor(Color.BLACK);
                                             textViewNameList.setTextSize(1, 12);
-                                            textViewNameList.setPadding(40, 20, 40, 5);
+                                            textViewNameList.setPadding(20,20,20,20);
+                                            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewPager.LayoutParams.WRAP_CONTENT, ViewPager.LayoutParams.WRAP_CONTENT);
+                                            params.setMargins(60,10,10,10);
+                                            textViewNameList.setLayoutParams(params);
 
                                             textViewNameList.setOnClickListener(new View.OnClickListener() {
                                                 @Override
@@ -240,7 +252,10 @@ public class UserActivity extends AppCompatActivity {
                                             textViewNameList.setText(name);
                                             textViewNameList.setTextColor(Color.BLACK);
                                             textViewNameList.setTextSize(1, 12);
-                                            textViewNameList.setPadding(40, 20, 40, 5);
+                                            textViewNameList.setPadding(20,20,20,20);
+                                            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewPager.LayoutParams.WRAP_CONTENT, ViewPager.LayoutParams.WRAP_CONTENT);
+                                            params.setMargins(60,10,10,10);
+                                            textViewNameList.setLayoutParams(params);
 
                                             textViewNameList.setOnClickListener(new View.OnClickListener() {
                                                 @Override
@@ -280,8 +295,11 @@ public class UserActivity extends AppCompatActivity {
                                                     LinearLayout.LayoutParams.WRAP_CONTENT));
                                             textViewNameList.setText(name);
                                             textViewNameList.setTextColor(Color.BLACK);
-                                            textViewNameList.setTextSize(1, 12);
-                                            textViewNameList.setPadding(40, 20, 40, 5);
+                                            textViewNameList.setTextSize(1, 14);
+                                            textViewNameList.setPadding(20,20,20,20);
+                                            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewPager.LayoutParams.WRAP_CONTENT, ViewPager.LayoutParams.WRAP_CONTENT);
+                                            params.setMargins(60,10,10,10);
+                                            textViewNameList.setLayoutParams(params);
 
 
                                             textViewNameList.setOnClickListener(new View.OnClickListener() {
@@ -309,6 +327,19 @@ public class UserActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    private void setupToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar3);
+        toolbar.setTitle("Perfil de Usuario");
+        toolbar.setTitleTextColor(Color.WHITE);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { onBackPressed(); }
+        });
+        toolbar.bringToFront();
     }
 
     private void initNavigationDrawer() {
