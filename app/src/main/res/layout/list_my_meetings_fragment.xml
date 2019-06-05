@@ -9,6 +9,8 @@
         tools:context=".ui.listmymeetings.ListMyMeetingsFragment">
     <ListView
             android:layout_width="414dp"
-            android:layout_height="736dp" android:id="@+id/listMyMeetings"
-            app:layout_constraintStart_toStartOf="parent" tools:layout_editor_absoluteY="-5dp"/>
+            android:layout_height="676dp" android:id="@+id/listMyMeetings"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="56dp">
+    </ListView>
 </android.support.constraint.ConstraintLayout>

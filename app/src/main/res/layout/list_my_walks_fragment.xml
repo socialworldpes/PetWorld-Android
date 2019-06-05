@@ -8,8 +8,7 @@
         android:layout_height="match_parent"
         tools:context=".ui.listmywalks.ListMyWalksFragment">
     <ListView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" android:id="@+id/listMyWalks"
-            app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"/>
+            android:id="@+id/listMyWalks"
+            android:layout_height="678dp" android:layout_width="match_parent"
+            app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="56dp"/>
 </android.support.constraint.ConstraintLayout>
