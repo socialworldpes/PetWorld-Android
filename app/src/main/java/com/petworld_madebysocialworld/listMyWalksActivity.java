@@ -33,24 +33,24 @@ public class listMyWalksActivity extends AppCompatActivity {
         final ArrayList<Walk> result = new ArrayList<>();
         FirebaseFirestore.getInstance().collection("users").document(idU).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                ArrayList<DocumentReference> aux = (ArrayList<DocumentReference>)documentSnapshot.get("walks");
-                final int total = aux.size();
-                for (DocumentReference dR : aux){
-                    dR.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot2) {
-                            result.add(new Walk (documentSnapshot2.getData(), documentSnapshot2.getId()));
-                            if (result.size() == total) {
-                                Log.d("listMyWalksActivity", "HE entrado en result == total");
-                                initializeView(result);
-                            }
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        ArrayList<DocumentReference> aux = (ArrayList<DocumentReference>)documentSnapshot.get("walks");
+                        final int total = aux.size();
+                        for (DocumentReference dR : aux){
+                            dR.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot2) {
+                                    result.add(new Walk (documentSnapshot2.getData(), documentSnapshot2.getId()));
+                                    if (result.size() == total) {
+                                        Log.d("listMyWalksActivity", "HE entrado en result == total");
+                                        initializeView(result);
+                                    }
+                                }
+                            });
                         }
-                    });
-                }
-            }
-        });
+                    }
+                });
     }
 
     private void initializeView(ArrayList<Walk> walks) {

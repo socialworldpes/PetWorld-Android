@@ -97,9 +97,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void connect(){
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build();
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
 
         u.setmGoogleSignInClient(GoogleSignIn.getClient(this, gso));
         if (u.getGoogleSignInClient() != null) {
@@ -131,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         // Get new Instance ID token
                         String token = task.getResult().getToken();
                         FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).update("token", token);
+                        // Log and toast
 
                     }
                 });
@@ -184,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         user.put("routes", Arrays.asList());
                         user.put("visibility", "public");
                         user.put("name", fu.getDisplayName());
+                        Toast.makeText(MainActivity.this, "GetMail: " + fu.getEmail(), Toast.LENGTH_SHORT).show();
                         user.put("email", fu.getEmail());
                         user.put("imageURL", fu.getPhotoUrl().toString());
                         user.put("walks", Arrays.asList());
@@ -283,7 +285,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } else {
                 // No user is signed in
             }
-            
+
             goToMap();
         }
     }
@@ -309,6 +311,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final Activity activity = act;
         String myUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+        //pending walks
+        db.collection("users").document(myUser).collection("pendingWalks").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "listen:error", e);
+                    return;
+                }
+                final List<DocumentChange> documentChanges = queryDocumentSnapshots.getDocumentChanges();
+                for (DocumentChange dC : documentChanges){
+                    Map<String, Object> aux = dC.getDocument().getData();
+                    PushNotification pushAux = new PushNotification();
+                    pushAux.addNotification(act, "Tienes paseos pendientes", "Tienes un paseo pendiente de tu amigo " + aux.get("nameUser"), R.drawable.ic_add, cont, "pendingWalk", ((DocumentReference)aux.get("reference")).getId());
+                    dC.getDocument().getReference().delete();
+                }
+            }
+        });
+
         //pending meetings
         db.collection("users").document(myUser).collection("pendingMeetings").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -325,8 +346,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     pushAux.addNotification(act, "Tienes meetings pendientes", "Tienes un meeting pendiente de tu amigo " + aux.get("nameUser"), R.drawable.ic_add, cont, "pendingMeeting", ((DocumentReference)aux.get("reference")).getId());
                     dC.getDocument().getReference().delete();
                 }
-
-
             }
         });
 
@@ -362,7 +381,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     }
 
                                     ++pendingRequestsCount;
-                                    if (pendingRequestsCount == documentChanges.size()) friendsSingleton.updateRequestsSnapshots();
+                                    if (friendsSingleton.friendsFragmentIni() && pendingRequestsCount == documentChanges.size()) friendsSingleton.updateRequestsSnapshots();
                                 } else {
                                     Log.d(TAG, "No such document");
                                 }
@@ -521,5 +540,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 }
-
 

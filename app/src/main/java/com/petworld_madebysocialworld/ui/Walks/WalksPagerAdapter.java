@@ -1,4 +1,4 @@
-package com.petworld_madebysocialworld.ui.Meetings;
+package com.petworld_madebysocialworld.ui.Walks;
 
 import android.app.Activity;
 import android.content.Context;
@@ -16,7 +16,7 @@ import com.petworld_madebysocialworld.ui.Participants.ParticipantsFragment;
  * A [FragmentPagerAdapter] that returns a fragment corresponding to
  * one of the sections/tabs/pages.
  */
-public class MeetingsPagerAdapter extends FragmentPagerAdapter {
+public class WalksPagerAdapter extends FragmentPagerAdapter {
 
     @StringRes
     private static final int[] TAB_TITLES = new int[]{R.string.InfoMeetings, R.string.ParticipantsMeetings};
@@ -25,19 +25,18 @@ public class MeetingsPagerAdapter extends FragmentPagerAdapter {
     private Fragment participantsFragment;
     private Activity actAux;
 
-    public MeetingsPagerAdapter(Context context, FragmentManager fm, String id, Activity act) {
+    public WalksPagerAdapter(Context context, FragmentManager fm, String id, Activity act) {
         super(fm);
         mContext = context;
         actAux = act;
-        infoMeetingFragment = new infoMeetingFragment(mContext, "meetings", id);
-        participantsFragment = new ParticipantsFragment(mContext, "meetings", id);
+        infoMeetingFragment = new WalksFragment(mContext, "walks", id);
+        participantsFragment = new ParticipantsFragment(mContext, "walks", id);
     }
 
     @Override
     public Fragment getItem(int position) {
         Fragment fragment = null;
         if (position == 0) {
-            Toast.makeText((Context)actAux, "Ey, estoy en el visible al cambiar de page", Toast.LENGTH_LONG);
             return infoMeetingFragment;
         } else if (position == 1) {
             return participantsFragment;

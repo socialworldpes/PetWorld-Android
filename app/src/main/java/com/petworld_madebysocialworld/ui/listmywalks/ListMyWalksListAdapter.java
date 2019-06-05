@@ -72,10 +72,10 @@ public class ListMyWalksListAdapter extends ArrayAdapter<Walk> implements ListAd
     public View getView(final int position, View convertView, ViewGroup parent) {
         Log.d(TAG, "He entrado en getView");
         final Walk walkData = walkListInfo.get(position);
+        final View auxView = convertView;
         if(convertView == null) {
             LayoutInflater layoutInflater = LayoutInflater.from(context);
             convertView = layoutInflater.inflate(R.layout.walks_list_row, null);
-            final View auxView = convertView;
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

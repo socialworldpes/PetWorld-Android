@@ -46,4 +46,5 @@ public class Meeting implements Comparable<Meeting> {
         if (!(o instanceof Walk)) return false;
         else return ((Walk) o).getStart().equals(this.getStart());
     }
+
 }

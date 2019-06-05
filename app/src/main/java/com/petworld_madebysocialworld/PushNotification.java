@@ -31,6 +31,12 @@ class PushNotification {
                 stackBuilder.addParentStack(ViewMeetingActivity.class);
                 resultIntent.putExtra("id", id);
                 break;
+            case "pendingWalk":
+                resultIntent = new Intent(activity, ViewWalkActivity.class);
+                stackBuilder = TaskStackBuilder.create(activity);
+                stackBuilder.addParentStack(ViewWalkActivity.class);
+                resultIntent.putExtra("idWalk", id);
+                break;
         }
 
 // Adds the Intent that starts the Activity to the top of the stack

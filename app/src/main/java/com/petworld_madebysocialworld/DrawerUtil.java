@@ -1,10 +1,8 @@
 package com.petworld_madebysocialworld;
 
-import Models.Friend;
 import Models.User;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -13,7 +11,6 @@ import android.util.Log;
 import android.view.View;
 
 import android.widget.ImageView;
-import android.widget.Toast;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -24,7 +21,6 @@ import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
-import com.mikepenz.materialdrawer.holder.BadgeStyle;
 import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.ExpandableDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
@@ -53,7 +49,6 @@ public class DrawerUtil {
         String personEmail = user.getEmail();
         Uri personPhoto = user.getPhotoUrl();
         final String userID = user.getUid();
-
 
 
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
@@ -159,13 +154,12 @@ public class DrawerUtil {
         SecondaryDrawerItem drawerItemGroups = new SecondaryDrawerItem().withIdentifier(4)
                 .withName("Amigos").withIcon(R.drawable.ic_group);
         final ExpandableDrawerItem drawerItemManageThings = new ExpandableDrawerItem()
-                .withIdentifier(6).withName("Tus colaboraciones").withIcon(R.drawable.ic_idea).withSelectable(false);
+                .withIdentifier(6).withName("Tus cosas").withIcon(R.drawable.ic_group).withSelectable(false);
         drawerItemManageThings
                 .withSubItems(new SecondaryDrawerItem().withName("Tus quedadas").withLevel(2).withIdentifier(8).withIcon(R.drawable.ic_rutas))
                 .withSubItems(new SecondaryDrawerItem().withName("Tus paseos").withLevel(2).withIdentifier(9).withIcon(R.drawable.ic_rutas));
         SecondaryDrawerItem drawerItemLogOut = new SecondaryDrawerItem().withIdentifier(7)
                 .withName("Cerrar sesión").withIcon(R.drawable.ic_logout);
-
 
 
         Drawer result = new DrawerBuilder()
@@ -241,28 +235,6 @@ public class DrawerUtil {
                     }
                 })
                 .build();
-
-        ArrayList<Friend> requestsListInfo = FriendsSingleton.getInstance().getRequestsListInfo();
-        boolean empty = false;
-        for (Friend friend : requestsListInfo ) {
-            if (!empty) {
-                Log.d("Request Chicken", "id = " + friend.getId());
-                if (friend.getId().equals("NoPendingRequests")) empty = true;
-            }
-        }
-
-        int numRequests = requestsListInfo.size();
-
-        if (numRequests > 0 && !empty){
-            Log.d("Request Chicken", "Te solicituds");
-            drawerItemGroups.withBadge(String.valueOf(numRequests)).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.md_red_700).withCornersDp(100));
-            result.updateItem(drawerItemGroups);
-        } else {
-            Log.d("Request Chicken", "No te solicituds");
-            drawerItemGroups.withBadge("");
-            result.updateItem(drawerItemGroups);
-        }
-
     }
 
 

@@ -31,6 +31,7 @@ import com.google.firebase.storage.UploadTask;
 import com.sangcomz.fishbun.FishBun;
 import com.sangcomz.fishbun.adapter.image.impl.PicassoAdapter;
 import com.sangcomz.fishbun.define.Define;
+import org.w3c.dom.Document;
 
 import java.util.*;
 
@@ -206,6 +207,9 @@ public class CreateWalkActivity extends AppCompatActivity {
         walk.put("images",      Arrays.asList());
         walk.put("start",       pickedDate);
         walk.put("placeLocation", pickedRouteLocationPlace);
+        ArrayList<DocumentReference> meAsParticipant = new ArrayList<DocumentReference>();
+        meAsParticipant.add(db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+        walk.put("participants", meAsParticipant);
 
         addWalkToFireBase(walk);
     }

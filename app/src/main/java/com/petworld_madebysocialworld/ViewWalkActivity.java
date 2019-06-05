@@ -1,9 +1,11 @@
 package com.petworld_madebysocialworld;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -15,161 +17,40 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.*;
+import com.petworld_madebysocialworld.ui.Meetings.MeetingsPagerAdapter;
+import com.petworld_madebysocialworld.ui.Walks.WalksPagerAdapter;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.*;
 
 public class ViewWalkActivity extends AppCompatActivity {
 
-    //fireStore
-    private FirebaseFirestore db;
-
-    //id's
-    String idWalk;
-    String idRoute;
-    DocumentReference routeDocumentReference;
-
-    //walk info
-    String name;
-    String description;
-    GregorianCalendar date;
-    private ArrayList<String> imageUrls;
-    private Date pickedDate;
-
-
-
-    //layout
-    EditText nameWalkEditText;
-    EditText descriptionWalkEditText;
-    EditText nameRouteEditText;
-
-    // Date Formatter & Hour Formatter
-    private java.text.DateFormat df;
-    private java.text.DateFormat hf;
-
-
-
-    //buttons
-    Button editButton;
-    Button deleteButton;
-    private Button dateInput;
-    private Button hourInput;
+    //things for UI
+    private boolean alreadyInvited;
+    private boolean alreadyJoinedBoolean;
+    private ViewPager viewPager;
+    private TabLayout tabs;
+    private WalksPagerAdapter meetingsPagerAdapter;
+    Activity actAux;
+    private String id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_walk);
-        initVariables();
-        initLayout();
-        initButtons();
-        initListeners();
+        alreadyJoinedBoolean = false;
+        alreadyInvited = false;
+        id = getIntent().getStringExtra("idWalk");
+        Log.d("ID1", id);
+        actAux = this;
         setupToolbar();
-        initFireBase();
+        alreadyJoined();
 
-        readWalkInfo();
-
-    }
-
-    private void initListeners() {
-        nameRouteEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goRoute();
-            }
-        });
-        editButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                editWalk();
-            }
-        });
-        deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                deleteWalk();
-            }
-        });
-    }
-
-    private void deleteWalk() {
-        AlertDialog diaBox = AskOption();
-        diaBox.show();
-    }
-
-    private void deleteWalkFireBase() {
-         final String id = idWalk;
-
-        FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-
-                        ArrayList<DocumentReference> alWalksRef = (ArrayList<DocumentReference>) document.get("walks");
-                        for (DocumentReference dr : alWalksRef) {
-
-                            if (dr.getPath().equals("walks/" + id)) {
-
-                                //borra en routes/
-                                dr.delete();
-                                //borra referencia en users/routes
-                                document.getReference().update("walks", FieldValue.arrayRemove(dr));
-
-                            }
-                        }
-                    }
-                }
-                Toast.makeText(getApplicationContext(), "Paseo Borrado",
-                        Toast.LENGTH_LONG).show();
-                startMap();
-
-            }
-
-        });
-    }
-
-    private void editWalk() {
-        Intent intent = new Intent (getApplicationContext(), EditWalkActivity.class);
-        intent.putExtra("id", idWalk);
-        startActivityForResult(intent, 0);
-
-    }
-
-    private void initButtons() {
-        editButton = findViewById(R.id.editButton);
-        deleteButton = findViewById(R.id.deleteButton);
-    }
-
-    private void initLayout() {
-        nameWalkEditText = findViewById(R.id.nameWalkEditText);
-        descriptionWalkEditText = findViewById(R.id.descrptionWalkEditText);
-        nameRouteEditText = findViewById(R.id.nameRoutekEditText);
-        //data
-        dateInput = findViewById(R.id.dateInput);
-        hourInput = findViewById(R.id.hourInput);
-    }
-
-    private void initFireBase() {
-        db = FirebaseFirestore.getInstance();
-
-    }
-
-    private void setLayoutText() {
-        nameWalkEditText.setText(name);
-        descriptionWalkEditText.setText(description);
-        dateInput.setText(df.format(pickedDate));
-        hourInput.setText(hf.format(pickedDate));
     }
 
     private void setupToolbar() {
@@ -183,104 +64,153 @@ public class ViewWalkActivity extends AppCompatActivity {
             public void onClick(View v) { onBackPressed(); }
         });
     }
-    private void readWalkInfo() {
-        DocumentReference docRef = db.collection("walks").document(idWalk);
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+
+    private void initializeAndListenPageChanged() {
+        final ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.OnPageChangeListener() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot result = task.getResult();
-                    name = (String) result.get("name");
-                    description = (String) result.get("description");
-                    imageUrls = (ArrayList<String>)result.get("images");
-                    routeDocumentReference = (DocumentReference) result.get("route");
-                    com.google.firebase.Timestamp time = (com.google.firebase.Timestamp) result.get("start");
-                    pickedDate = time.toDate();
+            public void onPageScrolled(int i, float v, int i1) {
+                switch (i) {
+                    case 0:
+                        if (!alreadyJoinedBoolean) {
+                            Toast.makeText(actAux, "Ey, estoy en el visible al cambiar de page", Toast.LENGTH_LONG);
+                            actAux.findViewById(R.id.JoinWalks).setVisibility(View.VISIBLE);
+                        }
+                        actAux.findViewById(R.id.inviteParticipantsWalks).setVisibility(View.GONE);
+                        break;
+                    case 1:
+                        actAux.findViewById(R.id.JoinWalks).setVisibility(View.GONE);
+                        if (!alreadyInvitedThisSession())
+                            actAux.findViewById(R.id.inviteParticipantsWalks).setVisibility(View.VISIBLE);
+                        break;
+                }
+            }
 
+            @Override
+            public void onPageSelected(int i) {
+                switch (i) {
+                    case 0:
+                        if (!alreadyJoinedBoolean)
+                            actAux.findViewById(R.id.JoinWalks).setVisibility(View.VISIBLE);
+                        actAux.findViewById(R.id.inviteParticipantsWalks).setVisibility(View.GONE);
+                        break;
+                    case 1:
+                        actAux.findViewById(R.id.JoinWalks).setVisibility(View.GONE);
+                        if (!alreadyInvitedThisSession())
+                            actAux.findViewById(R.id.inviteParticipantsWalks).setVisibility(View.VISIBLE);
+                        break;
+                }
+            }
 
-                    //images
-                    setImages();
-                    setLayoutText();
-                    readRouteInfo();
+            @Override
+            public void onPageScrollStateChanged(int i) {
+            }
+        };
+        viewPager.addOnPageChangeListener(pageChangeListener);
+
+        // do this in a runnable to make sure the viewPager's views are already instantiated before triggering the onPageSelected call
+        viewPager.post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                pageChangeListener.onPageSelected(viewPager.getCurrentItem());
+            }
+        });
+    }
+
+    private void alreadyJoined() {
+
+        if (!alreadyJoinedBoolean) {
+            FirebaseFirestore.getInstance().collection("walks")
+                    .document(getIntent().getStringExtra("idWalk"))
+                    .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    List<DocumentReference> aux = (List<DocumentReference>)documentSnapshot.get("participants");
+                    DocumentReference auxMyUser = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    secondPartAlreadyJoined(aux.contains(auxMyUser));
+                }
+            });
+        }
+
+    }
+
+    private void secondPartAlreadyJoined(boolean b) {
+        alreadyJoinedBoolean = b;
+        initializeSyncWithFirebase();
+    }
+
+    private void initializeSyncWithFirebase() {
+        if (!alreadyJoinedBoolean)
+            actAux.findViewById(R.id.JoinWalks).setVisibility(View.VISIBLE);
+        Log.d("ID2", id);
+        meetingsPagerAdapter = new WalksPagerAdapter(actAux, getSupportFragmentManager(), id, actAux);
+        viewPager = actAux.findViewById(R.id.view_pager);
+        initializeAndListenPageChanged();
+        viewPager.setAdapter(meetingsPagerAdapter);
+        tabs = findViewById(R.id.tabs);
+        tabs.setupWithViewPager(viewPager);
+    }
+
+    private boolean alreadyInvitedThisSession() {
+        return alreadyInvited;
+    }
+
+    public void inviteToWalk (View view) {
+        view.findViewById(R.id.inviteParticipantsWalks).setVisibility(View.GONE);
+        Toast.makeText(actAux, "Se ha enviado una invitación a tus amigos", Toast.LENGTH_SHORT);
+        alreadyInvited = true;
+        final DocumentReference myUser = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        myUser.collection("friends").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for (DocumentSnapshot p : queryDocumentSnapshots) {
+                    final DocumentReference reference = (DocumentReference) p.get("reference");
+                    final Map<String,Object> aux = new HashMap<>();
+                    reference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            ArrayList<DocumentReference> meetings = (ArrayList<DocumentReference>)documentSnapshot.get("meetings");
+                            if (!meetings.contains(FirebaseFirestore.getInstance().collection("walks").document(id))){
+                                aux.put("reference", FirebaseFirestore.getInstance().collection("walks")
+                                        .document(id));
+                                aux.put("nameUser", FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+                                reference.collection("pendingWalks").add(aux);
+                            }
+                        }
+                    });
                 }
             }
         });
     }
 
-    private void readRouteInfo() {
-
-
-        routeDocumentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot result = task.getResult();
-                    nameRouteEditText.setText((String) result.get("name"));
-                    idRoute = result.getId();
-
-
+    public void joinToWalk (View view) {
+        view.findViewById(R.id.JoinWalks).setVisibility(View.GONE);
+        Toast.makeText(actAux, "Te has unido a la quedada", Toast.LENGTH_SHORT);
+        if (!alreadyJoinedBoolean) {
+            alreadyJoinedBoolean = true;
+            final DocumentReference myUser = FirebaseFirestore.getInstance().collection("users")
+                    .document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+            final DocumentReference myMeeting = FirebaseFirestore.getInstance().collection("walks")
+                    .document((id));
+            myUser.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    ArrayList<DocumentReference> auxList = (ArrayList<DocumentReference>) documentSnapshot.get("walks");
+                    auxList.add(myMeeting);
+                    myUser.update("walks", auxList);
                 }
-            }
-        });
-
-    }
-
-    private void goRoute() {
-        Log.d("goRoute : " ,  "in ");
-        Intent nextActivity = new Intent(this, ViewRouteActivity.class);
-        nextActivity.putExtra("id", idRoute);
-        startActivity(nextActivity);
-    }
-
-    private void setImages() {
-        ViewPager viewPager = findViewById(R.id.viewPager);
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getApplicationContext(), imageUrls);
-        viewPager.setAdapter(adapter);
-    }
-
-    private void initVariables() {
-        idWalk =  getIntent().getExtras().getString("idWalk");
-        // init formatter
-        df = new android.text.format.DateFormat().getMediumDateFormat(getApplicationContext());
-        hf = new android.text.format.DateFormat().getTimeFormat(getApplicationContext());
-    }
-
-    private AlertDialog AskOption()
-    {
-        AlertDialog myQuittingDialogBox =new AlertDialog.Builder(this)
-                //set message, title, and icon
-                .setTitle("Borrar")
-                .setMessage("¿Borrar Paseo?")
-                .setIcon(R.drawable.ic_delete)
-
-                .setPositiveButton("Borrar", new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        //your deleting code
-
-                        deleteWalkFireBase();
-                        startMap();
-                        dialog.dismiss();
-                    }
-
-                })
-
-
-
-                .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        dialog.dismiss();
-
-                    }
-                })
-                .create();
-        return myQuittingDialogBox;
-
-    }
-
-    private void startMap() {
-        Intent intent = new Intent (getApplicationContext(), MapActivity.class);
-        startActivityForResult(intent, 0);
+            });
+            myMeeting.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    ArrayList<DocumentReference> auxList = (ArrayList<DocumentReference>) documentSnapshot.get("participants");
+                    auxList.add(myUser);
+                    myMeeting.update("participants", auxList);
+                    viewPager.setAdapter(meetingsPagerAdapter);
+                    viewPager.setCurrentItem(0);
+                }
+            });
+        }
     }
 }

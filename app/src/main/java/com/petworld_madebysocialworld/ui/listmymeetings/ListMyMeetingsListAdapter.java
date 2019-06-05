@@ -12,6 +12,7 @@ import android.widget.*;
 import com.google.firebase.Timestamp;
 import com.petworld_madebysocialworld.R;
 import com.petworld_madebysocialworld.ViewMeetingActivity;
+import com.petworld_madebysocialworld.listMyWalksActivity;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
