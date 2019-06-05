@@ -156,8 +156,8 @@ public class DrawerUtil {
         final ExpandableDrawerItem drawerItemManageThings = new ExpandableDrawerItem()
                 .withIdentifier(6).withName("Tus cosas").withIcon(R.drawable.ic_group).withSelectable(false);
         drawerItemManageThings
-                .withSubItems(new SecondaryDrawerItem().withName("Tus quedadas").withLevel(2).withIdentifier(8).withIcon(R.drawable.ic_rutas))
-                .withSubItems(new SecondaryDrawerItem().withName("Tus paseos").withLevel(2).withIdentifier(9).withIcon(R.drawable.ic_rutas));
+                .withSubItems(new SecondaryDrawerItem().withName("Tus quedadas").withLevel(2).withIdentifier(8).withIcon(R.drawable.ic_nature_people_black_24dp))
+                .withSubItems(new SecondaryDrawerItem().withName("Tus paseos").withLevel(2).withIdentifier(9).withIcon(R.drawable.ic_directions_walk_black_24dp));
         SecondaryDrawerItem drawerItemLogOut = new SecondaryDrawerItem().withIdentifier(7)
                 .withName("Cerrar sesión").withIcon(R.drawable.ic_logout);
 
