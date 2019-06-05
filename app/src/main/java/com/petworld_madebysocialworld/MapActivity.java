@@ -1054,7 +1054,7 @@ public class MapActivity extends AppCompatActivity
 
                     linearLayoutList.addView(textViewNameList);
 
-                    Timestamp timeList = (Timestamp) mapTmp.get("date");
+                    Timestamp timeList = (Timestamp) mapTmp.get("start");
                     Date timeDateList = timeList.toDate();
                     Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     String timeStringList = formatter.format(timeDateList);
@@ -1066,8 +1066,6 @@ public class MapActivity extends AppCompatActivity
                     textViewTime.setPadding(40, 5, 40, 20);
 
                     linearLayoutList.addView(textViewTime);
-
-                    linearLayoutSheet.addView(linearLayoutList);
 
                     linearLayoutSheet.addView(linearLayoutList);
 
