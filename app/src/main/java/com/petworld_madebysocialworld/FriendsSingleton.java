@@ -168,7 +168,7 @@ public class FriendsSingleton {
             if (friendsListInfo.size() == 0) addNoFriends();
 
             // So that it knows that something has changed
-            friendsFragment.setViewAndAdapter();
+            if (friendsFragmentIni) friendsFragment.setViewAndAdapter();
 
             // The other friend will also delete the friend by receiving an onSnapshot
         }
