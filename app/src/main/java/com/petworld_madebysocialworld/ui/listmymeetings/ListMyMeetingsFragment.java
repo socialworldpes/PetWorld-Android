@@ -15,7 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import com.petworld_madebysocialworld.R;
-import com.petworld_madebysocialworld.ui.listmywalks.ListMyMeetingsListAdapter;
+import com.petworld_madebysocialworld.ui.listmymeetings.ListMyMeetingsListAdapter;
 //import com.petworld_madebysocialworld.ui.listmywalks.ListMyWalksListAdapter;
 
 import java.util.ArrayList;

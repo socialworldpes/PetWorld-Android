@@ -1,6 +1,7 @@
 package com.petworld_madebysocialworld.ui.Participants;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.DataSetObserver;
 import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
@@ -8,8 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import Models.Friend;
-import com.petworld_madebysocialworld.FriendsSingleton;
-import com.petworld_madebysocialworld.R;
+import com.petworld_madebysocialworld.*;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -69,19 +69,19 @@ public class ParticipantsListAdapter extends ArrayAdapter<Friend> implements Lis
             LayoutInflater layoutInflater = LayoutInflater.from(context);
             convertView = layoutInflater.inflate(R.layout.participants_list_row, null);
             final TextView name = convertView.findViewById(R.id.name2);
-            ImageView image = convertView.findViewById(R.id.imageView3);
-            //Button button = convertView.findViewById(R.id.button);
-            name.setText(friendData.getName());
-            Picasso.get().load(friendData.getImageURL()).into(image);
-            /*button.setOnClickListener(new View.OnClickListener() {
+            final View auxView = convertView;
+            convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (removeFriend(friendData.getId())) notifyDataSetChanged();
-                    Snackbar.make(v, friendData.getName() + " " + position, Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
+                    Intent intent = new Intent(auxView.getContext(), UserActivity.class);
+                    intent.putExtra("id", friendData.getId());
+                    auxView.getContext().startActivity(intent);
                 }
             });
-            if (friendData.getId().equals("NoFriends")) button.setVisibility(View.INVISIBLE);*/
+            ImageView image = convertView.findViewById(R.id.imageView3);
+            name.setText(friendData.getName());
+            Picasso.get().load(friendData.getImageURL()).into(image);
+
         }
         return convertView;
     }

@@ -1,4 +1,4 @@
-package com.petworld_madebysocialworld.ui.listmywalks;
+package com.petworld_madebysocialworld.ui.listmymeetings;
 
 import Models.Meeting;
 import android.content.Context;
