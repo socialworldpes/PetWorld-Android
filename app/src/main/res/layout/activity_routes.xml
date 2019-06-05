@@ -7,7 +7,16 @@
         android:layout_height="match_parent"
         tools:context=".RoutesActivity">
 
-    <include android:layout_width="wrap_content" android:layout_height="wrap_content" layout="@layout/fragment_routes"
-             tools:layout_editor_absoluteY="0dp" tools:layout_editor_absoluteX="0dp"
-             android:id="@+id/routes_container2"/>
+    <include android:layout_width="414dp" android:layout_height="673dp" layout="@layout/fragment_routes"
+             android:id="@+id/routes_container2"
+             app:layout_constraintTop_toBottomOf="@+id/toolbar2" app:layout_constraintStart_toStartOf="parent"
+             android:layout_marginStart="10dp"/>
+    <android.support.v7.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:theme="?attr/actionBarTheme"
+            android:minHeight="?attr/actionBarSize" tools:layout_editor_absoluteY="0dp"
+            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/toolbar2"/>
 </android.support.constraint.ConstraintLayout>
