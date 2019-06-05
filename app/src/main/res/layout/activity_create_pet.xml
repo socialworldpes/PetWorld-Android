@@ -26,9 +26,9 @@
 
     <ScrollView
             android:id="@+id/scrollView"
-            android:layout_width="fill_parent"
-            android:layout_height="621dp"
-            android:layout_marginTop="48dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="56dp"
             android:fillViewport="true"
     >
 
@@ -36,9 +36,9 @@
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="8dp"
                 android:orientation="vertical">
             <android.support.design.widget.TextInputLayout
                     android:id="@+id/namePetInput_layout"
@@ -55,38 +55,28 @@
 
             </android.support.design.widget.TextInputLayout>
 
-            <EditText android:layout_width="match_parent" android:layout_height="wrap_content"
-                      android:id="@+id/genderPet" android:text="Género" android:textColor="#70070707"
-                      android:textIsSelectable="false" android:clickable="false" android:focusable="false"/>
-            <Spinner
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:id="@+id/selectGender" android:layout_weight="1"
-                    app:layout_constraintTop_toTopOf="parent"/>
-
-
-            <EditText android:layout_width="match_parent" android:layout_height="wrap_content"
-                      android:id="@+id/speciePet" android:text="Especie" android:textColor="#70070707"
-                      android:textIsSelectable="false" android:clickable="false" android:focusable="false"/>
-            <Spinner
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:id="@+id/selectSpecie" android:layout_weight="1"
-                    app:layout_constraintTop_toTopOf="parent"/>
-
-
-            <android.support.design.widget.TextInputLayout
-                    android:id="@+id/racePetInput_layout"
-                    android:layout_width="match_parent"
+            <TextView
+                    android:text="@string/gender"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:hint="@string/petRace"
-                    app:layout_constraintTop_toTopOf="parent">
+                    android:layout_marginStart="8dp"/>
 
-                <EditText
-                        android:id="@+id/racePetInput"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="text"/>
+            <Spinner
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp" android:id="@+id/selectGender"
+            />
 
-            </android.support.design.widget.TextInputLayout>
+
+            <TextView
+                    android:text="@string/specie"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"/>
+            <Spinner
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp" android:id="@+id/selectSpecie"
+            />
+
 
             <android.support.design.widget.TextInputLayout
                     android:id="@+id/commentPetInput_layout"
@@ -99,7 +89,7 @@
                         android:id="@+id/commentPetInput"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="text"/>
+                        android:inputType="textMultiLine"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -125,29 +115,18 @@
 
 
             </LinearLayout>
-            <LinearLayout android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:layout_marginTop="15dp"
-                          android:orientation="horizontal" android:gravity="center"
-            >
-
-                <Button
-                        android:text="Crear"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/buttonAddPet"
-                        app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        android:background="#4CAF50" android:textColor="#fff"
-                />
-
-
-            </LinearLayout>
 
         </LinearLayout>
 
 
     </ScrollView>
+    <Button
+            android:text="Crear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/buttonAddPet"
+            android:background="#4CAF50" android:textColor="#fff"
+            android:layout_gravity="bottom|center_horizontal|center_vertical" android:layout_margin="8dp"/>
 
 
 </android.support.design.widget.CoordinatorLayout>
