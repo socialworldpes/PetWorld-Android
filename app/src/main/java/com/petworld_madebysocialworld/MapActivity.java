@@ -189,18 +189,6 @@ public class MapActivity extends AppCompatActivity
         linearLayoutSheet = (LinearLayout) findViewById(R.id.LayoutMeetings);
         loadListLayout(position);
         listenerList();
-        text = (EditText)findViewById(R.id.Search);
-        text.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    searchFriends();
-                    return true;
-                }
-                return false;
-            }
-        });
-
         filterM = filterR = filterW = true;
         filterE = false;
 
@@ -208,6 +196,17 @@ public class MapActivity extends AppCompatActivity
         filters.bringToFront();
 
         filterSpeciePos = 0;
+        text = (EditText)findViewById(R.id.Search);
+        text.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                        searchFriends();
+                        return true;
+                }
+                return false;
+            }
+        });
     }
 
     @Override
@@ -697,10 +696,13 @@ public class MapActivity extends AppCompatActivity
         DrawerUtil.getDrawer(this,toolBar);
     }
 
+    /*
+
     public void searchFriends(View view) {
         Intent intent = new Intent(MapActivity.this, SearchFriendsActivity.class);
         startActivity(intent);
     }
+    */
 
 
     public void searchNearPlaces(View view) {
@@ -744,14 +746,16 @@ public class MapActivity extends AppCompatActivity
     public void loadMaps() {
         mMap.clear();
 
-        Log.d(TAG, "searchNearPlaces: meetingLocations ->" + meetingLocations);
+        Log.d("Testing", "Pas 1.1");
             meetingLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
                         meetings.clear();
                         Map<String, Object> map;
-                        if(meetingLocBool){
+                        Log.d("Testing", "Pas 1.2");
+                        if(filterM){
+                            Log.d("Testing", "Pas 1.2.1");
                             for (QueryDocumentSnapshot document: task.getResult()) {
                                 GeoPoint point = (GeoPoint) document.get("placeLocation");
                                 Timestamp timestamp = (Timestamp) document.get("start");
@@ -761,7 +765,6 @@ public class MapActivity extends AppCompatActivity
                                     map.put("id", document.getId());
                                     meetings.add(map);
                                     createMarker(point, date, "Meeting-".concat(document.getId()));
-                                    Log.d("Meeting searchNearPlaces", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
                                 }
                             }
                             if (task.getResult().isEmpty()) Log.d("Meeting", "NO hay quedadas cerca");
@@ -776,7 +779,9 @@ public class MapActivity extends AppCompatActivity
                                 if (task.isSuccessful()) {
                                     walks.clear();
                                     Map<String, Object> map;
-                                    if(walkLocBool){
+                                    Log.d("Testing", "Pas 1.3");
+                                    if(filterW){
+                                        Log.d("Testing", "Pas 1.3.1");
                                         for (QueryDocumentSnapshot document : task.getResult()) {
                                             GeoPoint point = (GeoPoint) document.get("placeLocation");
                                             Timestamp timestamp = (Timestamp) document.get("start");
@@ -801,7 +806,9 @@ public class MapActivity extends AppCompatActivity
                                             if (task.isSuccessful()) {
                                                 routes.clear();
                                                 Map<String, Object> map;
-                                                if(routeLocBool){
+                                                Log.d("Testing", "Pas 1.4");
+                                                if(filterR){
+                                                    Log.d("Testing", "Pas 1.4.1");
                                                     for (QueryDocumentSnapshot document : task.getResult()) {
                                                         GeoPoint point = (GeoPoint) document.get("placeLocation");
                                                         String name = (String) document.get("name");
@@ -1103,6 +1110,7 @@ public class MapActivity extends AppCompatActivity
     public void searchFriends() {
 
         String textTmp = text.getText().toString();
+        Log.d("Testing", "Pas 1 + " + textTmp);
         if (textTmp != null) {
             int size = textTmp.length();
             char c = textTmp.charAt(size - 1);//returns h
@@ -1114,43 +1122,30 @@ public class MapActivity extends AppCompatActivity
             linearLayoutSheet.removeAllViews();
             bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
 
-            if (filterM) {
+            Log.d("Testing", "Upper: " + textTmp + " Lower: " + newName);
+
+            //if (meetingLocBool) {
+                Log.d("Testing", "Pas 3");
                 final CollectionReference meetingsRef = db.collection("meetings");
                 meetingLocations = meetingsRef.whereGreaterThanOrEqualTo("name", textTmp).whereLessThanOrEqualTo("name", newName);
-            }
+                if (meetingLocations == null) Log.d("Testing", "Error Meet");
+            //}
 
-            if (filterW) {
+            //if (walkLocBool) {
+                Log.d("Testing", "Pas 4");
                 CollectionReference walksRef = db.collection("walks");
-                walkLocations = walksRef.whereLessThanOrEqualTo("name", textTmp).whereLessThanOrEqualTo("name", newName);
-            }
+                walkLocations = walksRef.whereGreaterThanOrEqualTo("name", textTmp).whereLessThanOrEqualTo("name", newName);
+            if (walkLocations == null) Log.d("Testing", "Error Walk");
+            //}
 
-            if (filterR) {
+           // if (routeLocBool) {
+                Log.d("Testing", "Pas 5");
                 CollectionReference routesRef = db.collection("routes");
-                routeLocations = routesRef.whereLessThanOrEqualTo("name", textTmp).whereLessThanOrEqualTo("name", newName);
-            }
+                routeLocations = routesRef.whereGreaterThanOrEqualTo("name", textTmp).whereLessThanOrEqualTo("name", newName);
+            if (routeLocations == null) Log.d("Testing", "Error Route");
+           // }
 
             loadMaps();
-
-            /*
-            //Query meetingLocations = meetingsRef.whereLessThanOrEqualTo("name", textTmp + "ZZZZZZZZZZZZZZZZZZZZZZZZ");
-            meetingLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()) {
-                        Map<String, Object> map;
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            String name = (String) document.get("name");
-                            TextView textViewDescreList = new TextView(context);
-                            textViewDescreList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                            textViewDescreList.setText("Text: " + name);
-                            textViewDescreList.setPadding(40, 20, 40, 20);
-
-                            linearLayoutSheet.addView(textViewDescreList);
-                        }
-                    }
-                }
-            });
-            */
         }
     }
 
