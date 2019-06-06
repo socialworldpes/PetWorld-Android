@@ -23,6 +23,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 
@@ -1105,6 +1106,7 @@ public class MapActivity extends AppCompatActivity
                 textViewSolucio.setText("Actualiza el mapa");
                 textViewSolucio.setTextColor(Color.BLACK);
                 textViewSolucio.setTextSize(1, 18);
+                textViewSolucio.setGravity(Gravity.CENTER_HORIZONTAL);
                 textViewSolucio.setPadding(40, 20, 40, 40);
                 linearLayoutSheet.addView(textViewSolucio);
             }
