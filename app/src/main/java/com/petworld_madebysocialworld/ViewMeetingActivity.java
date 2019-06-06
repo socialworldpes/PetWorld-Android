@@ -2,10 +2,12 @@ package com.petworld_madebysocialworld;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.Toast;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -39,9 +41,22 @@ public class ViewMeetingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_meting);
         id = getIntent().getStringExtra("id");
-        Log.d("ID1", id);
         actAux = this;
+        setupToolbar();
         alreadyJoined();
+    }
+
+    private void setupToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Información quedada");
+        toolbar.setTitleTextColor(Color.WHITE);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { onBackPressed(); }
+        });
+        toolbar.bringToFront();
     }
 
     private void initializeAndListenPageChanged() {
@@ -51,7 +66,6 @@ public class ViewMeetingActivity extends AppCompatActivity {
                 switch (i) {
                     case 0:
                         if (!alreadyJoinedBoolean) {
-                            Toast.makeText(actAux, "Ey, estoy en el visible al cambiar de page", Toast.LENGTH_LONG);
                             actAux.findViewById(R.id.JoinMeeting).setVisibility(View.VISIBLE);
                         }
                         actAux.findViewById(R.id.inviteParticipantsMeeting).setVisibility(View.GONE);
@@ -100,7 +114,6 @@ public class ViewMeetingActivity extends AppCompatActivity {
     private void alreadyJoined() {
 
         if (!alreadyJoinedBoolean) {
-            Query q = null;
             FirebaseFirestore.getInstance().collection("meetings")
                     .document(getIntent().getStringExtra("id"))
                     .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -123,7 +136,6 @@ public class ViewMeetingActivity extends AppCompatActivity {
     private void initializeSyncWithFirebase() {
         if (!alreadyJoinedBoolean)
             actAux.findViewById(R.id.JoinMeeting).setVisibility(View.VISIBLE);
-        Log.d("ID2", id);
         meetingsPagerAdapter = new MeetingsPagerAdapter(actAux, getSupportFragmentManager(), id, actAux);
         viewPager = actAux.findViewById(R.id.view_pager);
         initializeAndListenPageChanged();
@@ -138,7 +150,7 @@ public class ViewMeetingActivity extends AppCompatActivity {
 
     public void inviteToMeeting (View view) {
         view.findViewById(R.id.inviteParticipantsMeeting).setVisibility(View.GONE);
-        Toast.makeText(view.getContext(), "Se ha enviado una invitación a tus amigos", Toast.LENGTH_SHORT);
+        Toast.makeText(view.getContext(), "Se ha enviado una invitación a tus amigos", Toast.LENGTH_SHORT).show();
         alreadyInvited = true;
         final DocumentReference myUser = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
         myUser.collection("friends").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -166,7 +178,7 @@ public class ViewMeetingActivity extends AppCompatActivity {
 
     public void joinToMeeting (View view) {
         view.findViewById(R.id.JoinMeeting).setVisibility(View.GONE);
-        Toast.makeText(view.getContext(), "Te has unido a la quedada", Toast.LENGTH_SHORT);
+        Toast.makeText(view.getContext(), "Te has unido a la quedada", Toast.LENGTH_SHORT).show();
         if (!alreadyJoinedBoolean) {
             alreadyJoinedBoolean = true;
             final DocumentReference myUser = FirebaseFirestore.getInstance().collection("users")

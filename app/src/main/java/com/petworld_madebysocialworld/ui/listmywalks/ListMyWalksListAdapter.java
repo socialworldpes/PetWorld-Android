@@ -26,7 +26,6 @@ public class ListMyWalksListAdapter extends ArrayAdapter<Walk> implements ListAd
     public ListMyWalksListAdapter(Context context, int textViewResourceid, ArrayList<Walk> walksInfo) {
         super(context, textViewResourceid, walksInfo);
         this.walkListInfo = walksInfo;
-        Log.d(TAG, String.valueOf(walkListInfo.size()));
         this.context = context;
     }
 
@@ -50,7 +49,7 @@ public class ListMyWalksListAdapter extends ArrayAdapter<Walk> implements ListAd
 
     @Override
     public int getCount() {
-        Log.d(TAG, String.valueOf(walkListInfo.size())); return walkListInfo.size();
+        return walkListInfo.size();
     }
 
     @Override
@@ -70,7 +69,6 @@ public class ListMyWalksListAdapter extends ArrayAdapter<Walk> implements ListAd
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        Log.d(TAG, "He entrado en getView");
         final Walk walkData = walkListInfo.get(position);
         final View auxView = convertView;
         if(convertView == null) {
@@ -101,7 +99,6 @@ public class ListMyWalksListAdapter extends ArrayAdapter<Walk> implements ListAd
     private String getDateIntoString(Timestamp start) {
         Date date = new Date(start.getSeconds()*1000L);
         SimpleDateFormat sdf = new SimpleDateFormat("EEE HH:mm:ss, dd MM yyyy "); // the format of your date
-        //TODO HORARIO VERANO O INVIERNO?
         return sdf.format(date);
     }
 

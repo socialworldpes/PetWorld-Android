@@ -27,7 +27,6 @@ public class ListMyMeetingsListAdapter extends ArrayAdapter<Meeting> implements 
     public ListMyMeetingsListAdapter(Context context, int textViewResourceid, ArrayList<Meeting> meetingsInfo) {
         super(context, textViewResourceid, meetingsInfo);
         this.meetingListInfo = meetingsInfo;
-        Log.d(TAG, String.valueOf(meetingListInfo.size()));
         this.context = context;
     }
 
@@ -51,7 +50,7 @@ public class ListMyMeetingsListAdapter extends ArrayAdapter<Meeting> implements 
 
     @Override
     public int getCount() {
-        Log.d(TAG, String.valueOf(meetingListInfo.size())); return meetingListInfo.size();
+        return meetingListInfo.size();
     }
 
     @Override
@@ -71,7 +70,6 @@ public class ListMyMeetingsListAdapter extends ArrayAdapter<Meeting> implements 
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        Log.d(TAG, "He entrado en getView");
         final Meeting meetingData = meetingListInfo.get(position);
         if(convertView == null) {
             LayoutInflater layoutInflater = LayoutInflater.from(context);

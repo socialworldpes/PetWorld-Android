@@ -242,7 +242,6 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                     meeting.put("participants", auxP);
 
                     if (!imagesCanContinue) {
-                        Log.d("E", "hola vecinillo");
                         imagesCanContinue = true;
                         urlImages.add("https://firebasestorage.googleapis.com/v0/b/petworld-cf5a1.appspot.com/o/meetings%2Fcatalog-default-img.jpg?alt=media&token=9a89d503-714b-407a-aa3a-4504ec3a29ca");
                         meeting.put("images", urlImages);
@@ -272,13 +271,10 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                                 //ojo, ahora hay que guardar las fotos en su sitio y ponerlas en firebase RECOGER LINK y añadir a lugar correspondiente
                                 final DocumentReference docRAux = documentReference;
                                 // do something with result.
-                                Log.d("PRUEBA004", "Antes de entrar en el for");
                                 for (int i = 0; i < uriImages.size(); i++) {
-                                    Log.d("PRUEBA005", "Después de entrar en el for");
                                     final int j = i;
                                     final StorageReference imagesRef = FirebaseStorage.getInstance().getReference().child("meetings/" + documentReference.getId() + "_" + i);
                                     Uri file = uriImages.get(i);
-                                    Log.d("PRUEBA006", "Cojo la urii");
 
                                     UploadTask uploadTask = imagesRef.putFile(file);
                                     Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
@@ -295,10 +291,7 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                                         @Override
                                         public void onComplete(@NonNull Task<Uri> task) {
                                             if (task.isSuccessful()) {
-                                                Log.d("PRUEBA002", "He entrado");
-                                                Log.d("PRUEBA007", "meetings/" + documentReference.getId() + "_" + j);
                                                 urlImages.add(task.getResult().toString());
-                                                Log.d("Tamaño url", String.valueOf(urlImages.size()));
                                                 docRAux.update("images", urlImages);
                                             } else {
                                                 // Handle failures
@@ -308,9 +301,6 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                                     });
                                 }
 
-                                for (String i : urlImages)
-                                    Log.d("URL", i);
-                                Log.d("tamaño imagenes", String.valueOf(urlImages.size()));
                                 //guardar link ususario a meeting
                                 FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
@@ -321,8 +311,6 @@ public class CreateMeetingActivity extends AppCompatActivity implements View.OnC
                                                 ArrayList<DocumentReference> meetings = (ArrayList) document.get("meetings");
                                                 meetings.add(docRAux);
                                                 FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).update("meetings", meetings);
-                                            } else {
-                                                Log.d("ERROR", "No such document");
                                             }
                                         } else {
                                             Log.d("ERROR", "get failed with ", task.getException());

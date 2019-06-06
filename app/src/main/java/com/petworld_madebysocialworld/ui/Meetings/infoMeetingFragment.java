@@ -76,10 +76,6 @@ public class infoMeetingFragment extends Fragment {
     }
 
     private void create() {
-        //va a petar
-        //info: https://stackoverflow.com/questions/20237531/how-can-i-access-getsupportfragmentmanager-in-a-fragment
-
-        //OJO, hay que pasar la id del meeting
 
         FirebaseFirestore.getInstance().collection(collection).document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -94,8 +90,6 @@ public class infoMeetingFragment extends Fragment {
                 com.google.firebase.Timestamp time = (com.google.firebase.Timestamp)documentSnapshot.get("start");
                 visibility = (String)documentSnapshot.get("visibility");
                 participants = (ArrayList<DocumentReference>) documentSnapshot.get("participants");
-
-                Log.d("creator", creator);
 
                 //mapa
                 LatLng aux2 = new LatLng(aux.getLatitude(), aux.getLongitude());
@@ -128,7 +122,6 @@ public class infoMeetingFragment extends Fragment {
 
     private void setUpMap(LatLng location) {
         final LatLng auxLocation = location;
-        Log.d("MAPAAA", "BIEN!!");
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapViewMeeting);
         mapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
@@ -142,7 +135,5 @@ public class infoMeetingFragment extends Fragment {
                 );
             }
         });
-        //info: https://stackoverflow.com/questions/20237531/how-can-i-access-getsupportfragmentmanager-in-a-fragment
-
     }
 }

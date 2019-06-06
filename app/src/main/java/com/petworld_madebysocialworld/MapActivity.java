@@ -1059,7 +1059,7 @@ public class MapActivity extends AppCompatActivity
 
                             String id = (String) mapTmp.get("id");
                             Intent intent = new Intent(MapActivity.this, ViewWalkActivity.class);
-                            intent.putExtra("id", id);
+                            intent.putExtra("idWalk", id);
                             startActivity(intent);
                         }
 

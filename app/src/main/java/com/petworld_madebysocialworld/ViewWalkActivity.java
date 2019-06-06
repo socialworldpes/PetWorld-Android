@@ -46,7 +46,6 @@ public class ViewWalkActivity extends AppCompatActivity {
         alreadyJoinedBoolean = false;
         alreadyInvited = false;
         id = getIntent().getStringExtra("idWalk");
-        Log.d("ID1", id);
         actAux = this;
         setupToolbar();
         alreadyJoined();
@@ -55,7 +54,7 @@ public class ViewWalkActivity extends AppCompatActivity {
 
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("View Walk");
+        toolbar.setTitle("Información paseo");
         toolbar.setTitleTextColor(Color.WHITE);
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         setSupportActionBar(toolbar);
@@ -72,7 +71,6 @@ public class ViewWalkActivity extends AppCompatActivity {
                 switch (i) {
                     case 0:
                         if (!alreadyJoinedBoolean) {
-                            Toast.makeText(actAux, "Ey, estoy en el visible al cambiar de page", Toast.LENGTH_LONG);
                             actAux.findViewById(R.id.JoinWalks).setVisibility(View.VISIBLE);
                         }
                         actAux.findViewById(R.id.inviteParticipantsWalks).setVisibility(View.GONE);
@@ -143,7 +141,6 @@ public class ViewWalkActivity extends AppCompatActivity {
     private void initializeSyncWithFirebase() {
         if (!alreadyJoinedBoolean)
             actAux.findViewById(R.id.JoinWalks).setVisibility(View.VISIBLE);
-        Log.d("ID2", id);
         meetingsPagerAdapter = new WalksPagerAdapter(actAux, getSupportFragmentManager(), id, actAux);
         viewPager = actAux.findViewById(R.id.view_pager);
         initializeAndListenPageChanged();
@@ -158,7 +155,7 @@ public class ViewWalkActivity extends AppCompatActivity {
 
     public void inviteToWalk (View view) {
         view.findViewById(R.id.inviteParticipantsWalks).setVisibility(View.GONE);
-        Toast.makeText(actAux, "Se ha enviado una invitación a tus amigos", Toast.LENGTH_SHORT);
+        Toast.makeText(actAux, "Se ha enviado una invitación a tus amigos", Toast.LENGTH_SHORT).show();
         alreadyInvited = true;
         final DocumentReference myUser = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
         myUser.collection("friends").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -186,7 +183,7 @@ public class ViewWalkActivity extends AppCompatActivity {
 
     public void joinToWalk (View view) {
         view.findViewById(R.id.JoinWalks).setVisibility(View.GONE);
-        Toast.makeText(actAux, "Te has unido a la quedada", Toast.LENGTH_SHORT);
+        Toast.makeText(actAux, "Te has unido al paseo", Toast.LENGTH_SHORT).show();
         if (!alreadyJoinedBoolean) {
             alreadyJoinedBoolean = true;
             final DocumentReference myUser = FirebaseFirestore.getInstance().collection("users")

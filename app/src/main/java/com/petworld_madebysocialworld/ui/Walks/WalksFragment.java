@@ -178,7 +178,7 @@ public class WalksFragment extends Fragment {
 
     private void editWalk() {
         Intent intent = new Intent (view.getContext(), EditWalkActivity.class);
-        intent.putExtra("id", idWalk);
+        intent.putExtra("idWalk", idWalk);
         startActivityForResult(intent, 0);
 
     }
@@ -253,7 +253,6 @@ public class WalksFragment extends Fragment {
     }
 
     private void goRoute() {
-        Log.d("goRoute : " ,  "in ");
         Intent nextActivity = new Intent(view.getContext(), ViewRouteActivity.class);
         nextActivity.putExtra("id", idRoute);
         startActivity(nextActivity);

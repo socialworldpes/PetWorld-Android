@@ -114,22 +114,15 @@ public class ViewPetActivity extends AppCompatActivity {
 
 
     private void borrarReferenciaUsuario() {
-        Log.d("alPetRef: ", "in");
-        Log.d("alPetRef", "" + userID);
         db.collection("users").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    Log.d("alPetRef: ", "task is successful");
                     DocumentSnapshot document = task.getResult();
-                    Log.d("alPetRef: ", "" + document.toString());
                     if (document.exists()) {
-                        Log.d("alPetRef: ", "document exists");
                         ArrayList<DocumentReference> alPetRef = (ArrayList<DocumentReference>) document.get("pets");
                         for (DocumentReference dr: alPetRef) {
-                            Log.d("alPetRef: ", petPath + " ---- " + dr.getPath());
                             if (dr.getPath().equals(petPath)) {
-                                Log.d("alPetRef:","sn iguales dentro IF");
                                 dr.delete(); //borra en pets/
                                 document.getReference().update("pets", FieldValue.arrayRemove(dr)); //borra en users/pets
                                 break;
@@ -143,9 +136,6 @@ public class ViewPetActivity extends AppCompatActivity {
             }
 
         });
-
-        Log.d("alPetRef: ", "out");
-
     }
 
     private void editActivity() {
@@ -180,16 +170,12 @@ public class ViewPetActivity extends AppCompatActivity {
     private void initLayout() {
         userID = mAuth.getCurrentUser().getUid();
 
-        Log.d("petProfilePetRef", "" + petPath);
         DocumentReference docRef = db.document(petPath);
-        Log.d("userID", userID);
-        Log.d("petRefIntent", petPath);
 
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    Log.d("task size: ", "" + task.getResult());
                     DocumentSnapshot result = task.getResult();
                     imageUrls = (ArrayList<String>)result.get("photo");
 
@@ -200,7 +186,6 @@ public class ViewPetActivity extends AppCompatActivity {
                     comment.setText("" + task.getResult().get("comment"));
                     owner =(String) task.getResult().get("owner");
 
-                    Log.d("tacobell", "Owner: " + owner + " UserID: " + userID);
                     if (!owner.equals(userID)){
                         btnEditar.setVisibility(View.GONE);;
                         btnBorrar.setVisibility(View.GONE);;

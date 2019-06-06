@@ -12,10 +12,6 @@ import android.widget.Toast;
 import com.petworld_madebysocialworld.R;
 import com.petworld_madebysocialworld.ui.Participants.ParticipantsFragment;
 
-/**
- * A [FragmentPagerAdapter] that returns a fragment corresponding to
- * one of the sections/tabs/pages.
- */
 public class MeetingsPagerAdapter extends FragmentPagerAdapter {
 
     @StringRes
@@ -37,7 +33,6 @@ public class MeetingsPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         Fragment fragment = null;
         if (position == 0) {
-            Toast.makeText((Context)actAux, "Ey, estoy en el visible al cambiar de page", Toast.LENGTH_LONG);
             return infoMeetingFragment;
         } else if (position == 1) {
             return participantsFragment;

@@ -29,7 +29,6 @@ public class ListMyMeetingsFragment extends Fragment {
     private static String TAG = "ListMyMeetingsFragment";
 
     public ListMyMeetingsFragment(Context context, ArrayList<Meeting> listMeetingsFromActivity) {
-        Log.d(TAG, "contructoraFragmentMyMeetings");
         this.context = context;
         listMeetings = listMeetingsFromActivity;
     }
@@ -37,14 +36,12 @@ public class ListMyMeetingsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.d(TAG, "he entrado al oncreate");
         view = inflater.inflate(R.layout.list_my_meetings_fragment, container, false);
         return view;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onActivityCreated");
         super.onActivityCreated(savedInstanceState);
         ListView walkList = (ListView) view.findViewById(R.id.listMyMeetings);
         ListMyMeetingsListAdapter customAdapter = new ListMyMeetingsListAdapter(context, R.layout.list_my_meetings_fragment, listMeetings);

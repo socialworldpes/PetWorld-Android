@@ -1,4 +1,4 @@
-package com.petworld_madebysocialworld;
+package Models;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.firestore.GeoPoint;
