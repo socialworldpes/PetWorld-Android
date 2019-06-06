@@ -3,6 +3,7 @@ package com.petworld_madebysocialworld;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -204,6 +205,12 @@ public class ViewMeetingActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    public void edit(View view) {
+        Intent intent = new Intent (getApplicationContext(), EditMeetingActivity.class);
+        intent.putExtra("id", id);
+        startActivityForResult(intent, 0);
     }
 
 }
