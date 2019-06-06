@@ -80,15 +80,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        openMap(currentUser);
+        //FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        //openMap(currentUser);
         Log.d(TAG, "testing: onStart");
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        finish();
     }
 
     @Override
@@ -234,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                            //openMap(user);
+                            openMap(user);
                             listenToChanges();
                         } else {
                             // If sign in fails, display a message to the user.
