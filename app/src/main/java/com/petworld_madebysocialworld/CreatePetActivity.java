@@ -161,6 +161,9 @@ public class CreatePetActivity extends AppCompatActivity {
                                 ArrayList<DocumentReference> auxPets = (ArrayList<DocumentReference>)documentSnapshot.get("pets");
                                 auxPets.add(documentReference);
                                 documentSnapshot.getReference().update("pets", auxPets);
+                                Toast.makeText(getApplicationContext(), "Mascota Añadida",
+                                        Toast.LENGTH_LONG).show();
+                                startMap();
                             }
                         });
                     }
@@ -254,8 +257,6 @@ public class CreatePetActivity extends AppCompatActivity {
                                 startMap();
                             }
                         });
-
-
                     }
 
                 });

@@ -33,6 +33,9 @@ import com.sangcomz.fishbun.adapter.image.impl.PicassoAdapter;
 import com.sangcomz.fishbun.define.Define;
 import org.w3c.dom.Document;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.*;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
@@ -215,42 +218,65 @@ public class CreateWalkActivity extends AppCompatActivity {
     }
 
     private void addWalkToFireBase(HashMap<String, Object> walk) {
-        db.collection("walks").add(walk).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-            @Override
-            public void onSuccess(final DocumentReference documentReference) {
 
-                final DocumentReference docRAux = documentReference;
-                for (int i = 0; i < uriImages.size(); i++) {
-                    final StorageReference imagesRef = storage.getReference().child("walks/" + documentReference.getId() + "_" + i);
-                    Uri file = uriImages.get(i);
-
-                    UploadTask uploadTask = imagesRef.putFile(file);
-                    Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+        if (urlImages.size() == 0) {
+            urlImages.add("https://firebasestorage.googleapis.com/v0/b/petworld-cf5a1.appspot.com/o/walks%2Fdog-people-chat-up-editable-vector-silhouettes-man-woman-their-pet-dogs-interacting-31433572.jpg?alt=media&token=8708b9ef-3b50-4dea-bcc0-c1cc2cfb00ad");
+            walk.put("images", urlImages);
+            FirebaseFirestore.getInstance().collection("walks").add(walk).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                @Override
+                public void onSuccess(final DocumentReference documentReference) {
+                    FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
-                        public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                            if (!task.isSuccessful()) { throw task.getException(); }
-                            return imagesRef.getDownloadUrl();
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            ArrayList<DocumentReference> auxWalks = (ArrayList<DocumentReference>) documentSnapshot.get("walks");
+                            auxWalks.add(documentReference);
+                            documentSnapshot.getReference().update("walks", auxWalks);
+                            startMap();
                         }
-                    }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Uri> task) {
-                            if (task.isSuccessful()) {
-                                urlImages.add(task.getResult().toString());
-                                docRAux.update("images", urlImages);
-                            } else {
-                                // Handle failures
-                                // ...
-                            }
-                        }
-
                     });
                 }
+            });
+        } else {
 
-                String userID = mAuth.getCurrentUser().getUid();
-                addWalkRefToUser(documentReference, userID);
-            }
+            db.collection("walks").add(walk).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                @Override
+                public void onSuccess(final DocumentReference documentReference) {
 
-        });
+                    final DocumentReference docRAux = documentReference;
+                    for (int i = 0; i < uriImages.size(); i++) {
+                        final StorageReference imagesRef = storage.getReference().child("walks/" + documentReference.getId() + "_" + i);
+                        Uri file = uriImages.get(i);
+
+                        UploadTask uploadTask = imagesRef.putFile(file);
+                        Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                            @Override
+                            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                                if (!task.isSuccessful()) {
+                                    throw task.getException();
+                                }
+                                return imagesRef.getDownloadUrl();
+                            }
+                        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Uri> task) {
+                                if (task.isSuccessful()) {
+                                    urlImages.add(task.getResult().toString());
+                                    docRAux.update("images", urlImages);
+                                } else {
+                                    // Handle failures
+                                    // ...
+                                }
+                            }
+
+                        });
+                    }
+
+                    String userID = mAuth.getCurrentUser().getUid();
+                    addWalkRefToUser(documentReference, userID);
+                }
+
+            });
+        }
     }
 
     private void addWalkRefToUser(final DocumentReference documentReference, String userID) {

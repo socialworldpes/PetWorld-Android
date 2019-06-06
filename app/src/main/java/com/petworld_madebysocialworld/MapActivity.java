@@ -757,10 +757,15 @@ public class MapActivity extends AppCompatActivity
                         if(filterM){
                             Log.d("Testing", "Pas 1.2.1");
                             for (QueryDocumentSnapshot document: task.getResult()) {
+                                Log.d("Testing", "Pas 1.2.2");
                                 GeoPoint point = (GeoPoint) document.get("placeLocation");
+                                Log.d("Point", point.toString());
+                                Log.d("Bounds", bounds.toString());
                                 Timestamp timestamp = (Timestamp) document.get("start");
                                 Date date = timestamp.toDate();
+                                Log.d("Date", date.toString());
                                 if (checkConditions(point, bounds, date)) {
+                                    Log.d("Testing", "Pas 1.2.3");
                                     map = document.getData();
                                     map.put("id", document.getId());
                                     meetings.add(map);
@@ -855,6 +860,7 @@ public class MapActivity extends AppCompatActivity
 //        Log.d(TAG, "searchNearPlaces checkConditions: " + temp);
 //        temp = date.compareTo(weekFromToday1) <= 0;
 //        Log.d(TAG, "searchNearPlaces checkConditions: " + temp);
+
 
         if (point.getLongitude() <= bounds.northeast.longitude &&
                 point.getLongitude() >= bounds.southwest.longitude &&
