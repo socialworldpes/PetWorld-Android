@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         openMap(currentUser);
+        Log.d(TAG, "testing: onStart");
     }
 
     @Override
@@ -227,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                            openMap(user);
+                            //openMap(user);
                             listenToChanges();
                         } else {
                             // If sign in fails, display a message to the user.
@@ -281,12 +282,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             fu = FirebaseAuth.getInstance().getCurrentUser();
             if (fu != null) {
                 // User is signed in
+                Log.d(TAG, "testing: 1");
                 initializeFirebaseUser(fu);
             } else {
                 // No user is signed in
             }
 
             goToMap();
+            Log.d(TAG, "testing: 2");
         }
     }
 
