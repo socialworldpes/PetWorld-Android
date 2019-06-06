@@ -80,7 +80,7 @@ public class ListMyWalksListAdapter extends ArrayAdapter<Walk> implements ListAd
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(auxView.getContext(), ViewMeetingActivity.class);
-                    intent.putExtra("id", walkData.getId());
+                    intent.putExtra("idWalk", walkData.getId());
                     auxView.getContext().startActivity(intent);
                 }
             });
