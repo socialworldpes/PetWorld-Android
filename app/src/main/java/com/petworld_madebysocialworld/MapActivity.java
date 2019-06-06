@@ -819,7 +819,7 @@ public class MapActivity extends AppCompatActivity
                                                         GeoPoint point = (GeoPoint) document.get("placeLocation");
                                                         String name = (String) document.get("name");
 
-                                                        if (checkConditions(point, bounds, null) && !hasWalk(document.getId())) {
+                                                        if (checkConditions(point, bounds, null) && !hasWalk(document.getReference().toString())) {
                                                             map = document.getData();
                                                             map.put("id", document.getId());
                                                             routes.add(map);
