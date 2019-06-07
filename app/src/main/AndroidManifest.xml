@@ -56,7 +56,6 @@
                 android:name=".EditRouteActivity"
                 android:screenOrientation="portrait">
         </activity>
-
         <activity
                 android:name=".RoutesActivity"
                 android:screenOrientation="portrait">
@@ -64,7 +63,7 @@
         <activity android:name=".EditPetActivity"
                   android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".EditRouteActivity"
+        <activity android:name=".EditWalkActivity"
                   android:screenOrientation="portrait">
         </activity>
         <activity android:name=".CreatePetActivity"

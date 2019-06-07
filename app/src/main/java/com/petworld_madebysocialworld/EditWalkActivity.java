@@ -121,7 +121,7 @@ public class EditWalkActivity extends AppCompatActivity {
     }
 
     private void initVariables() {
-        idWalk =  getIntent().getExtras().getString("id");
+        idWalk =  getIntent().getExtras().getString("idWalk");
         images = new ArrayList<>();
         uriImages = new ArrayList<>();
         urlImages = new ArrayList<>();
