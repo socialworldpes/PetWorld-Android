@@ -122,7 +122,6 @@ public class MapActivity extends AppCompatActivity
     private Button filters;
     private int filterSpeciePos;
     private Button buttonNearPlaces;
-    private boolean firstTimeMap;
 
     // Data beeing used
     Query locations;
@@ -210,7 +209,6 @@ public class MapActivity extends AppCompatActivity
             }
         });
 
-        firstTimeMap = true;
         buttonNearPlaces = findViewById(R.id.nearPlaces);
     }
 
@@ -887,13 +885,7 @@ public class MapActivity extends AppCompatActivity
 
     @Override
     public void onCameraMoveStarted(int reason) {
-        if(firstTimeMap){
-            firstTimeMap = false;
-            buttonNearPlaces.setVisibility(View.INVISIBLE);
-        }
-        else {
-            buttonNearPlaces.setVisibility(View.VISIBLE);
-        }
+        buttonNearPlaces.setVisibility(View.VISIBLE);
     }
 
     public void addMarker(GeoPoint point, Bitmap bmp, String markerType) {
