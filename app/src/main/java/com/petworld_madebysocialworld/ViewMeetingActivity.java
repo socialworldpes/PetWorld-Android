@@ -57,7 +57,7 @@ public class ViewMeetingActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) { onBackPressed(); }
         });
-        toolbar.bringToFront();
+        //toolbar.bringToFront();
     }
 
     private void initializeAndListenPageChanged() {
