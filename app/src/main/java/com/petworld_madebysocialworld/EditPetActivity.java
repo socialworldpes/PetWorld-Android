@@ -2,17 +2,16 @@ package com.petworld_madebysocialworld;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -31,12 +30,15 @@ import java.util.HashMap;
 
 public class EditPetActivity extends AppCompatActivity {
 
+    //Firebase
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
+
+    //Layout
     private EditText name;
-    private EditText gender;
+    private Spinner gender;
+    private Spinner specie;
     private EditText race;
-    private EditText specie;
     private EditText comment;
     private TextView nameUpdate;
     private TextView genderUpdate;
@@ -60,14 +62,14 @@ public class EditPetActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_pet);
+
+        setupToolbar();
         initFireBase();
         initItems();
         initListeners();
         initIntent();
         initVariables();
-        if (mAuth.getCurrentUser() != null)
-            initLayout();
-        initNavigationDrawer();
+        initLayout();
     }
 
     private void initVariables() {
@@ -103,43 +105,77 @@ public class EditPetActivity extends AppCompatActivity {
     }
 
     private void initItems() {
-        name = findViewById(R.id.editTextName);
-        gender = findViewById(R.id.editTextGender);
-        race = findViewById(R.id.editTextRace);
-        specie = findViewById(R.id.editTextSpecie);
-        comment = findViewById(R.id.editTextComment);
-        nameUpdate = findViewById(R.id.headingNameUpdate);
-        genderUpdate = findViewById(R.id.headingGenderUpdate);
-        raceUpdate = findViewById(R.id.headingRaceUpdate);
-        specieUpdate = findViewById(R.id.headingSpecieUpdate);
-        commentUpdate = findViewById(R.id.headingCommentUpdate);
-        btnUploadImage = findViewById(R.id.buttonLoadImageUpdate);
-        btnUpdatePet = findViewById(R.id.buttonUpdatePet);
+        name = findViewById(R.id.namePetInput);
+        race = findViewById(R.id.racePetInput);
+        comment = findViewById(R.id.commentPetInput);
+        btnUploadImage = findViewById(R.id.buttonLoadImage);
+        btnUpdatePet = findViewById(R.id.editButton);
+
+        //init specie dropdown
+        String[] arraySpecie = new String[] {
+                "Perro", "Gato", "Hamster", "Conejo", "Ave", "Pez", "Reptil", "Invertebrado", "Otros"
+        };
+        specie = findViewById(R.id.selectSpecie);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, arraySpecie);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        specie.setAdapter(adapter);
+
+        //init gender dropdown
+        String[] arrayGender =  new String[] {
+                "Macho", "Hembra"
+        };
+        gender = findViewById(R.id.selectGender);
+        adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, arrayGender);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        gender.setAdapter(adapter);
     }
+
+    private void setupToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Editar Mascota");
+        toolbar.setTitleTextColor(Color.WHITE);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { onBackPressed(); }
+        });
+    }
+
 
     private void initLayout() {
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DocumentReference docRef = db.document(petPath);
-        Log.d("userID", userID);
-
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
 
                     name.setText("" + task.getResult().get("name"));
-                    gender.setText("" + task.getResult().get("gender"));
-                    specie.setText("" + task.getResult().get("specie"));
+                    gender.setSelection(((ArrayAdapter)gender.getAdapter()).getPosition("" + task.getResult().get("gender")));
+                    specie.setSelection(((ArrayAdapter)specie.getAdapter()).getPosition("" + task.getResult().get("specie")));
                     race.setText("" + task.getResult().get("race"));
                     comment.setText("" + task.getResult().get("comment"));
+                    urlImages = (ArrayList<String>) task.getResult().get("photo");
+                    refreshImageView();
+                    uriImages = uriParse(urlImages);
 
 
-                } else {
-                    Log.w("task ko", "Error getting documents.", task.getException());
+
                 }
             }
         });
 
+    }
+
+    private ArrayList<Uri> uriParse(ArrayList<String> urlImages) {
+
+        ArrayList<Uri> result =  new ArrayList<>();
+        for (String s: urlImages)
+            result.add(Uri.parse(s));
+        return result;
     }
 
     private void initIntent() {
@@ -148,63 +184,56 @@ public class EditPetActivity extends AppCompatActivity {
     private void updatePet() {
 
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        Log.d("userID", userID);
         HashMap<String, Object> mascota =  new HashMap<String, Object>();
-        if (checkNulls()) {
 
 
-            mascota.put("name", name.getText().toString());
-            mascota.put("gender", gender.getText().toString());
-            mascota.put("specie", specie.getText().toString());
-            mascota.put("race", race.getText().toString());
-            mascota.put("comment",comment.getText().toString());
-            mascota.put("photo", Arrays.asList());
-            mascota.put("owner", userID);
-            final DocumentReference petRef = db.document(petPath);
-            //ojo, ahora hay que guardar las fotos en su sitio y ponerlas en firebase RECOGER LINK y añadir a lugar correspondiente
-            final DocumentReference docRAux = petRef;
-            // do something with result.
-            Log.d("PRUEBA004", "Antes de entrar en el for");
-            for (int i = 0; i < uriImages.size(); i++) {
-                Log.d("PRUEBA005", "Después de entrar en el for");
-                final int j = i;
-                final StorageReference imagesRef = FirebaseStorage.getInstance().getReference().child("pets/" + petRef.getId() + "_" + i);
-                Uri file = uriImages.get(i);
-                Log.d("PRUEBA006", "Cojo la urii");
+        //fill pet info
+        mascota.put("name", name.getText().toString());
+        mascota.put("specie", specie.getSelectedItem().toString());
+        mascota.put("gender", gender.getSelectedItem().toString());
+        mascota.put("race", race.getText().toString());
+        mascota.put("comment",comment.getText().toString());
+        mascota.put("photo", Arrays.asList());
+        mascota.put("owner", userID);
 
-                UploadTask uploadTask = imagesRef.putFile(file);
-                Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                    @Override
-                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                        if (!task.isSuccessful()) {
-                            throw task.getException();
-                        }
+        final DocumentReference petRef = db.document(petPath);
+        final DocumentReference docRAux = petRef;
+        // do something with result.
+        for (int i = 0; i < uriImages.size(); i++) {
+            final int j = i;
+            final StorageReference imagesRef = FirebaseStorage.getInstance().getReference().child("pets/" + petRef.getId() + "_" + i);
+            Uri file = uriImages.get(i);
 
-                        // Continue with the task to get the download URL
-                        return imagesRef.getDownloadUrl();
-                    }
-                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Uri> task) {
-                        if (task.isSuccessful()) {
-                            Log.d("PRUEBA002", "He entrado");
-                            Log.d("PRUEBA007", "pets/" + petRef.getId() + "_" + j);
-                            urlImages.add(task.getResult().toString());
-                            Log.d("Tamaño url", String.valueOf(urlImages.size()));
-                            docRAux.update("photo", urlImages);
-                        } else {
-                            // Handle failures
-                            // ...
-                        }
+            UploadTask uploadTask = imagesRef.putFile(file);
+            Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
                     }
 
-                });
-            }
-            petRef.update(mascota);
-            Toast.makeText(getApplicationContext(), "Mascota Editada",
-                    Toast.LENGTH_LONG).show();
-            startMap();
+                    // Continue with the task to get the download URL
+                    return imagesRef.getDownloadUrl();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()) {
+                        urlImages.add(task.getResult().toString());
+                        docRAux.update("photo", urlImages);
+                    } else {
+                        // Handle failures
+                        // ...
+                    }
+                }
+
+            });
         }
+        petRef.update(mascota);
+        Toast.makeText(getApplicationContext(), "Mascota Editada",
+                Toast.LENGTH_LONG).show();
+        startMap();
+
     }
 
     @Override
@@ -216,10 +245,22 @@ public class EditPetActivity extends AppCompatActivity {
                     uriImages = imageData.getParcelableArrayListExtra(Define.INTENT_PATH);
                     if (uriImages.size() > 0){
                         imagesCanContinue = true;
+                        refreshImageView();
                     }
                     break;
                 }
         }
+    }
+    private void refreshImageView() {
+
+        for (Uri uri: uriImages)
+            urlImages.add(uri.toString());
+
+        ViewPager viewPager= findViewById(R.id.viewPager);
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getApplicationContext(), urlImages);
+        viewPager.setAdapter(adapter);
+
+
     }
 
     private void startMap() {
@@ -231,43 +272,8 @@ public class EditPetActivity extends AppCompatActivity {
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
         toolBar.setTitle("Editar Mascota");
         setSupportActionBar(toolBar);
-        //DrawerUtil.getDrawer(this,toolBar);
     }
-    private boolean checkNulls() {
-        String check;
-        boolean result = true;
-        check = name.getText().toString();
-        if (check == null || check.equals("")) {
-            printErrorNull(findViewById(R.id.headingNameUpdate));
-            result = false;
-        }
-        else resetHeading(R.id.headingNameUpdate);
-        check = gender.getText().toString();
-        if (check == null || check.equals("")) {
-            printErrorNull(findViewById(R.id.headingGenderUpdate));
-            result = false;
-        }
-        else resetHeading(R.id.headingGenderUpdate);
-        check = specie.getText().toString();
-        if (check == null || check.equals("")) {
-            printErrorNull(findViewById(R.id.headingSpecieUpdate));
-            result = false;
-        }
-        else resetHeading(R.id.headingSpecieUpdate);
-        check = race.getText().toString();
-        if (check == null || check.equals("")) {
-            printErrorNull(findViewById(R.id.headingRaceUpdate));
-            result = false;
-        }
-        else resetHeading(R.id.headingRaceUpdate);
-        check = comment.getText().toString();
-        if (check == null || check.equals("")) {
-            printErrorNull(findViewById(R.id.headingCommentUpdate));
-            result = false;
-        }
-        else resetHeading(R.id.headingCommentUpdate);
-        return result;
-    }
+
 
     private void resetHeading(int headingName) {
         TextView textView = (TextView)findViewById(headingName);

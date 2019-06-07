@@ -48,7 +48,7 @@ public class DrawerUtil {
         String personName = user.getDisplayName();
         String personEmail = user.getEmail();
         Uri personPhoto = user.getPhotoUrl();
-        String userID = user.getUid();
+        final String userID = user.getUid();
 
 
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
@@ -85,40 +85,52 @@ public class DrawerUtil {
                 .withName("Usuario").withIcon(R.drawable.ic_profile);
         final ExpandableDrawerItem drawerItemManagePets = new ExpandableDrawerItem()
                 .withIdentifier(2).withName("Mascotas").withIcon(R.drawable.ic_pets).withSelectable(false);
+
         //pets menu lateral
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference docRef = db.collection("users").document(userID);
-        Log.d("test", docRef.toString());
-        Log.d("userID", userID);
+        Log.d("petMenu: ", "id doc user: " + docRef.toString());
+        Log.d("petMenu: ", "id user: " + userID);
+
+        //get current user document
         db.collection("users").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     Log.d("task string", task.toString());
-                    Log.d("task size: ", "" + task.getResult().get("pets"));
+                    Log.d("petMenu pet document: ", "" + task.getResult().get("pets"));
                     DocumentSnapshot result = task.getResult();
                     ArrayList<DocumentReference> arrayPets = (ArrayList<DocumentReference>) result.get("pets");
 
-
+                    //if user have pets
                     if (arrayPets != null) {
                         for (final DocumentReference dr : arrayPets) {
+                            Log.d("petMenu: ", "interacion: " + i);
                             if (dr.getPath() !=  null) {
                                 dr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                         DocumentSnapshot result = task.getResult();
                                         String namePet = (String) result.get("name");
+                                        Long identifier = new Long(2001 + i);
                                         drawerItemManagePets.withSubItems(
-                                                new SecondaryDrawerItem().withName(namePet).withLevel(2).withIdentifier(2001 + i)
+                                                new SecondaryDrawerItem().withName(namePet).withLevel(2).withIdentifier(identifier)
                                         );
-                                        mapPetRef.put(2001 + i, dr);
+                                        Log.d("petMenu identifier: ", "" + identifier );
+                                        mapPetRef.put(identifier.intValue(), dr);
+                                        i++;
                                     }
                                 });
-                                i++;
+
                             }
 
                         }
-                        ;
+                        //log mapPetRf
+                        Log.d("mapPetRef : ", "antes del for: " + mapPetRef.size());
+                        for (Map.Entry<Integer, DocumentReference> entry : mapPetRef.entrySet()) {
+                            Log.d("mapPetRef : ", "id pet menu lateral: " + entry.getKey() + "path: " + entry.getValue());
+                        }
+
                     }
                     i = 0;
                   /*  for (QueryDocumentSnapshot document : task.getResult()) {
@@ -127,9 +139,7 @@ public class DrawerUtil {
                         drawerItemManagePets.withSubItems(
                                 new SecondaryDrawerItem().withName("" + aux.get("name")).withLevel(2).withIdentifier(2001 + i)
                         );
-
                         i++;
-
                     }
                     */
                 }
@@ -142,11 +152,12 @@ public class DrawerUtil {
         SecondaryDrawerItem drawerItemAddPet = new SecondaryDrawerItem().withIdentifier(3)
                 .withName("Añadir mascota").withIcon(R.drawable.ic_add);
         SecondaryDrawerItem drawerItemGroups = new SecondaryDrawerItem().withIdentifier(4)
-                .withName("Grupos").withIcon(R.drawable.ic_group);
-        SecondaryDrawerItem drawerItemRoutes = new SecondaryDrawerItem().withIdentifier(5)
-                .withName("Tus rutas").withIcon(R.drawable.ic_rutas);
-        SecondaryDrawerItem drawerItemSettings = new SecondaryDrawerItem().withIdentifier(6)
-                .withName("Ajustes").withIcon(R.drawable.ic_settings);
+                .withName("Amigos").withIcon(R.drawable.ic_group);
+        final ExpandableDrawerItem drawerItemManageThings = new ExpandableDrawerItem()
+                .withIdentifier(6).withName("Tus colaboraciones").withIcon(R.drawable.ic_idea).withSelectable(false);
+        drawerItemManageThings
+                .withSubItems(new SecondaryDrawerItem().withName("Tus quedadas").withLevel(2).withIdentifier(8).withIcon(R.drawable.ic_nature_people_black_24dp))
+                .withSubItems(new SecondaryDrawerItem().withName("Tus paseos").withLevel(2).withIdentifier(9).withIcon(R.drawable.ic_directions_walk_black_24dp));
         SecondaryDrawerItem drawerItemLogOut = new SecondaryDrawerItem().withIdentifier(7)
                 .withName("Cerrar sesión").withIcon(R.drawable.ic_logout);
 
@@ -165,9 +176,8 @@ public class DrawerUtil {
                         drawerItemManagePets,
                         new DividerDrawerItem(),
                         drawerItemAddPet,
+                        drawerItemManageThings,
                         drawerItemGroups,
-                        drawerItemRoutes,
-                        drawerItemSettings,
                         drawerItemLogOut
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
@@ -175,6 +185,7 @@ public class DrawerUtil {
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         if (drawerItem.getIdentifier() == 1 && !(activity instanceof UserActivity)) {
                             Intent intent = new Intent(activity, UserActivity.class);
+                            intent.putExtra("id", userID);
                             view.getContext().startActivity(intent);
                         }
                         if (drawerItem.getIdentifier() == 5 && !(activity instanceof MapActivity)) {
@@ -186,7 +197,7 @@ public class DrawerUtil {
                         for (Map.Entry<Integer, DocumentReference> entry : mapPetRef.entrySet()) {
                             if (drawerItem.getIdentifier() == entry.getKey() && !(activity instanceof ViewPetActivity)) {
 
-                                if (!dentroIf) {
+                                if (true) {
                                     Intent  intent = new Intent(activity, ViewPetActivity.class);
                                     String petPath = entry.getValue().getPath();
                                     Log.d("drawerPetRef", petPath);
@@ -204,9 +215,20 @@ public class DrawerUtil {
                             Intent intent = new Intent(activity, MainActivity.class);
                             view.getContext().startActivity(intent);
                         }
-
                         if (drawerItem.getIdentifier() == 3 && !(activity instanceof CreatePetActivity)){
                             Intent intent = new Intent(activity, CreatePetActivity.class);
+                            view.getContext().startActivity(intent);
+                        }
+                        if (drawerItem.getIdentifier() == 4 && !(activity instanceof FriendsActivity)){
+                            Intent intent = new Intent(activity, FriendsActivity.class);
+                            view.getContext().startActivity(intent);
+                        }
+                        if (drawerItem.getIdentifier() == 8 && !(activity instanceof  listMyMeetingsActivity)){
+                            Intent intent = new Intent(activity, listMyMeetingsActivity.class);
+                            view.getContext().startActivity(intent);
+                        }
+                        if (drawerItem.getIdentifier() == 9 && !(activity instanceof  listMyWalksActivity)){
+                            Intent intent = new Intent(activity, listMyWalksActivity.class);
                             view.getContext().startActivity(intent);
                         }
                         return true;
@@ -217,4 +239,3 @@ public class DrawerUtil {
 
 
 }
-

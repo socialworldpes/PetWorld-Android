@@ -1,5 +1,6 @@
 package com.petworld_madebysocialworld;
 
+import Models.Route;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,10 +13,10 @@ import com.bumptech.glide.Glide;
 import java.util.List;
 
 /**
- * Adaptador de leads
+ * Adaptador de routes
  */
-public class LeadsAdapter extends ArrayAdapter<Lead> {
-    public LeadsAdapter(Context context, List<Lead> objects) {
+public class RoutesAdapter extends ArrayAdapter<Route> {
+    public RoutesAdapter(Context context, List<Route> objects) {
         super(context, 0, objects);
     }
 
@@ -28,7 +29,7 @@ public class LeadsAdapter extends ArrayAdapter<Lead> {
         // ¿Existe el view actual?
         if (null == convertView) {
             convertView = inflater.inflate(
-                    R.layout.list_item_lead,
+                    R.layout.list_item_route,
                     parent,
                     false);
         }
@@ -40,15 +41,15 @@ public class LeadsAdapter extends ArrayAdapter<Lead> {
         TextView description = (TextView) convertView.findViewById(R.id.route_description);
         TextView id = (TextView) convertView.findViewById(R.id.route_id);
 
-        // Lead actual.
-        Lead lead = getItem(position);
+        // Route actual.
+        Route route = getItem(position);
 
         // Setup.
-        Glide.with(getContext()).load(lead.getImage()).into(image);
-        name.setText(lead.getName());
-        place.setText(lead.getPlace());
-        description.setText(lead.getDescription());
-        id.setText(lead.getId());
+        Glide.with(getContext()).load(route.getImage()).into(image);
+        name.setText(route.getName());
+        place.setText(route.getPlace());
+        description.setText(route.getDescription());
+        id.setText(route.getId());
 
         return convertView;
     }

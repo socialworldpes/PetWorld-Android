@@ -2,6 +2,7 @@ package com.petworld_madebysocialworld;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
@@ -35,34 +36,49 @@ public class ViewPetActivity extends AppCompatActivity {
     private Button btnEditar;
     private Button btnBorrar;
     private String userID;
+    private String owner;
     private ArrayList<String> imageUrls;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_pet);
+
+        setupToolbar();
         initFireBase();
         initTextView();
         initIntent();
         initButtons();
+        identification();
         if (mAuth.getCurrentUser() != null)
             initLayout();
-        initNavigationDrawer();
+
     }
 
 
 
 
+    private void setupToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("View Mascota");
+        toolbar.setTitleTextColor(Color.WHITE);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { onBackPressed(); }
+        });
+    }
 
-    private void initButtons() {
-        btnEditar  = findViewById(R.id.buttonEdit);
+    private void identification() {
+        btnEditar  = findViewById(R.id.editButton);
         btnEditar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 editActivity();
             }
         });
-        btnBorrar = findViewById(R.id.buttonBorrar);
+        btnBorrar = findViewById(R.id.deleteButton);
         btnBorrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -77,23 +93,36 @@ public class ViewPetActivity extends AppCompatActivity {
 
     }
 
+    private void initButtons() {
+        btnEditar  = findViewById(R.id.editButton);
+        btnEditar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editActivity();
+            }
+        });
+        btnEditar.setVisibility(View.INVISIBLE);;
+        btnBorrar = findViewById(R.id.deleteButton);
+        btnBorrar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                borrarMascota();
+            }
+        });
+        btnBorrar.setVisibility(View.INVISIBLE);
+    }
+
+
     private void borrarReferenciaUsuario() {
-        Log.d("alPetRef: ", "in");
-        Log.d("alPetRef", "" + userID);
         db.collection("users").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    Log.d("alPetRef: ", "task is successful");
                     DocumentSnapshot document = task.getResult();
-                    Log.d("alPetRef: ", "" + document.toString());
                     if (document.exists()) {
-                        Log.d("alPetRef: ", "document exists");
                         ArrayList<DocumentReference> alPetRef = (ArrayList<DocumentReference>) document.get("pets");
                         for (DocumentReference dr: alPetRef) {
-                            Log.d("alPetRef: ", petPath + " ---- " + dr.getPath());
                             if (dr.getPath().equals(petPath)) {
-                                Log.d("alPetRef:","sn iguales dentro IF");
                                 dr.delete(); //borra en pets/
                                 document.getReference().update("pets", FieldValue.arrayRemove(dr)); //borra en users/pets
                                 break;
@@ -107,9 +136,6 @@ public class ViewPetActivity extends AppCompatActivity {
             }
 
         });
-
-        Log.d("alPetRef: ", "out");
-
     }
 
     private void editActivity() {
@@ -134,26 +160,22 @@ public class ViewPetActivity extends AppCompatActivity {
     }
 
     private void initTextView() {
-        name = findViewById(R.id.textViewName2);
-        gender = findViewById(R.id.textViewGender2);
-        race = findViewById(R.id.textViewRace2);
-        specie = findViewById(R.id.textViewSpecie2);
-        comment = findViewById(R.id.textViewComment2);
+        name = findViewById(R.id.namePetInput);
+        gender = findViewById(R.id.genderPetInput);
+        race = findViewById(R.id.speciePetInput);
+        specie = findViewById(R.id.racePetInput);
+        comment = findViewById(R.id.commentPetInput);
     }
 
     private void initLayout() {
-        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        Log.d("petProfilePetRef", "" + petPath);
-        DocumentReference docRef = db.document(petPath);
-        Log.d("userID", userID);
-        Log.d("petRefIntent", petPath);
+        userID = mAuth.getCurrentUser().getUid();
 
+        DocumentReference docRef = db.document(petPath);
 
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    Log.d("task size: ", "" + task.getResult());
                     DocumentSnapshot result = task.getResult();
                     imageUrls = (ArrayList<String>)result.get("photo");
 
@@ -162,6 +184,15 @@ public class ViewPetActivity extends AppCompatActivity {
                     specie.setText("" + task.getResult().get("specie"));
                     race.setText("" + task.getResult().get("race"));
                     comment.setText("" + task.getResult().get("comment"));
+                    owner =(String) task.getResult().get("owner");
+
+                    if (!owner.equals(userID)){
+                        btnEditar.setVisibility(View.GONE);;
+                        btnBorrar.setVisibility(View.GONE);;
+                    } else {
+                        btnEditar.setVisibility(View.VISIBLE);;
+                        btnBorrar.setVisibility(View.VISIBLE);;
+                    }
 
                     //images
                     ViewPager viewPager = findViewById(R.id.viewPager);

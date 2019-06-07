@@ -15,4 +15,5 @@
     <color name="headings">#2FB903</color>
     <color name="grey">#BBBCBA</color>
     <color name="path">#2D9CDB</color>
+    <color name="DrawerUtilGrey">#EBEBEB</color>
 </resources>

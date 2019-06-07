@@ -1,12 +1,17 @@
 package com.petworld_madebysocialworld;
 
+import Models.Friend;
 import Models.User;
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +21,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.*;
@@ -33,6 +39,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.*;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 import java.util.*;
 
@@ -44,11 +53,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FirebaseUser fu = FirebaseAuth.getInstance().getCurrentUser() ;
     private FirebaseFirestore db;
     private final static int REQUEST_ID_MULTIPLE_PERMISSIONS = 2;
-
+    private Activity act;
+    private Context cont;
+    private int friendsChangesCount, pendingRequestsCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         checkAndRequestPermissions();
+        act = this;
+        cont = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         findViewById(R.id.sign_in_button).setOnClickListener(this);
@@ -56,7 +69,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         u.setmAuth(FirebaseAuth.getInstance());
         db = FirebaseFirestore.getInstance();
 
-        if (u.getLogout()) signOut();
+        if (u.getLogout()) {
+            signOut();
+        }
 
         connect();
     }
@@ -65,8 +80,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        openMap(currentUser);
+        //FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        //openMap(currentUser);
+        Log.d(TAG, "testing: onStart");
     }
 
     @Override
@@ -82,9 +98,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void connect(){
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build();
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
 
         u.setmGoogleSignInClient(GoogleSignIn.getClient(this, gso));
         if (u.getGoogleSignInClient() != null) {
@@ -100,6 +116,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //openMap(null);
             }
         }
+    }
+
+    private void tokenRetrieve() {
+
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+                        FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).update("token", token);
+                        // Log and toast
+
+                    }
+                });
+
     }
 
     private void loggedInFromIndent(Intent data) {
@@ -138,6 +175,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                        tokenRetrieve();
                     } else {
                         Map<String, Object> user = new HashMap<>();
                         user.put("favoriteRoutes", Arrays.asList());
@@ -148,9 +186,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         user.put("routes", Arrays.asList());
                         user.put("visibility", "public");
                         user.put("name", fu.getDisplayName());
+                        Toast.makeText(MainActivity.this, "GetMail: " + fu.getEmail(), Toast.LENGTH_SHORT).show();
                         user.put("email", fu.getEmail());
-                        //Infinite Lup
-                        //user.put("photo", fu.getPhotoUrl());
+                        user.put("imageURL", fu.getPhotoUrl().toString());
                         user.put("walks", Arrays.asList());
 
                         db.collection("users").document(fu.getUid())
@@ -159,6 +197,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         Log.d(TAG, "DocumentSnapshot successfully written!");
+                                        tokenRetrieve();
                                     }
                                 })
                                 .addOnFailureListener(new OnFailureListener() {
@@ -190,6 +229,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                             openMap(user);
+                            listenToChanges();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -217,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        //openMap(null);
+                        u.setLogOut(false);
                     }
                 });
     }
@@ -242,12 +282,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             fu = FirebaseAuth.getInstance().getCurrentUser();
             if (fu != null) {
                 // User is signed in
+                Log.d(TAG, "testing: 1");
                 initializeFirebaseUser(fu);
             } else {
                 // No user is signed in
             }
-            
+
             goToMap();
+            Log.d(TAG, "testing: 2");
         }
     }
 
@@ -263,6 +305,143 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void goToMap () {
         Intent nextActivity = new Intent(this, MapActivity.class);
         startActivity(nextActivity);
+    }
+
+    private void listenToChanges() {
+
+        final FriendsSingleton friendsSingleton = FriendsSingleton.getInstance();
+        final Context context = cont;
+        final Activity activity = act;
+        String myUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        //pending walks
+        db.collection("users").document(myUser).collection("pendingWalks").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "listen:error", e);
+                    return;
+                }
+                final List<DocumentChange> documentChanges = queryDocumentSnapshots.getDocumentChanges();
+                for (DocumentChange dC : documentChanges){
+                    Map<String, Object> aux = dC.getDocument().getData();
+                    PushNotification pushAux = new PushNotification();
+                    pushAux.addNotification(act, "Tienes paseos pendientes", "Tienes un paseo pendiente de tu amigo " + aux.get("nameUser"), R.drawable.ic_add, cont, "pendingWalk", ((DocumentReference)aux.get("reference")).getId());
+                    dC.getDocument().getReference().delete();
+                }
+            }
+        });
+
+        //pending meetings
+        db.collection("users").document(myUser).collection("pendingMeetings").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "listen:error", e);
+                    return;
+                }
+                final List<DocumentChange> documentChanges = queryDocumentSnapshots.getDocumentChanges();
+                for (DocumentChange dC : documentChanges){
+                    Map<String, Object> aux = dC.getDocument().getData();
+                    PushNotification pushAux = new PushNotification();
+                    pushAux.addNotification(act, "Tienes meetings pendientes", "Tienes un meeting pendiente de tu amigo " + aux.get("nameUser"), R.drawable.ic_add, cont, "pendingMeeting", ((DocumentReference)aux.get("reference")).getId());
+                    dC.getDocument().getReference().delete();
+                }
+            }
+        });
+
+        //pending friends
+        db.collection("users").document(myUser).collection("pendingFriends").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot snapshots,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "listen:error", e);
+                    return;
+                }
+
+                final List<DocumentChange> documentChanges = snapshots.getDocumentChanges();
+                pendingRequestsCount = 0;
+
+                if (documentChanges.size() == 0 && friendsSingleton.getRequestsListInfo().size() == 0) {
+                    friendsSingleton.setNoRequests(true);
+                }
+
+                for (final DocumentChange dc : snapshots.getDocumentChanges()) {
+                    db.document(dc.getDocument().getDocumentReference("reference").getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                if (document.exists()) {
+                                    if (dc.getType() == DocumentChange.Type.ADDED) {
+                                        PushNotification pushAux = new PushNotification();
+                                        pushAux.addNotification(activity, "PetWorld", "Tienes una nueva solicitud de amistad de " + document.get("name"), R.drawable.ic_group, context, "pendingFriend", null);
+                                        friendsSingleton.addRequestSnapshot(document.getId(), document.getData());
+                                        Log.d("FriendsListener", "new request from " + document.get("name"));
+                                    }
+
+                                    ++pendingRequestsCount;
+                                    if (friendsSingleton.friendsFragmentIni() && pendingRequestsCount == documentChanges.size()) friendsSingleton.updateRequestsSnapshots();
+                                } else {
+                                    Log.d(TAG, "No such document");
+                                }
+                            } else {
+                                Log.d(TAG, "get failed with ", task.getException());
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+        db.collection("users").document(myUser).collection("friends").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot snapshots,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "listen:error", e);
+                    return;
+                }
+
+                final List<DocumentChange> documentChanges = snapshots.getDocumentChanges();
+                friendsChangesCount = 0;
+
+                if (documentChanges.size() == 0 && friendsSingleton.getFriendsListInfo().size() == 0) {
+                    friendsSingleton.setNoFriends(true);
+                }
+
+                for (final DocumentChange dc : documentChanges) {
+                    db.document(dc.getDocument().getDocumentReference("reference").getPath()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                if (document.exists()) {
+                                    if (dc.getType() == DocumentChange.Type.ADDED) {
+                                        friendsSingleton.addFriendSnapshot(document.getId(), document.getData());
+                                        Log.d("FriendsListener", "new friend added: " + document.get("name"));
+                                    } else if (dc.getType() == DocumentChange.Type.REMOVED) {
+                                        friendsSingleton.deleteFriendSnapshot(document.getId(), document.getData());
+                                        Log.d("FriendsListener", "new friend removed: " + document.get("name"));
+                                    }
+
+                                    ++friendsChangesCount;
+                                    if (friendsChangesCount == documentChanges.size()) friendsSingleton.updateFriendsSnapshots();
+                                } else {
+                                    Log.d(TAG, "No such document");
+                                }
+                            } else {
+                                Log.d(TAG, "get failed with ", task.getException());
+                            }
+                        }
+                    });
+                }
+
+            }
+        });
     }
 
     private boolean checkAndRequestPermissions() {
@@ -364,5 +543,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 }
-
 

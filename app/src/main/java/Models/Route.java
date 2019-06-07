@@ -1,24 +1,29 @@
-package com.petworld_madebysocialworld;
+package Models;
+
+import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.firestore.GeoPoint;
 
 import java.util.UUID;
 
 /**
- * Entidad Lead
+ * Entidad Route
  */
-public class Lead {
+public class Route {
 
+    private GeoPoint PlaceLocation;
     private String Id;
     private String Name;
     private String Place;
     private String Description;
     private int Image;
 
-    public Lead(String name, String place, String description, int image) {
-        Id = UUID.randomUUID().toString();
+    public Route(String name, String place, String description, int image, GeoPoint placeLocation, String id) {
+        Id = id;
         Name = name;
         Place = place;
         Description = description;
         Image = image;
+        PlaceLocation = placeLocation;
     }
 
     public String getId() {
@@ -35,6 +40,14 @@ public class Lead {
 
     public void setName(String name) {
         Name = name;
+    }
+
+    public GeoPoint getPlaceLocation() {
+        return PlaceLocation;
+    }
+
+    public void setPlaceLocation(GeoPoint placeLocation) {
+        PlaceLocation = placeLocation;
     }
 
     public String getPlace() {
@@ -63,7 +76,7 @@ public class Lead {
 
     @Override
     public String toString() {
-        return "Lead{" +
+        return "Route{" +
                 "ID='" + Id + '\'' +
                 ", Name='" + Name + '\'' +
                 ", Place='" + Place + '\'' +

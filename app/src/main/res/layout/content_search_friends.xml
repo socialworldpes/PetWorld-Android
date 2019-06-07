@@ -5,9 +5,8 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".LeadsActivity">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:showIn="@layout/activity_search_friends"
+        tools:context=".SearchFriendsActivity">
 
-    <include android:layout_width="wrap_content" android:layout_height="wrap_content" layout="@layout/fragment_leads"
-             tools:layout_editor_absoluteY="0dp" tools:layout_editor_absoluteX="0dp"
-             android:id="@+id/leads_container2"/>
 </android.support.constraint.ConstraintLayout>

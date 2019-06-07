@@ -1,52 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-              android:layout_height="match_parent" android:orientation="vertical">
-        <android.support.v4.view.ViewPager
-                android:layout_height="280dp"
-                android:layout_width="match_parent"
-                android:id="@+id/viewPager"/>
-        <ScrollView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-                <android.support.constraint.ConstraintLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent" android:orientation="vertical"
+                                             android:id="@+id/layout" android:padding="16dp">
 
-                        <TextView
-                                android:text="TextView"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content" android:id="@+id/Titulo"
-                                app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
-                                android:layout_marginStart="8dp"/>
-                        <TextView
-                                android:text="TextView"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content" android:id="@+id/Descripcion"
-                                android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/Titulo"
-                                app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"/>
-                        <TextView
-                                android:text="TextView"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content" android:id="@+id/Lugar"
-                                android:layout_marginTop="8dp"
-                                app:layout_constraintTop_toBottomOf="@+id/Descripcion"
-                                app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"/>
-                        <TextView
-                                android:text="TextView"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content" android:id="@+id/Fecha"
-                                app:layout_constraintTop_toBottomOf="@+id/Lugar"
-                                android:layout_marginTop="8dp" app:layout_constraintStart_toStartOf="parent"
-                                android:layout_marginStart="8dp"/>
-                        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-                                  xmlns:tools="http://schemas.android.com/tools"
-                                  android:layout_width="match_parent"
-                                  android:layout_height="200dp"
-                                  android:id="@+id/mapViewMeeting"
-                                  tools:context=".MapsActivity"
-                                  android:name="com.google.android.gms.maps.SupportMapFragment"
-                                  android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/Fecha"/>
-                </android.support.constraint.ConstraintLayout>
-        </ScrollView>
-</LinearLayout>
+    <android.support.design.widget.TextInputLayout
+            android:id="@+id/TituloInput_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/MeetingName"
+            app:layout_constraintTop_toTopOf="parent" tools:layout_editor_absoluteX="16dp">
+        <EditText
+                android:id="@+id/Titulo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text" android:enabled="false" android:focusable="false"
+                android:textColor="#000000"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+            android:id="@+id/DescripcionInput_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/description"
+            app:layout_constraintTop_toBottomOf="@+id/TituloInput_layout" tools:layout_editor_absoluteX="16dp">
+        <EditText
+                android:id="@+id/Descripcion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine" android:enabled="false" android:focusable="false"
+                android:textColor="#000000"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+            android:id="@+id/FechaInput_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/StartDate"
+            app:layout_constraintTop_toBottomOf="@id/DescripcionInput_layout" tools:layout_editor_absoluteX="16dp">
+        <EditText
+                android:id="@+id/Fecha"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="date" android:enabled="false" android:focusable="false"
+                android:textColor="#000000"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+            android:id="@+id/SpecieInput_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/petSpecie"
+            app:layout_constraintTop_toBottomOf="@+id/FechaInput_layout" tools:layout_editor_absoluteX="16dp">
+        <EditText
+                android:id="@+id/Specie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text" android:enabled="false" android:focusable="false"
+                android:textColor="#000000"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+            android:id="@+id/LugarInput_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/LocationMeetingName"
+            app:layout_constraintTop_toBottomOf="@id/SpecieInput_layout" tools:layout_editor_absoluteX="16dp">
+        <EditText
+                android:id="@+id/Lugar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text" android:enabled="false" android:focusable="false"
+                android:textColor="#000000"/>
+    </android.support.design.widget.TextInputLayout>
+    <android.support.v4.view.ViewPager
+            android:layout_height="100dp"
+            android:id="@+id/viewPager" tools:layout_conversion_absoluteHeight="200dp"
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_conversion_absoluteWidth="411dp"
+            app:layout_constraintTop_toBottomOf="@id/LugarInput_layout" android:layout_width="match_parent"/>
+    <fragment
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:id="@+id/mapViewMeeting"
+            tools:context=".MapsActivity"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/viewPager"/>
+</android.support.constraint.ConstraintLayout>

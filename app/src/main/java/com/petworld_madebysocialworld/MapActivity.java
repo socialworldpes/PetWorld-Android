@@ -2,6 +2,7 @@ package com.petworld_madebysocialworld;
 
 import Models.User;
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
@@ -12,6 +13,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -21,15 +23,13 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 
 
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -58,7 +58,7 @@ import java.util.*;
 public class MapActivity extends AppCompatActivity
         implements OnMapReadyCallback, GoogleMap.OnCameraMoveStartedListener {
 
-    //private LeadsRepository repo = LeadsRepository.getInstance();
+    //private RoutesRepository repo = RoutesRepository.getInstance();
     private static final String TAG = MapActivity.class.getSimpleName();
     private GoogleMap mMap;
     private CameraPosition mCameraPosition; //prova
@@ -112,10 +112,16 @@ public class MapActivity extends AppCompatActivity
     private TabLayout tabLayout;
     private Context context;
     private Integer position;
+    private boolean filterM, filterR, filterW, filterE, meetingLocBool, walkLocBool, routeLocBool;
+    private String filterSpecie;
+    private Spinner selectSpecieFilter;
     private LinearLayout linearLayoutSheet;
     private Query meetingLocations, walkLocations, routeLocations;
     private LatLngBounds bounds;
-
+    private Spinner chooseSpecie;
+    private Button filters;
+    private int filterSpeciePos;
+    private Button buttonNearPlaces;
 
     // Data beeing used
     Query locations;
@@ -134,7 +140,7 @@ public class MapActivity extends AppCompatActivity
         }
 
         /*
-        if (repo.getLeads().isEmpty()) {
+        if (repo.getRoutes().isEmpty()) {
             Log.d(TAG, "onCreate: repo no creat");
         }
         else{
@@ -184,21 +190,31 @@ public class MapActivity extends AppCompatActivity
         linearLayoutSheet = (LinearLayout) findViewById(R.id.LayoutMeetings);
         loadListLayout(position);
         listenerList();
+        filterM = filterR = filterW = true;
+        filterE = false;
+
+        filters = findViewById(R.id.Filters);
+        filters.bringToFront();
+
+        filterSpeciePos = 0;
         text = (EditText)findViewById(R.id.Search);
         text.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    searchFriends();
-                    return true;
+                        searchFriends();
+                        return true;
                 }
                 return false;
             }
         });
+
+        buttonNearPlaces = findViewById(R.id.nearPlaces);
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         final Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         mMap = googleMap;
 
@@ -255,6 +271,8 @@ public class MapActivity extends AppCompatActivity
             }
         });
 
+        searchNearPlacesNoView();
+
     }
 
     /**
@@ -269,16 +287,29 @@ public class MapActivity extends AppCompatActivity
         try {
             if (mLocationPermissionGranted){
                 Task location = mFusedLocationProviderClient.getLastLocation();
-                location.addOnCompleteListener(new OnCompleteListener() {
-                    @Override
-                    public void onComplete(@NonNull Task task) {
+                        location.addOnCompleteListener(new OnCompleteListener() {
+                            @Override
+                            public void onComplete(@NonNull Task task) {
                         if (task.isSuccessful()){
                             Location currentLocation = (Location) task.getResult();
                             if (currentLocation != null){
 
                                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()), DEFAULT_ZOOM));
 
-                            } else Toast.makeText(MapActivity.this, "Tu ubicación es nula", Toast.LENGTH_SHORT).show();
+                            } else {
+                                /*
+                                AlertDialog alertDialog = new AlertDialog.Builder(MapActivity.this).create();s
+                                alertDialog.setMessage("Activa ubicación");
+                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                alertDialog.show();
+                                */
+                                Toast.makeText(MapActivity.this, "Tu ubicación es nula", Toast.LENGTH_SHORT).show();
+                            }
                         } else Toast.makeText(MapActivity.this, "Error al obtener la ubicación", Toast.LENGTH_LONG).show();
                     }
                 });
@@ -336,8 +367,7 @@ public class MapActivity extends AppCompatActivity
     }
 
     public void newWalk(View view){
-        if(selectedLocation == null) newWalk();
-        else newWalk(selectedLocation);
+        newWalk();
     }
 
     public void newMeeting(){
@@ -367,7 +397,7 @@ public class MapActivity extends AppCompatActivity
     }
 
     public void newWalk(){
-        Intent intent = new Intent(MapActivity.this, LeadsActivity.class);
+        Intent intent = new Intent(MapActivity.this, CreateWalkActivity.class);
         startActivity(intent);
     }
 
@@ -387,24 +417,24 @@ public class MapActivity extends AppCompatActivity
                                 intent.putExtra("location", new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                                 startActivity(intent);
 
-                            } else Toast.makeText(MapActivity.this, "Tu ubicación es nula", Toast.LENGTH_SHORT).show();
-                        } else Toast.makeText(MapActivity.this, "Error al obtener la ubicación", Toast.LENGTH_LONG).show();
+                            } else {
+                                //Toast.makeText(MapActivity.this, "Tu ubicación es nula", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            //Toast.makeText(MapActivity.this, "Error al obtener la ubicación", Toast.LENGTH_LONG).show();
+                        }
                     }
                 });
-            }else Toast.makeText(MapActivity.this, "Da permiso para acceder a la ubicación", Toast.LENGTH_LONG).show();
+            }else {
+                //Toast.makeText(MapActivity.this, "Da permiso para acceder a la ubicación", Toast.LENGTH_LONG).show();
+            }
         } catch (SecurityException e){
-            Toast.makeText(MapActivity.this, "Seleciona un punto en el mapa primero", Toast.LENGTH_LONG).show();
+            //Toast.makeText(MapActivity.this, "Seleciona un punto en el mapa primero", Toast.LENGTH_LONG).show();
         }
     }
 
     public void newMeeting(LatLng location){
         Intent intent = new Intent(MapActivity.this, CreateMeetingActivity.class);
-        intent.putExtra("location", location);
-        startActivity(intent);
-    }
-
-    public void newWalk(LatLng location){
-        Intent intent = new Intent(MapActivity.this, CreateWalkActivity.class);
         intent.putExtra("location", location);
         startActivity(intent);
     }
@@ -430,7 +460,7 @@ public class MapActivity extends AppCompatActivity
     public void showWalk(String id){
         Intent intent = new Intent(MapActivity.this, ViewWalkActivity.class);
         Log.d("WalkId: ", id);
-        intent.putExtra("id", id);
+        intent.putExtra("idWalk", id);
         startActivity(intent);
     }
 
@@ -438,8 +468,6 @@ public class MapActivity extends AppCompatActivity
         if (mMap == null) {
             return;
         }
-
-
 
         if (mLocationPermissionGranted) {
             // Get the likely places - that is, the businesses and other points of interest that
@@ -541,6 +569,7 @@ public class MapActivity extends AppCompatActivity
             if (mLocationPermissionGranted) {
                 mMap.setMyLocationEnabled(true);
                 mMap.getUiSettings().setMyLocationButtonEnabled(true);
+                setMyLocationButtonPosition();
             } else {
                 mMap.setMyLocationEnabled(false);
                 mMap.getUiSettings().setMyLocationButtonEnabled(false);
@@ -553,6 +582,104 @@ public class MapActivity extends AppCompatActivity
         }
     }
 
+    public void setFilters(View view) {
+        View checkBoxView = View.inflate(this, R.layout.checkbox, null);
+        CheckBox checkBoxM = (CheckBox) checkBoxView.findViewById(R.id.checkboxM);
+        checkBoxM.setChecked(filterM);
+        checkBoxM.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                filterM = !filterM;
+            }
+        });
+        checkBoxM.setText("Quedadas");
+
+        CheckBox checkBoxW = (CheckBox) checkBoxView.findViewById(R.id.checkboxR);
+        checkBoxW.setChecked(filterR);
+        checkBoxW.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                filterR = !filterR;
+            }
+        });
+        checkBoxW.setText("Rutas");
+
+        CheckBox checkBoxR = (CheckBox) checkBoxView.findViewById(R.id.checkboxW);
+        checkBoxR.setChecked(filterW);
+        checkBoxR.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                filterW = !filterW;
+            }
+        });
+        checkBoxR.setText("Paseos");
+
+        //init specie dropdown
+        String[] arraySpecie = new String[] {
+                "Perro", "Gato", "Hamster", "Conejo", "Ave", "Pez", "Reptil", "Invertebrado", "Otros"
+        };
+
+        //Filter Specie
+        selectSpecieFilter = (Spinner) checkBoxView.findViewById(R.id.dropDownSpecies);
+        Log.d(TAG, "setFilters: " + selectSpecieFilter.getId());
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, arraySpecie);
+        Log.d(TAG, "setFilters: prova1");
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        Log.d(TAG, "setFilters: prova2");
+        selectSpecieFilter.setAdapter(adapter);
+        Log.d(TAG, "setFilters: prova3");
+
+
+        selectSpecieFilter.setSelection(filterSpeciePos);
+
+        CheckBox checkBoxE = (CheckBox) checkBoxView.findViewById(R.id.checkboxE);
+        checkBoxE.setChecked(filterE);
+        checkBoxE.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                filterE = !filterE;
+            }
+        });
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Filtrar");
+        builder.setMessage("Selecciona por que parametros quieres filtrar")
+                .setView(checkBoxView)
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //Toast.makeText(context, "M: " + filterM + " R:" + filterR + " W:" + filterW, Toast.LENGTH_SHORT).show();
+                        searchNearPlacesNoView();
+                        dialog.cancel();
+                    }
+                }).show();
+        /*
+        AlertDialog alertDialog = new AlertDialog.Builder(MapActivity.this).create();
+        //alertDialog.setTitle("Alert");
+        alertDialog.setMessage("Filter");
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
+        */
+    }
+
+    public void setMyLocationButtonPosition() {
+        View locationButton = ((View) findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+        // position on right top
+        rlp.topMargin = 200;
+        rlp.setMarginEnd(16);
+    }
+
     public void goToLogIn (View view){
         // Intent nextActivity = new Intent(this, MainActivity.class);
         // startActivity(nextActivity);
@@ -563,6 +690,11 @@ public class MapActivity extends AppCompatActivity
         // startActivity(nextActivity);
     }
 
+    public void searchNearPlacesNoView(){
+        View view = findViewById(R.id.nearPlaces);
+        searchNearPlaces(view);
+    }
+
     private void initNavigationDrawer() {
         //TODO: improve
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
@@ -570,144 +702,190 @@ public class MapActivity extends AppCompatActivity
         DrawerUtil.getDrawer(this,toolBar);
     }
 
+    /*
 
+    public void searchFriends(View view) {
+        Intent intent = new Intent(MapActivity.this, SearchFriendsActivity.class);
+        startActivity(intent);
+    }
+    */
 
 
     public void searchNearPlaces(View view) {
+//        Log.d(TAG, "searchNearPlaces:" + view.getId());
+//        Log.d(TAG, "searchNearPlaces:" + view.getResources().getResourceName(view.getId()));
         view.setVisibility(View.INVISIBLE);
         bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Query Meetings
+        // Is necessary to initialize all queries even if they are not going to be used, since they WILL be called anyways
         final CollectionReference meetingsRef = db.collection("meetings");
         meetingLocations = meetingsRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
-
-        // Query Walks
         final CollectionReference walksRef = db.collection("walks");
         walkLocations = walksRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
-
-        // Query Routes
         final CollectionReference routesRef = db.collection("routes");
         routeLocations = routesRef.whereLessThanOrEqualTo("placeLocation", new GeoPoint(bounds.northeast.latitude, bounds.northeast.longitude)).whereGreaterThanOrEqualTo("placeLocation", new GeoPoint(bounds.southwest.latitude, bounds.southwest.longitude));
 
+        // Query Meetings & Specie filter
+        if (filterM) {
+            if (filterE) {
+                filterSpecie = selectSpecieFilter.getSelectedItem().toString();
+                Log.d("search", "searchNearPlaces: " + filterSpecie);
+                filterSpeciePos = selectSpecieFilter.getSelectedItemPosition();
+                Log.d("search", "searchNearPlaces: ");
+                meetingLocations = meetingLocations.whereEqualTo("specie", filterSpecie);
+            }
+            meetingLocBool = true;
+        }
+        else meetingLocBool = false;
+
+        // Query Walks
+        if (filterW) walkLocBool = true;
+        else walkLocBool = false;
+        // Query Routes
+        if (filterR) routeLocBool = true;
+        else routeLocBool = false;
         loadMaps();
     }
 
     public void loadMaps() {
         mMap.clear();
 
-        meetingLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    meetings.clear();
-                    Map<String, Object> map;
-                    for (QueryDocumentSnapshot document: task.getResult()) {
-                        GeoPoint point = (GeoPoint) document.get("placeLocation");
-                        String name = (String) document.get("name");
-                        Timestamp timestamp = (Timestamp) document.get("start");
-                        Date date = timestamp.toDate();
-                        if (checkConditions(point, bounds, date)) {
-                            map = document.getData();
-                            map.put("id", document.getId());
-                            meetings.add(map);
-                            createMarker(point, date, "Meeting-".concat(document.getId()));
-                            Log.d("Meeting", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
-                        }
-                    }
-
-                    if (task.getResult().isEmpty()) Log.d("Meeting", "NO hay quedadas cerca");
-                }
-
-                // Its important for Walks to be queried first!
-                walkLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            walks.clear();
-                            Map<String, Object> map;
-                            for (QueryDocumentSnapshot document : task.getResult()) {
+        Log.d("Testing", "Pas 1.1");
+            meetingLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        meetings.clear();
+                        Map<String, Object> map;
+                        Log.d("Testing", "Pas 1.2");
+                        if(filterM){
+                            Log.d("Testing", "Pas 1.2.1");
+                            for (QueryDocumentSnapshot document: task.getResult()) {
+                                Log.d("Testing", "Pas 1.2.2");
                                 GeoPoint point = (GeoPoint) document.get("placeLocation");
+                                Log.d("Point", point.toString());
+                                Log.d("Bounds", bounds.toString());
                                 Timestamp timestamp = (Timestamp) document.get("start");
                                 Date date = timestamp.toDate();
+                                Log.d("Date", date.toString());
                                 if (checkConditions(point, bounds, date)) {
+                                    Log.d("Testing", "Pas 1.2.3");
                                     map = document.getData();
                                     map.put("id", document.getId());
-                                    walks.add(map);
-                                    createMarker(point, date, "Walk-".concat(document.getId()));
-                                    Log.d("Walk", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                                    meetings.add(map);
+                                    createMarker(point, date, "Meeting-".concat(document.getId()));
                                 }
                             }
-
-                            if (task.getResult().isEmpty()) Log.d("Walk", "NO hay paseos cerca");
-                        }
-
-                        if (routeLocations != null) {
-
-                            routeLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        routes.clear();
-                                        Map<String, Object> map;
-                                        for (QueryDocumentSnapshot document : task.getResult()) {
-                                            GeoPoint point = (GeoPoint) document.get("placeLocation");
-
-                                            if (checkConditions(point, bounds, null) && !hasWalk(document.getId())) {
-                                                map = document.getData();
-                                                map.put("id", document.getId());
-                                            /*
-                                            if (document.getId() == null)
-                                                Toast.makeText(MapActivity.this, "El get id falla", Toast.LENGTH_SHORT).show();
-                                            else Toast.makeText(MapActivity.this, "GetID: " + document.getId(), Toast.LENGTH_SHORT).show();
-                                            */
-                                                routes.add(map);
-                                                createMarker(point, null, "Route-".concat(document.getId()));
-                                                Log.d("Route", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
-                                            }
-
-                                        }
-
-                                        if (task.getResult().isEmpty()) Log.d("Route", "NO hay rutas cerca");
-                                    }
-                                }
-                            });
+                            if (task.getResult().isEmpty()) Log.d("Meeting", "NO hay quedadas cerca");
                         }
                     }
-                });
-            }
-        });
 
-        loadListLayout(position);
+                    Log.d(TAG, "searchNearPlaces: walkLocations->" + walkLocations);
+                        // Its important for Walks to be queried first!
+                        walkLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    walks.clear();
+                                    Map<String, Object> map;
+                                    Log.d("Testing", "Pas 1.3");
+                                    if(filterW){
+                                        Log.d("Testing", "Pas 1.3.1");
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            GeoPoint point = (GeoPoint) document.get("placeLocation");
+                                            Timestamp timestamp = (Timestamp) document.get("start");
+                                            Date date = timestamp.toDate();
+                                            if (checkConditions(point, bounds, date)) {
+                                                map = document.getData();
+                                                map.put("id", document.getId());
+                                                walks.add(map);
+                                                createMarker(point, date, "Walk-".concat(document.getId()));
+                                                Log.d("Walk searchNearPlaces", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                                            }
+                                        }
 
+                                        if (task.getResult().isEmpty()) Log.d("Walk", "NO hay paseos cerca");
+                                    }
+                                }
+
+                                Log.d(TAG, "searchNearPlaces: routeLocations->" + routeLocations);
+                                    routeLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                routes.clear();
+                                                Map<String, Object> map;
+                                                Log.d("Testing", "Pas 1.4");
+                                                if(filterR){
+                                                    Log.d("Testing", "Pas 1.4.1");
+                                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                                        GeoPoint point = (GeoPoint) document.get("placeLocation");
+                                                        String name = (String) document.get("name");
+
+                                                        if (checkConditions(point, bounds, null) && !hasWalk(document.getReference().toString())) {
+                                                            map = document.getData();
+                                                            map.put("id", document.getId());
+                                                            routes.add(map);
+                                                            createMarker(point, null, "Route-".concat(document.getId()));
+                                                            Log.d("Route searchNearPlaces", "Lat: " + point.getLatitude() + " Long:" + point.getLongitude());
+                                                        }
+
+                                                    }
+                                                    if (task.getResult().isEmpty()) Log.d("Route", "NO hay rutas cerca");
+                                                }
+
+                                                // Therefore it loads the listLayout as soon as the Meetings and Walks are loaded
+                                                loadListLayout(position);
+                                            }
+                                        }
+                                    });
+                            }
+                        });
+                }
+            });
     }
 
     public boolean checkConditions(GeoPoint point, LatLngBounds bounds, Date date) {
+
         Calendar calendar = Calendar.getInstance();
         Date now1 = calendar.getTime();
 
         calendar.add(Calendar.DATE, 7);
         Date weekFromToday1 = calendar.getTime();
 
+//        Log.d(TAG, "searchNearPlaces: outttt");
+//        boolean temp = point.getLongitude() <= bounds.northeast.longitude;
+//        Log.d(TAG, "searchNearPlaces checkConditions: " + temp);
+//        temp = point.getLongitude() >= bounds.southwest.longitude;
+//        Log.d(TAG, "searchNearPlaces checkConditions: " + temp);
+//        temp = date == null || (now1.compareTo(date) <= 0 && date.compareTo(weekFromToday1) <= 0);
+//        Log.d(TAG, "searchNearPlaces checkConditions: " + temp);
+//        temp = now1.compareTo(date) <= 0 && date.compareTo(weekFromToday1) <= 0;
+//        Log.d(TAG, "searchNearPlaces checkConditions: " + temp);
+//        temp = date.compareTo(weekFromToday1) <= 0;
+//        Log.d(TAG, "searchNearPlaces checkConditions: " + temp);
+
+
         if (point.getLongitude() <= bounds.northeast.longitude &&
                 point.getLongitude() >= bounds.southwest.longitude &&
-                (date == null || (now1.compareTo(date) <= 0 && date.compareTo(weekFromToday1) <= 0))) return true;
-
+                (date == null || (now1.compareTo(date) <= 0 && date.compareTo(weekFromToday1) <= 0))) {
+                    return true;
+                }
         return false;
     }
 
     public boolean hasWalk(String routeId) {
         for (Map<String, Object> walk : walks) {
-            if (walk.get("walkForRoute").toString().equals(routeId)) return true;
+            if (walk.get("route").toString().equals(routeId)) return true;
         }
         return false;
     }
 
     @Override
     public void onCameraMoveStarted(int reason) {
-        View b = findViewById(R.id.nearPlaces);
-        b.setVisibility(View.VISIBLE);
+        buttonNearPlaces.setVisibility(View.VISIBLE);
     }
 
     public void addMarker(GeoPoint point, Bitmap bmp, String markerType) {
@@ -787,11 +965,11 @@ public class MapActivity extends AppCompatActivity
         if (position == 0) {
             if (meetings.size() != 0){
 
-                for(final Map<String, Object> mapTmp : meetings) {
-
+                for (final Map<String, Object> mapTmp : meetings) {
                     LinearLayout linearLayoutList = new LinearLayout(context);
 
                     String nameList = (String) mapTmp.get("name");
+
 
                     TextView textViewNameList = new TextView(context);
                     textViewNameList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -811,14 +989,14 @@ public class MapActivity extends AppCompatActivity
                         intent.putExtra("location", location);
                         startActivity(intent);
                         */
-                        String id = (String) mapTmp.get("id");
-                        Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
-                        intent.putExtra("id", id);
-                        startActivity(intent);
+                            String id = (String) mapTmp.get("id");
+                            Intent intent = new Intent(MapActivity.this, ViewMeetingActivity.class);
+                            intent.putExtra("id", id);
+                            startActivity(intent);
                         }
 
                     });
-                    
+
                     linearLayoutList.addView(textViewNameList);
 
                     Timestamp timeList = (Timestamp) mapTmp.get("start");
@@ -845,7 +1023,6 @@ public class MapActivity extends AppCompatActivity
                     textViewDescreList.setPadding(40, 20, 40, 20);
 
                     linearLayoutSheet.addView(textViewDescreList);
-
                 }
             } else {
                 TextView textViewAvis = new TextView(context);
@@ -887,13 +1064,7 @@ public class MapActivity extends AppCompatActivity
 
                             String id = (String) mapTmp.get("id");
                             Intent intent = new Intent(MapActivity.this, ViewWalkActivity.class);
-                            /*
-                            if (id == null)
-                                Toast.makeText(MapActivity.this, "id falla", Toast.LENGTH_SHORT).show();
-                            else Toast.makeText(MapActivity.this, "ID: " +id, Toast.LENGTH_SHORT).show();
-                            */
-
-                            intent.putExtra("id", id);
+                            intent.putExtra("idWalk", id);
                             startActivity(intent);
                         }
 
@@ -901,7 +1072,7 @@ public class MapActivity extends AppCompatActivity
 
                     linearLayoutList.addView(textViewNameList);
 
-                    Timestamp timeList = (Timestamp) mapTmp.get("date");
+                    Timestamp timeList = (Timestamp) mapTmp.get("start");
                     Date timeDateList = timeList.toDate();
                     Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     String timeStringList = formatter.format(timeDateList);
@@ -913,8 +1084,6 @@ public class MapActivity extends AppCompatActivity
                     textViewTime.setPadding(40, 5, 40, 20);
 
                     linearLayoutList.addView(textViewTime);
-
-                    linearLayoutSheet.addView(linearLayoutList);
 
                     linearLayoutSheet.addView(linearLayoutList);
 
@@ -941,6 +1110,7 @@ public class MapActivity extends AppCompatActivity
                 textViewSolucio.setText("Actualiza el mapa");
                 textViewSolucio.setTextColor(Color.BLACK);
                 textViewSolucio.setTextSize(1, 18);
+                textViewSolucio.setGravity(Gravity.CENTER_HORIZONTAL);
                 textViewSolucio.setPadding(40, 20, 40, 40);
                 linearLayoutSheet.addView(textViewSolucio);
             }
@@ -952,6 +1122,7 @@ public class MapActivity extends AppCompatActivity
     public void searchFriends() {
 
         String textTmp = text.getText().toString();
+        Log.d("Testing", "Pas 1 + " + textTmp);
         if (textTmp != null) {
             int size = textTmp.length();
             char c = textTmp.charAt(size - 1);//returns h
@@ -963,35 +1134,32 @@ public class MapActivity extends AppCompatActivity
             linearLayoutSheet.removeAllViews();
             bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
 
-            final CollectionReference meetingsRef = db.collection("meetings");
-            meetingLocations = meetingsRef.whereGreaterThanOrEqualTo("name", textTmp).whereLessThanOrEqualTo("name", newName);
+            Log.d("Testing", "Upper: " + textTmp + " Lower: " + newName);
 
-            CollectionReference walksRef = db.collection("meetings");
-            walkLocations = walksRef.whereLessThanOrEqualTo("name", textTmp).whereLessThanOrEqualTo("name", newName);
+            //if (meetingLocBool) {
+                Log.d("Testing", "Pas 3");
+                final CollectionReference meetingsRef = db.collection("meetings");
+                meetingLocations = meetingsRef.whereGreaterThanOrEqualTo("name", textTmp).whereLessThanOrEqualTo("name", newName);
+                if (meetingLocations == null) Log.d("Testing", "Error Meet");
+            //}
+
+            //if (walkLocBool) {
+                Log.d("Testing", "Pas 4");
+                CollectionReference walksRef = db.collection("walks");
+                walkLocations = walksRef.whereGreaterThanOrEqualTo("name", textTmp).whereLessThanOrEqualTo("name", newName);
+            if (walkLocations == null) Log.d("Testing", "Error Walk");
+            //}
+
+           // if (routeLocBool) {
+                Log.d("Testing", "Pas 5");
+                CollectionReference routesRef = db.collection("routes");
+                routeLocations = routesRef.whereGreaterThanOrEqualTo("name", textTmp).whereLessThanOrEqualTo("name", newName);
+            if (routeLocations == null) Log.d("Testing", "Error Route");
+           // }
 
             loadMaps();
-
-            /*
-            //Query meetingLocations = meetingsRef.whereLessThanOrEqualTo("name", textTmp + "ZZZZZZZZZZZZZZZZZZZZZZZZ");
-            meetingLocations.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()) {
-                        Map<String, Object> map;
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            String name = (String) document.get("name");
-                            TextView textViewDescreList = new TextView(context);
-                            textViewDescreList.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                            textViewDescreList.setText("Text: " + name);
-                            textViewDescreList.setPadding(40, 20, 40, 20);
-
-                            linearLayoutSheet.addView(textViewDescreList);
-                        }
-                    }
-                }
-            });
-            */
         }
     }
+
 }
 

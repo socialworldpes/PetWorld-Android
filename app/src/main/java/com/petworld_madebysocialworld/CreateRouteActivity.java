@@ -39,6 +39,7 @@ import java.util.List;
 
 public class CreateRouteActivity extends AppCompatActivity {
 
+    //Firebase
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
@@ -159,7 +160,6 @@ public class CreateRouteActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageData) {
         super.onActivityResult(requestCode, resultCode, imageData);
-        Log.d("onActivityresult", "in ");
         switch (requestCode) {
             case Define.ALBUM_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
@@ -189,6 +189,11 @@ public class CreateRouteActivity extends AppCompatActivity {
         route.put("placeName", locationNameInput.getText().toString());
         route.put("images", Arrays.asList());
 
+        //valoracion save userId
+        HashMap<String, Long> puntuation =  new HashMap<>();
+        puntuation.put(userID, new Long(0));
+        route.put("puntuation", puntuation);
+
         List<GeoPoint> geoPointList = parsePath(path);
         route.put("path", geoPointList);
         route.put("placeLocation", geoPointList.get(0));
@@ -212,17 +217,12 @@ public class CreateRouteActivity extends AppCompatActivity {
             @Override
             public void onSuccess(final DocumentReference documentReference) {
 
-                //ojo, ahora hay que guardar las fotos en su sitio y ponerlas en firebase RECOGER LINK y añadir a lugar correspondiente
                 final DocumentReference docRAux = documentReference;
                 // do something with result.
-                Log.d("PRUEBA004", "Antes de entrar en el for");
                 for (int i = 0; i < uriImages.size(); i++) {
-                    Log.d("PRUEBA005", "Después de entrar en el for");
                     final int j = i;
                     final StorageReference imagesRef = FirebaseStorage.getInstance().getReference().child("routes/" + documentReference.getId() + "_" + i);
                     Uri file = uriImages.get(i);
-                    Log.d("PRUEBA006", "Cojo la urii");
-
                     UploadTask uploadTask = imagesRef.putFile(file);
                     Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                         @Override
@@ -237,10 +237,7 @@ public class CreateRouteActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<Uri> task) {
                             if (task.isSuccessful()) {
-                                Log.d("PRUEBA002", "He entrado");
-                                Log.d("PRUEBA007", "routes/" + documentReference.getId() + "_" + j);
                                 urlImages.add(task.getResult().toString());
-                                Log.d("Tamaño url", String.valueOf(urlImages.size()));
                                 docRAux.update("images", urlImages);
                             } else {
                                 // Handle failures
@@ -281,7 +278,6 @@ public class CreateRouteActivity extends AppCompatActivity {
                                 public void onFailure(@NonNull Exception e) { Log.w("route", "Error writing document", e); }
                             });
                 } else {
-                    Log.w("task ko", "Error getting documents.", task.getException());
                 }
                 //Toast.makeText(getApplicationContext(), "Ruta creada", Toast.LENGTH_LONG).show();
                 startMap();
@@ -298,8 +294,6 @@ public class CreateRouteActivity extends AppCompatActivity {
 
     private void setUpMap() {
 
-        //Toast.makeText(this, "Mapa listo", Toast.LENGTH_SHORT).show();
-
         ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapCreateRoute)).getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(final GoogleMap googleMap) {
@@ -315,7 +309,6 @@ public class CreateRouteActivity extends AppCompatActivity {
                 //add placeLocation mark
                 addMark(path.get(0), map);
 
-                //TODO: improve custom layout
                 //set adapter for custom window info
                 googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
 
@@ -375,11 +368,8 @@ public class CreateRouteActivity extends AppCompatActivity {
                     @Override
                     public void onMarkerDragStart(Marker marker) {
                         for (Marker myMarker: myMarkers) {
-                            Log.d("For myMarkers", " ");
                             if(marker.equals(myMarker)) {
-                                Log.d("For myMarkers", "equals ");
                                 //remove point
-                                //¿¿**NO ENCUENTRA UN PUNTO IGUAL EN EL PATH***??
                                 removePoint(myMarker.getPosition());
                                 //remove mark
                                 myMarkers.remove(myMarker);
@@ -451,17 +441,13 @@ public class CreateRouteActivity extends AppCompatActivity {
     private int findPointIndex(LatLng position) {
         int i = -1;
         for (LatLng point: path) {
-            Log.d("indexLastRemoved: FOR", "" + i);
 
             i++;
-            //no encuentra un punto igual cuando arrastramos
             if (point.equals(position) || (point.latitude == position.latitude && point.longitude == position .longitude)) {
-                Log.d("indexLastRemoved: BREAK", "" + i);
                 break;
             }
         }
 
-        Log.d("indexLastRemoved: end", "" + i);
         return i;
 
     }
@@ -482,7 +468,6 @@ public class CreateRouteActivity extends AppCompatActivity {
         if (p1 == null || p2 == null) return false;
         // TODO: instead of 100 use a dp distance depending on the zoom level
         return false;
-        //return dist(p1, p2) <= 100;
     }
 
     private LatLng findNearestPoint( LatLng p){
